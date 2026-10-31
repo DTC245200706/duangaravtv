@@ -191,6 +191,24 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+from fastapi.exceptions import RequestValidationError
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    errors = exc.errors()
+    messages = []
+    for err in errors:
+        loc = ".".join(str(l) for l in err.get("loc", []) if l != "body")
+        msg = err.get("msg", "Dữ liệu không hợp lệ")
+        messages.append(f"{loc}: {msg}" if loc else msg)
+    friendly_msg = "; ".join(messages) or "Dữ liệu không hợp lệ (422)"
+    print(f"[422 Validation Error] {request.method} {request.url.path}: {friendly_msg}")
+    return JSONResponse(
+        status_code=422,
+        content={"detail": friendly_msg, "errors": errors},
+        headers={"Access-Control-Allow-Credentials": "true"}
+    )
+
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     import traceback

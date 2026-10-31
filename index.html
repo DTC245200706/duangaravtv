@@ -1824,8 +1824,8 @@
               <input type="text" id="bf_model" class="form-control" placeholder="VD: Mazda CX-5, VinFast VF8">
             </div>
             <div class="form-group">
-              <label class="form-label" for="bf_plate">Biển Số Xe</label>
-              <input type="text" id="bf_plate" class="form-control" placeholder="VD: 30G-123.45">
+              <label class="form-label" for="bf_plate">Biển Số Xe (*)</label>
+              <input type="text" id="bf_plate" class="form-control" required minlength="3" placeholder="VD: 30G-123.45">
             </div>
           </div>
 
@@ -2372,17 +2372,44 @@
       e.preventDefault();
       const btn = document.getElementById('btnSubmitBooking');
       const originalText = btn.innerHTML;
+
+      const name = (document.getElementById('bf_name')?.value || '').trim();
+      const phone = (document.getElementById('bf_phone')?.value || '').trim();
+      const model = (document.getElementById('bf_model')?.value || '').trim();
+      const plate = (document.getElementById('bf_plate')?.value || '').trim().toUpperCase();
+      const service = document.getElementById('bf_service')?.value || 'Bảo dưỡng định kỳ';
+      const desc = (document.getElementById('bf_desc')?.value || '').trim();
+
+      if (!name || name.length < 2) {
+        showToast('error', 'Vui lòng nhập Họ và Tên (tối thiểu 2 ký tự)!');
+        document.getElementById('bf_name')?.focus();
+        return;
+      }
+
+      const cleanPhone = phone.replace(/[\s\-\.]/g, '');
+      if (!/^(0|\+84)[0-9]{9,10}$/.test(cleanPhone)) {
+        showToast('error', 'Số điện thoại không hợp lệ (phải từ 10-11 chữ số, ví dụ 0912345678)!');
+        document.getElementById('bf_phone')?.focus();
+        return;
+      }
+
+      if (!plate || plate.length < 3) {
+        showToast('error', 'Vui lòng nhập Biển số xe hợp lệ (ví dụ: 30G-123.45)!');
+        document.getElementById('bf_plate')?.focus();
+        return;
+      }
+
       btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang Gửi Yêu Cầu...';
       btn.disabled = true;
 
       const payload = {
-        fullName: document.getElementById('bf_name').value.trim(),
-        phone: document.getElementById('bf_phone').value.trim(),
+        fullName: name,
+        phone: cleanPhone,
         vehicleBrand: "Không xác định",
-        vehicleModel: document.getElementById('bf_model').value.trim(),
-        licensePlate: document.getElementById('bf_plate').value.trim(),
-        serviceType: document.getElementById('bf_service').value,
-        description: document.getElementById('bf_desc').value.trim()
+        vehicleModel: model || "Chưa rõ",
+        licensePlate: plate,
+        serviceType: service,
+        description: desc
       };
 
       const isLocal = window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost";
@@ -2400,7 +2427,15 @@
         clearTimeout(timeoutId);
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
-          throw new Error(errorData.detail || `Máy chủ trả về lỗi ${response.status}.`);
+          let errMsg = `Máy chủ trả về mã lỗi ${response.status}.`;
+          if (typeof errorData.detail === 'string') {
+            errMsg = errorData.detail;
+          } else if (Array.isArray(errorData.detail)) {
+            errMsg = errorData.detail.map(d => `${d.loc ? d.loc.filter(x => x !== 'body').join('.') + ': ' : ''}${d.msg}`).join(', ');
+          } else if (Array.isArray(errorData.errors)) {
+            errMsg = errorData.errors.map(d => `${d.loc ? d.loc.filter(x => x !== 'body').join('.') + ': ' : ''}${d.msg}`).join(', ');
+          }
+          throw new Error(errMsg);
         }
         const bookedData = await response.json();
         const finalCode = bookedData.requestCode || bookedData.request_code || bookedData.code;
@@ -2445,7 +2480,15 @@
         clearTimeout(timeoutId);
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
-          throw new Error(errorData.detail || `Máy chủ trả về lỗi ${response.status}.`);
+          let errMsg = `Máy chủ trả về mã lỗi ${response.status}.`;
+          if (typeof errorData.detail === 'string') {
+            errMsg = errorData.detail;
+          } else if (Array.isArray(errorData.detail)) {
+            errMsg = errorData.detail.map(d => `${d.loc ? d.loc.filter(x => x !== 'body').join('.') + ': ' : ''}${d.msg}`).join(', ');
+          } else if (Array.isArray(errorData.errors)) {
+            errMsg = errorData.errors.map(d => `${d.loc ? d.loc.filter(x => x !== 'body').join('.') + ': ' : ''}${d.msg}`).join(', ');
+          }
+          throw new Error(errMsg);
         }
         const req = await response.json();
 

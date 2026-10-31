@@ -12,9 +12,9 @@ class CustomerRequestCreate(BaseModel):
     email: Optional[EmailStr] = Field(default=None, max_length=100)
     address: Optional[str] = Field(default=None, max_length=255)
     
-    licensePlate: str = Field(..., min_length=3, max_length=20, description="Biển số xe")
-    vehicleBrand: str = Field(..., min_length=1, max_length=50, description="Hãng xe")
-    vehicleModel: str = Field(..., min_length=1, max_length=50, description="Model xe")
+    licensePlate: str = Field(default="CHƯA-RÕ", min_length=1, max_length=20, description="Biển số xe")
+    vehicleBrand: str = Field(default="Không xác định", min_length=1, max_length=50, description="Hãng xe")
+    vehicleModel: str = Field(default="Chưa rõ", min_length=1, max_length=50, description="Model xe")
     manufactureYear: Optional[int] = Field(default=2022, description="Năm sản xuất")
     currentMileage: Optional[int] = Field(default=0, description="Số km hiện tại")
     
@@ -66,12 +66,26 @@ class CustomerRequestCreate(BaseModel):
             raise ValueError('Số điện thoại không hợp lệ (phải từ 10-11 chữ số)')
         return cleaned
 
-    @field_validator('licensePlate')
+    @field_validator('vehicleBrand', mode='before')
     @classmethod
-    def validate_license_plate(cls, v: str) -> str:
+    def default_brand(cls, v: Optional[str]) -> str:
+        cleaned = (v or '').strip()
+        return cleaned if cleaned else 'Không xác định'
+
+    @field_validator('vehicleModel', mode='before')
+    @classmethod
+    def default_model(cls, v: Optional[str]) -> str:
+        cleaned = (v or '').strip()
+        return cleaned if cleaned else 'Chưa rõ'
+
+    @field_validator('licensePlate', mode='before')
+    @classmethod
+    def validate_license_plate(cls, v: Optional[str]) -> str:
         cleaned = (v or '').strip().upper()
-        if len(cleaned) < 4:
-            raise ValueError('Biển số xe phải từ 4 ký tự trở lên')
+        if not cleaned:
+            return "CHƯA-RÕ"
+        if len(cleaned) < 3:
+            raise ValueError('Biển số xe phải từ 3 ký tự trở lên (ví dụ: 30G-123.45)')
         return cleaned
 
     @field_validator('fullName', 'serviceType', 'vehicleBrand', 'vehicleModel', 'description', 'note', 'address')

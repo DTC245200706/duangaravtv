@@ -294,7 +294,15 @@ async function apiFetch(endpoint, options = {}) {
         isBackendAvailable = false;
       }
       const errData = await res.json().catch(() => ({ detail: `Lỗi kết nối máy chủ (${res.status})` }));
-      const requestError = new Error(errData.detail || "Thao tác thất bại");
+      let detailMsg = "Thao tác thất bại";
+      if (typeof errData.detail === "string") {
+        detailMsg = errData.detail;
+      } else if (Array.isArray(errData.detail)) {
+        detailMsg = errData.detail.map(d => `${d.loc ? d.loc.filter(x => x !== 'body').join('.') + ': ' : ''}${d.msg}`).join("; ");
+      } else if (Array.isArray(errData.errors)) {
+        detailMsg = errData.errors.map(d => `${d.loc ? d.loc.filter(x => x !== 'body').join('.') + ': ' : ''}${d.msg}`).join("; ");
+      }
+      const requestError = new Error(detailMsg);
       requestError.status = res.status;
       throw requestError;
     }
@@ -2196,11 +2204,21 @@ async function submitChatbotBooking(cardId) {
   const desc = (card.querySelector('.cbk-desc')?.value || '').trim();
 
   if (!name || !phone || !plate) {
-    if (typeof showToast === 'function') {
-      showToast('error', 'Vui lòng nhập đầy đủ Họ tên, Số điện thoại và Biển số xe!');
-    } else {
-      alert('Vui lòng nhập đầy đủ Họ tên, Số điện thoại và Biển số xe!');
-    }
+    const msg = 'Vui lòng nhập đầy đủ Họ tên, Số điện thoại và Biển số xe!';
+    if (typeof showToast === 'function') showToast('error', msg); else alert(msg);
+    return;
+  }
+
+  const cleanPhone = phone.replace(/[\s\-\.]/g, '');
+  if (!/^(0|\+84)[0-9]{9,10}$/.test(cleanPhone)) {
+    const msg = 'Số điện thoại không hợp lệ (phải từ 10-11 chữ số, ví dụ 0912345678)!';
+    if (typeof showToast === 'function') showToast('error', msg); else alert(msg);
+    return;
+  }
+
+  if (plate.length < 3) {
+    const msg = 'Biển số xe phải từ 3 ký tự trở lên (ví dụ: 30G-123.45)!';
+    if (typeof showToast === 'function') showToast('error', msg); else alert(msg);
     return;
   }
 
