@@ -55,3 +55,4 @@ def test_admin_ai_testcases_routing():
         assert "CRM" in res_crm["output"] or "QUẢN TRỊ QUAN HỆ KHÁCH HÀNG" in res_crm["output"]
     finally:
         db.close()
+

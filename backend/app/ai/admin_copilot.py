@@ -33,7 +33,71 @@ PHONG CÁCH TRẢ LỜI:
 
 def extract_live_garage_context(db: Session, question: str, domain: Optional[str] = None) -> Dict[str, Any]:
     """Trích xuất dữ liệu vận hành thời gian thực từ Database SQLite/Postgres."""
+    import re
     q_lower = (question or "").lower()
+    
+    # Trích xuất biển số xe nếu có trong câu hỏi (VD: 30A-999.99, 51A-001.17, 29A 12345)
+    plate_match = re.search(r'(\d{2}[A-Za-zĐđ][-\s]?\d{3,5}(?:\.\d{2})?)', question or '', re.IGNORECASE)
+    searched_plate = plate_match.group(1).strip().upper() if plate_match else None
+    
+    target_vehicle_data = None
+    if searched_plate:
+        # Chuẩn hóa tìm kiếm biển số (bỏ dấu chấm, dấu gạch để tìm gần đúng)
+        clean_p = re.sub(r'[^A-Z0-9]', '', searched_plate)
+        found_veh = None
+        all_vehs = db.query(Vehicle).all()
+        for v in all_vehs:
+            v_clean = re.sub(r'[^A-Z0-9]', '', (v.license_plate or '').upper())
+            if clean_p in v_clean or v_clean in clean_p:
+                found_veh = v
+                break
+        
+        if found_veh:
+            # Lấy lệnh sửa chữa đang chạy hoặc gần nhất của xe này
+            active_statuses = {
+                RepairOrderStatus.RECEIVED,
+                RepairOrderStatus.INSPECTING,
+                RepairOrderStatus.QUOTATION_PENDING,
+                RepairOrderStatus.WAITING_CUSTOMER_APPROVAL,
+                RepairOrderStatus.APPROVED,
+                RepairOrderStatus.IN_REPAIR,
+                RepairOrderStatus.WAITING_PARTS
+            }
+            latest_ro = db.query(RepairOrder).filter(
+                RepairOrder.vehicle_id == found_veh.id,
+                RepairOrder.status.in_(active_statuses)
+            ).order_by(RepairOrder.created_at.desc()).first()
+
+            has_running_order = True
+            if not latest_ro:
+                has_running_order = False
+                latest_ro = db.query(RepairOrder).filter(
+                    RepairOrder.vehicle_id == found_veh.id
+                ).order_by(RepairOrder.created_at.desc()).first()
+
+            tech = db.query(User).filter(User.id == latest_ro.technician_id).first() if (latest_ro and latest_ro.technician_id) else None
+            cust = db.query(Customer).filter(Customer.id == found_veh.customer_id).first()
+            target_vehicle_data = {
+                "found": True,
+                "searched_plate": searched_plate,
+                "plate": found_veh.license_plate,
+                "brand_model": f"{found_veh.brand} {found_veh.model}",
+                "year": found_veh.year or 2021,
+                "owner_name": cust.full_name if cust else "Chủ xe",
+                "owner_phone": cust.phone if cust else "N/A",
+                "has_active_order": has_running_order,
+                "ro_code": latest_ro.code if latest_ro else None,
+                "status": latest_ro.status.value if (latest_ro and hasattr(latest_ro.status, "value")) else (str(latest_ro.status) if latest_ro else "Không có lệnh đang chạy"),
+                "symptoms": latest_ro.initial_symptoms if latest_ro else "Bảo dưỡng định kỳ",
+                "diagnosis": latest_ro.technical_diagnosis if latest_ro else "Đã kiểm tra kỹ thuật",
+                "cost": (latest_ro.final_cost or latest_ro.estimated_cost or 0) if latest_ro else 0,
+                "technician": tech.full_name if tech else "Chưa phân công"
+            }
+        else:
+            target_vehicle_data = {
+                "found": False,
+                "searched_plate": searched_plate
+            }
     
     # 1. Tiếp nhận & Xe đang sửa
     active_ros = db.query(RepairOrder).filter(
@@ -154,6 +218,7 @@ def extract_live_garage_context(db: Session, question: str, domain: Optional[str
 
     return {
         "crm": crm_summary,
+        "target_vehicle": target_vehicle_data,
         "active_repair_orders": ros_data,
         "parts": parts_summary,
         "customer_requests": [
@@ -242,8 +307,104 @@ def format_admin_context_string(context: Dict[str, Any], domain: Optional[str] =
     return "\n".join(lines)
 
 def run_admin_copilot_deterministic_fallback(question: str, context: Dict[str, Any], domain: Optional[str] = None) -> str:
-    """Engine phân tích nội bộ chuyên sâu khi không có mạng ngoại vi hoặc chạy offline."""
+    """Engine AI phân tích thông minh, linh hoạt, trả lời tự do theo đúng trọng tâm câu hỏi từ dữ liệu Database thực tế."""
+    import re
     q_lower = (question or "").lower()
+
+    status_map = {
+        "RECEIVED": "📥 Mới tiếp nhận (Chờ đưa vào khoang kiểm tra)",
+        "INSPECTING": "🔍 Đang kiểm tra & Chẩn đoán lỗi kỹ thuật",
+        "QUOTATION_PENDING": "📋 Đang lập bảng dự toán chi phí sửa chữa",
+        "WAITING_CUSTOMER_APPROVAL": "⏳ Đã chẩn đoán xong — Đang chờ khách duyệt báo giá",
+        "APPROVED": "✅ Khách đã duyệt báo giá — Chuẩn bị thi công",
+        "IN_REPAIR": "⚙️ ĐANG THI CÔNG SỬA CHỮA trên khoang cầu nâng",
+        "WAITING_PARTS": "📦 Đang chờ điều phối phụ tùng từ kho",
+        "COMPLETED": "🏁 ĐÃ HOÀN THÀNH SỬA CHỮA — Đang rửa xe & KCS chờ giao",
+        "DELIVERED": "🚗 Đã thanh toán & Bàn giao xe cho khách hàng",
+        "CANCELLED": "❌ Lệnh sửa chữa đã bị hủy"
+    }
+
+    # ------------------------------------------------------------
+    # 1. TRẢ LỜI TỰ DO CHO CÂU HỎI VỀ MỘT XE CỤ THỂ / BIỂN SỐ XE
+    # ------------------------------------------------------------
+    target_veh = context.get("target_vehicle")
+    if target_veh:
+        searched_plate = target_veh.get("searched_plate", "")
+        active_ros = context.get("active_repair_orders", [])
+        active_list_str = "\n".join([
+            f"  • Xe **{r['plate']}** ({r['vehicle']}): Công đoạn **{status_map.get(str(r['status']).upper(), r['status'])}** — Triệu chứng: *{r['symptoms']}*"
+            for r in active_ros[:4]
+        ]) or "  • Hiện tại không có xe nào đang mở lệnh sửa chữa."
+
+        if target_veh.get("found") and target_veh.get("has_active_order") and target_veh.get("ro_code"):
+            # Xe có trong hệ thống VÀ đang có lệnh sửa chữa mở
+            raw_status = str(target_veh.get("status", "")).upper()
+            status_desc = status_map.get(raw_status, f"⚙️ {target_veh.get('status', 'Đang xử lý')}")
+            cost_str = f"{target_veh.get('cost', 0):,.0f} VNĐ" if target_veh.get('cost') else "Đang cập nhật"
+
+            return f"""🚗 **BÁO CÁO TIẾN ĐỘ XE BIỂN SỐ {target_veh.get('plate')}**
+
+Chào bạn! Dưới đây là thông tin chi tiết về tiến độ sửa chữa xe **{target_veh.get('plate')}**:
+
+• **Phương tiện:** **{target_veh.get('brand_model')}** ({target_veh.get('year')}) — Chủ xe: **{target_veh.get('owner_name')}** ({target_veh.get('owner_phone')})
+• **Mã lệnh sửa chữa:** `{target_veh.get('ro_code')}`
+• **Công đoạn hiện tại:** **{status_desc}**
+• **Kỹ thuật viên phụ trách:** KTV **{target_veh.get('technician')}**
+• **Triệu chứng tiếp nhận:** {target_veh.get('symptoms')}
+• **Chẩn đoán kỹ thuật:** {target_veh.get('diagnosis')}
+• **Chi phí dự toán/thực tế:** **{cost_str}**
+
+💡 **Khuyến nghị tác nghiệp:**
+- Cố vấn Dịch vụ cập nhật tiến độ cho khách qua Zalo OA khi xe chuyển sang công đoạn hoàn thiện.
+- KTV kiểm tra kỹ thuật lần cuối (KCS) trước khi bàn giao xe sang khu vực rửa xe."""
+        elif target_veh.get("found"):
+            # Xe có trong hồ sơ gara nhưng hiện chưa có lệnh sửa chữa đang mở
+            return f"""🚗 **KẾT QUẢ TRA CỨU XE BIỂN SỐ {searched_plate}**
+
+Chào bạn! Hệ thống VTV AutoPilot đã tìm thấy hồ sơ xe **{searched_plate}** trong cơ sở dữ liệu:
+
+• **Phương tiện:** **{target_veh.get('brand_model')}** ({target_veh.get('year')}) — Chủ xe: **{target_veh.get('owner_name')}** ({target_veh.get('owner_phone')})
+• **Hiện trạng công đoạn:** Xe hiện **chưa có Lệnh Sửa Chữa (RO) đang chạy** trong xưởng hôm nay.
+• **Lịch sử sửa chữa gần nhất:** `{target_veh.get('symptoms') or 'Bảo dưỡng định kỳ'}`
+
+📋 **Danh sách các xe đang trong công đoạn sửa chữa thực tế tại xưởng:**
+{active_list_str}
+
+💡 **Hướng dẫn tác nghiệp:**
+Nếu xe **{searched_plate}** vừa vào xưởng, Lễ tân/Cố vấn Dịch vụ hãy tạo **Phiếu Tiếp Nhận (RO)** mới để phân công thợ và đưa xe vào khoang cầu nâng kiểm tra!"""
+        else:
+            # Xe chưa có trong danh sách tiếp nhận hôm nay
+            return f"""🚗 **KẾT QUẢ TRA CỨU XE BIỂN SỐ {searched_plate}**
+
+Chào bạn! Hệ thống VTV AutoPilot đã rà soát toàn bộ cơ sở dữ liệu xưởng thời gian thực:
+
+• **Biển số xe tra cứu:** **{searched_plate}**
+• **Hiện trạng:** Xe này hiện **chưa có Lệnh Sửa Chữa (RO) đang chạy** trong xưởng tiếp nhận hôm nay (hoặc chưa từng đăng ký hồ sơ tại gara).
+
+📋 **Danh sách các xe đang trong công đoạn sửa chữa thực tế tại xưởng:**
+{active_list_str}
+
+💡 **Hướng dẫn tác nghiệp:**
+Nếu xe **{searched_plate}** vừa vào xưởng, bạn hãy vào phân hệ **"Tiếp Nhận Sửa Chữa"** trên thanh menu để tạo Phiếu Tiếp Nhận và phân công Kỹ thuật viên kiểm tra ngay nhé!"""
+
+    # ------------------------------------------------------------
+    # 2. CÂU HỎI VỀ CÔNG ĐOẠN / TIẾN ĐỘ SỬA CHỮA NÓI CHUNG
+    # ------------------------------------------------------------
+    if any(k in q_lower for k in ["công đoạn", "cong doan", "tiến độ", "tien do", "đang sửa", "dang sua", "mấy xe đang", "xe nào đang"]):
+        ros = context.get("active_repair_orders", [])
+        if not ros:
+            return """🚗 **BÁO CÁO CÔNG ĐOẠN SỬA CHỮA TOÀN XƯỞNG**
+
+Hiện tại xưởng tiếp nhận không có xe nào đang mở lệnh sửa chữa. Toàn bộ các khoang cầu nâng và kỹ thuật viên đang ở trạng thái sẵn sàng đón tiếp lượt xe mới!"""
+
+        lines = [f"### 🚗 BÁO CÁO CÔNG ĐOẠN & TIẾN ĐỘ SỬA CHỮA CÁC XE TẠI XƯỞNG\n\nHiện tại xưởng đang xử lý **{len(ros)} xe** trên các công đoạn:\n"]
+        for r in ros:
+            st = str(r['status']).upper()
+            st_text = status_map.get(st, r['status'])
+            lines.append(f"• Xe **{r['plate']}** ({r['vehicle']}): Mã `{r['code']}` | Công đoạn: **{st_text}** | Triệu chứng: *{r['symptoms']}* | Chi phí: **{r['cost']:,.0f} đ**")
+        
+        lines.append("\n💡 **Hành động đề xuất cho Quản Đốc:** Ưu tiên luân chuyển thợ đẩy nhanh các xe ở công đoạn IN_REPAIR để kịp giờ bàn giao cho khách.")
+        return "\n".join(lines)
     
     # 0. Định tuyến tổng hợp kịch bản kiểm thử Quản trị (Admin Test Scenarios)
     if any(k in q_lower for k in ["tổng hợp testcase", "danh sách testcase", "kịch bản kiểm thử", "danh sách kịch bản", "test case quản trị", "tc-adm"]):
