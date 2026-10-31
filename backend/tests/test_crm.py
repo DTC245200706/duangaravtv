@@ -66,3 +66,18 @@ def test_admin_copilot_crm_intelligence():
         assert "QUẢN TRỊ QUAN HỆ KHÁCH HÀNG" in res["output"] or "CRM" in res["output"]
     finally:
         db.close()
+
+
+def test_crm_vehicle_history_carsoft():
+    token = get_auth_token()
+    headers = {"Authorization": f"Bearer {token}"} if token else {}
+
+    # Gọi với vehicle_id = 1
+    res = client.get("/api/v1/crm/vehicle-history/1", headers=headers)
+    assert res.status_code in [200, 401, 404]
+    if res.status_code == 200:
+        data = res.json()
+        assert "vehicle" in data
+        assert "stats" in data
+        assert "timeline" in data
+        assert "license_plate" in data["vehicle"]

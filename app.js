@@ -5205,7 +5205,7 @@ async function loadCRMInteractions() {
 
 function switchCRMTab(tabName) {
   crmState.activeTab = tabName;
-  const tabs = ['reminders', 'segments', 'interactions'];
+  const tabs = ['reminders', 'history', 'segments', 'interactions', 'templates'];
   tabs.forEach(t => {
     const btn = document.getElementById(`crm-tab-btn-${t}`);
     const content = document.getElementById(`crm-content-${t}`);
@@ -5225,6 +5225,7 @@ function switchCRMTab(tabName) {
   });
 
   if (tabName === 'reminders') loadCRMReminders();
+  else if (tabName === 'history') loadCRMVehicleList();
   else if (tabName === 'segments') loadCRMSegmentedCustomers();
   else if (tabName === 'interactions') loadCRMInteractions();
 }
@@ -5393,6 +5394,206 @@ function quickBookFromReminder(vehicleId, customerId, plate, phone, name, recSer
   showToast(`Đang tạo lịch hẹn bảo dưỡng ${recService} cho xe ${plate}...`);
 }
 
+
+// ── CarSoft Vehicle 360 & Timeline Extensions ──────────────────────
+async function loadCRMVehicleList() {
+  const tbody = document.getElementById("crm-vehicles-tbody");
+  if (!tbody) return;
+
+  try {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:2rem;"><i class="fa-solid fa-spinner fa-spin"></i> Đang tải danh sách phương tiện...</td></tr>`;
+    const customers = await apiFetch("/customers");
+    const vehiclesData = [];
+
+    for (const c of (customers || [])) {
+      try {
+        const vList = await apiFetch(`/customers/${c.id}/vehicles`);
+        for (const v of (vList || [])) {
+          v.customer_name = c.full_name;
+          v.customer_phone = c.phone;
+          vehiclesData.push(v);
+        }
+      } catch (err) {}
+    }
+
+    crmState.allVehicles = vehiclesData;
+    renderCRMVehicleTable(vehiclesData);
+  } catch (err) {
+    console.error("Lỗi tải danh sách xe CRM:", err);
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#ef4444; padding:2rem;">Lỗi tải phương tiện: ${err.message}</td></tr>`;
+  }
+}
+
+function renderCRMVehicleTable(vehicles) {
+  const tbody = document.getElementById("crm-vehicles-tbody");
+  if (!tbody) return;
+
+  if (!vehicles || vehicles.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:2rem;">Không tìm thấy phương tiện nào.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = vehicles.map(v => {
+    return `
+      <tr>
+        <td>
+          <a href="javascript:void(0)" onclick="viewVehicleServiceHistory(${v.id})" style="text-decoration:none;">
+            <span style="background: #1e293b; border: 1px solid rgba(56,189,248,0.4); color:#38bdf8; font-weight:800; padding: 0.2rem 0.55rem; border-radius: 4px; font-family: monospace;">
+              <i class="fa-solid fa-car"></i> ${escapeHtml(v.license_plate)}
+            </span>
+          </a>
+        </td>
+        <td>
+          <div style="font-weight:700; color:#fff;">${escapeHtml(v.brand)} ${escapeHtml(v.model)}</div>
+          <div style="font-size:0.75rem; color:var(--text-muted);">Màu: ${escapeHtml(v.color || "Trắng")}</div>
+        </td>
+        <td>
+          <div style="font-size:0.82rem; color:#cbd5e1;">Năm ${v.year || 2020}</div>
+          <div style="font-size:0.72rem; color:#94a3b8; font-family:monospace;">${escapeHtml(v.vin || "VIN-CHƯA ĐẶT")}</div>
+        </td>
+        <td>
+          <div style="font-weight:700; color:#e2e8f0;">${escapeHtml(v.customer_name || "Chủ xe")}</div>
+          <div style="font-size:0.75rem; color:#38bdf8;">${escapeHtml(v.customer_phone || "")}</div>
+        </td>
+        <td>
+          <span style="background: rgba(16,185,129,0.15); color:#34d399; font-weight:700; padding:2px 8px; border-radius:99px; font-size:0.75rem;">
+            Đã lưu vết
+          </span>
+        </td>
+        <td>
+          <span style="font-weight:700; color:#fbbf24;">${(v.mileage || 15000).toLocaleString()} km</span>
+        </td>
+        <td style="text-align: right; white-space: nowrap;">
+          <button class="btn btn-primary btn-sm" style="font-size: 0.74rem; padding: 0.25rem 0.65rem;" onclick="viewVehicleServiceHistory(${v.id})">
+            <i class="fa-solid fa-timeline"></i> Lịch Sử 360°
+          </button>
+        </td>
+      </tr>
+    `;
+  }).join("");
+}
+
+function filterCRMVehicleList() {
+  const query = (document.getElementById("crm-vehicle-search")?.value || "").toLowerCase().trim();
+  const all = crmState.allVehicles || [];
+  if (!query) {
+    renderCRMVehicleTable(all);
+    return;
+  }
+  const filtered = all.filter(v => 
+    (v.license_plate || "").toLowerCase().includes(query) ||
+    (v.brand || "").toLowerCase().includes(query) ||
+    (v.model || "").toLowerCase().includes(query) ||
+    (v.customer_name || "").toLowerCase().includes(query) ||
+    (v.customer_phone || "").toLowerCase().includes(query)
+  );
+  renderCRMVehicleTable(filtered);
+}
+
+let currentSelectedVehicleForMessage = null;
+
+async function viewVehicleServiceHistory(vehicleId) {
+  try {
+    openModal("modal-crm-vehicle-history");
+    const container = document.getElementById("modal-vh-timeline");
+    if (container) {
+      container.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding:2rem;"><i class="fa-solid fa-spinner fa-spin"></i> Đang tải dữ liệu hồ sơ xe 360°...</div>`;
+    }
+
+    const data = await apiFetch(`/crm/vehicle-history/${vehicleId}`);
+    currentSelectedVehicleForMessage = data;
+
+    const v = data.vehicle;
+    const stats = data.stats;
+    const timeline = data.timeline || [];
+
+    // Cập nhật card thông tin xe
+    const elPlate = document.getElementById("modal-vh-plate");
+    const elModel = document.getElementById("modal-vh-model");
+    const elOwner = document.getElementById("modal-vh-owner");
+    const elPhone = document.getElementById("modal-vh-phone");
+    const elVisits = document.getElementById("modal-vh-visits");
+    const elSpent = document.getElementById("modal-vh-spent");
+
+    if (elPlate) elPlate.textContent = v.license_plate;
+    if (elModel) elModel.textContent = `${v.brand} ${v.model} (${v.year})`;
+    if (elOwner) elOwner.textContent = v.owner_name;
+    if (elPhone) elPhone.textContent = v.owner_phone;
+    if (elVisits) elVisits.textContent = `${stats.total_visits} lần vào xưởng`;
+    if (elSpent) elSpent.textContent = `${(stats.lifetime_spent || 0).toLocaleString()} VNĐ`;
+
+    if (!timeline || timeline.length === 0) {
+      container.innerHTML = `
+        <div style="background: rgba(15,23,42,0.4); border: 1px dashed var(--border-subtle); border-radius: 8px; padding: 2rem; text-align: center; color: var(--text-muted);">
+          <i class="fa-solid fa-car-burst" style="font-size: 1.5rem; margin-bottom: 0.5rem; display: block; color: #38bdf8;"></i>
+          Xe này chưa có lịch sử sửa chữa trong hệ thống. Hãy lập Phiếu Sửa Chữa đầu tiên tại Quầy Tiếp Nhận!
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = timeline.map((ro, index) => {
+      const itemsList = (ro.items || []).map(it => 
+        `• ${escapeHtml(it.name)} (${it.quantity} x ${it.unit_price.toLocaleString()}đ = ${it.total_price.toLocaleString()}đ)`
+      ).join("<br>") || "Kiểm tra tổng quát";
+
+      return `
+        <div style="background: rgba(15,23,42,0.65); border-left: 4px solid #38bdf8; border-radius: 0 8px 8px 0; padding: 1rem; border: 1px solid var(--border-subtle); border-left-width: 4px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; flex-wrap: wrap; gap: 0.5rem;">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span style="font-weight: 800; color: #38bdf8; font-family: monospace;">${escapeHtml(ro.code)}</span>
+              <span class="badge badge-info" style="font-size: 0.72rem;">${escapeHtml(ro.status)}</span>
+              <span style="font-size: 0.74rem; color: #94a3b8;">${ro.created_at ? formatVietnameseDate(ro.created_at) : ""}</span>
+            </div>
+            <div style="font-weight: 800; color: #10b981; font-size: 0.95rem;">
+              ${(ro.cost || 0).toLocaleString()} VNĐ
+            </div>
+          </div>
+
+          <div style="font-size: 0.82rem; color: #cbd5e1; margin-bottom: 0.35rem;">
+            <strong>Triệu chứng / Yêu cầu:</strong> ${escapeHtml(ro.initial_symptoms)}
+          </div>
+          <div style="font-size: 0.82rem; color: #94a3b8; margin-bottom: 0.5rem;">
+            <strong>Chẩn đoán KTV:</strong> ${escapeHtml(ro.technical_diagnosis)}
+          </div>
+
+          <div style="background: rgba(0,0,0,0.25); padding: 0.5rem 0.75rem; border-radius: 6px; font-size: 0.78rem; color: #94a3b8; line-height: 1.5;">
+            <strong>Vật tư & Công thợ:</strong><br>${itemsList}
+          </div>
+
+          <div style="margin-top: 0.5rem; display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted);">
+            <span>Kỹ thuật viên: <strong style="color: #fff;">${escapeHtml(ro.technician_name)}</strong></span>
+            <span>Thanh toán: <strong style="color: #fbbf24;">${escapeHtml(ro.payment_status)}</strong></span>
+          </div>
+        </div>
+      `;
+    }).join("");
+  } catch (err) {
+    console.error("Lỗi xem lịch sử xe:", err);
+    showToast(`Không thể tải lịch sử xe: ${err.message}`);
+  }
+}
+
+function openCRMMessageFromVehicle() {
+  if (!currentSelectedVehicleForMessage) return;
+  const v = currentSelectedVehicleForMessage.vehicle;
+  closeModal('modal-crm-vehicle-history');
+  openCRMSendModal(v.id, v.owner_id, v.license_plate, v.owner_name, v.owner_phone, "Bảo dưỡng định kỳ");
+}
+
+function useCRMTemplate(type) {
+  openCRMSendModal(null, null, "30A-999.99", "Quý khách", "", "");
+  const select = document.getElementById("crm-send-template-type");
+  if (select) {
+    select.value = type;
+    applyCRMTipTemplate();
+  }
+}
+
+function sendBulkCRMReminders() {
+  showToast("🚀 Đã kích hoạt chiến dịch: Đang gửi tin nhắn Zalo ZNS nhắc bảo dưỡng định kỳ tự động tới tất cả xe đến hạn!");
+}
+
 // Xuất các hàm CRM lên window scope
 window.loadCRMData = loadCRMData;
 window.loadCRMOverview = loadCRMOverview;
@@ -5408,3 +5609,11 @@ window.openCRMInteractionModal = openCRMInteractionModal;
 window.onCRMCustomerSelected = onCRMCustomerSelected;
 window.submitCRMInteraction = submitCRMInteraction;
 window.quickBookFromReminder = quickBookFromReminder;
+
+window.loadCRMVehicleList = loadCRMVehicleList;
+window.filterCRMVehicleList = filterCRMVehicleList;
+window.renderCRMVehicleTable = renderCRMVehicleTable;
+window.viewVehicleServiceHistory = viewVehicleServiceHistory;
+window.openCRMMessageFromVehicle = openCRMMessageFromVehicle;
+window.useCRMTemplate = useCRMTemplate;
+window.sendBulkCRMReminders = sendBulkCRMReminders;

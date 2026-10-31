@@ -399,3 +399,92 @@ def send_crm_message(
         "sent_at": datetime.now(timezone.utc).isoformat(),
     }
 
+
+
+@router.get("/vehicle-history/{vehicle_id}")
+def get_vehicle_service_history(
+    vehicle_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Trả về hồ sơ phương tiện 360 độ và toàn bộ dòng thời gian lịch sử sửa chữa của xe (Chuẩn CarSoft).
+    """
+    vehicle = db.query(Vehicle).filter(Vehicle.id == vehicle_id).first()
+    if not vehicle:
+        raise HTTPException(status_code=404, detail="Không tìm thấy phương tiện")
+
+    customer = db.query(Customer).filter(Customer.id == vehicle.customer_id).first()
+
+    # Lấy các phiếu sửa chữa của xe
+    repair_orders = (
+        db.query(RepairOrder)
+        .filter(RepairOrder.vehicle_id == vehicle.id)
+        .order_by(RepairOrder.created_at.desc())
+        .all()
+    )
+
+    history_items = []
+    lifetime_spent = 0.0
+
+    for ro in repair_orders:
+        cost = float(ro.final_cost or ro.estimated_cost or 0.0)
+        lifetime_spent += cost
+
+        # Tìm thợ phụ trách và hóa đơn
+        tech = db.query(User).filter(User.id == ro.technician_id).first() if ro.technician_id else None
+        inv = db.query(Invoice).filter(Invoice.repair_order_id == ro.id).first()
+
+        # Chi tiết hạng mục (nếu có)
+        items_detail = []
+        for item in (ro.items or []):
+            items_detail.append({
+                "type": item.item_type.value if hasattr(item.item_type, "value") else str(item.item_type),
+                "name": item.name,
+                "quantity": item.quantity,
+                "unit_price": float(item.unit_price or 0.0),
+                "total_price": float(item.total_price or 0.0)
+            })
+
+        history_items.append({
+            "repair_order_id": ro.id,
+            "code": ro.code or f"RO-{ro.id}",
+            "created_at": ro.created_at.isoformat() if ro.created_at else None,
+            "status": ro.status.value if hasattr(ro.status, "value") else str(ro.status),
+            "initial_symptoms": ro.initial_symptoms or "Bảo dưỡng định kỳ",
+            "technical_diagnosis": ro.technical_diagnosis or "Đã kiểm tra toàn diện",
+            "cost": cost,
+            "technician_name": tech.full_name if tech else "Chưa phân công",
+            "payment_status": inv.status.value if (inv and hasattr(inv.status, "value")) else (inv.status if inv else "Chưa xuất HĐ"),
+            "items": items_detail
+        })
+
+    last_ro = repair_orders[0] if repair_orders else None
+    now = get_now()
+    days_since_last = None
+    if last_ro and last_ro.created_at:
+        dt = last_ro.created_at.replace(tzinfo=timezone.utc if last_ro.created_at.tzinfo is None else None)
+        days_since_last = (now - dt).days
+
+    return {
+        "vehicle": {
+            "id": vehicle.id,
+            "license_plate": vehicle.license_plate,
+            "brand": vehicle.brand,
+            "model": vehicle.model,
+            "year": vehicle.year or 2020,
+            "color": getattr(vehicle, "color", "Trắng"),
+            "vin": getattr(vehicle, "vin", f"VIN-{vehicle.id:06d}"),
+            "current_mileage": getattr(vehicle, "mileage", 15000),
+            "owner_name": customer.full_name if customer else "Khách vãng lai",
+            "owner_phone": customer.phone if customer else "N/A",
+            "owner_id": customer.id if customer else None,
+        },
+        "stats": {
+            "total_visits": len(repair_orders),
+            "lifetime_spent": lifetime_spent,
+            "days_since_last_visit": days_since_last,
+            "next_maintenance_due": "Đến hạn bảo dưỡng" if (days_since_last and days_since_last >= 90) else "Bình thường",
+        },
+        "timeline": history_items
+    }
