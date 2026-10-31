@@ -62,6 +62,33 @@
   --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
 }
 
+/* ── View Transitions API Styling ───────────────────────────── */
+@keyframes vt-fade-out {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(-4px); }
+}
+
+@keyframes vt-fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+::view-transition-old(root) {
+  animation: 160ms cubic-bezier(0.4, 0, 1, 1) both vt-fade-out;
+}
+
+::view-transition-new(root) {
+  animation: 220ms cubic-bezier(0, 0, 0.2, 1) both vt-fade-in;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
 html,
 body {
   width: 100%;
@@ -158,7 +185,7 @@ body {
 }
 
 .brand-name {
-  font-family: Arial, sans-serif;
+  font-family: 'Huninn', sans-serif;
   font-size: 1.25rem;
   font-weight: 800;
   letter-spacing: -0.5px;
@@ -349,7 +376,7 @@ body {
   margin-bottom: 0.4rem;
 }
 .kpi-info .val {
-  font-family: Arial, sans-serif;
+  font-family: 'Huninn', sans-serif;
   font-size: 1.8rem;
   font-weight: 800;
   letter-spacing: -0.5px;
@@ -816,7 +843,7 @@ select.form-control option {
 }
 
 .hero-title {
-  font-family: Arial, sans-serif;
+  font-family: 'Huninn', sans-serif;
   font-size: clamp(2.2rem, 9vw, 4.5rem);
   font-weight: 800;
   color: #ffffff;
@@ -877,7 +904,7 @@ select.form-control option {
 }
 
 .hero-commit-card h3 {
-  font-family: Arial, sans-serif;
+  font-family: 'Huninn', sans-serif;
   font-size: 1.1rem;
   color: #ffffff;
   margin-bottom: 0.75rem;
@@ -918,7 +945,7 @@ select.form-control option {
   color: var(--text-muted);
   padding: 0.65rem 1.15rem;
   border-radius: var(--radius-md);
-  font-family: Arial, sans-serif;
+  font-family: 'Huninn', sans-serif;
   font-size: 0.88rem;
   font-weight: 600;
   cursor: pointer;
@@ -955,7 +982,7 @@ select.form-control option {
 }
 
 .ai-output-box h3, .ai-output-box h4 {
-  font-family: Arial, sans-serif;
+  font-family: 'Huninn', sans-serif;
   color: var(--accent-purple);
   margin: 0.8rem 0 0.4rem 0;
 }
@@ -1104,7 +1131,7 @@ select.form-control option {
   border-bottom: 1px solid var(--border-color);
 }
 .qr-bank-title {
-  font-family: Arial, sans-serif;
+  font-family: 'Huninn', sans-serif;
   font-weight: 800;
   font-size: 1.05rem;
   color: var(--accent-rose);
@@ -1208,7 +1235,7 @@ select.form-control option {
   border-color: transparent;
 }
 .wizard-step .step-title {
-  font-family: Arial, sans-serif;
+  font-family: 'Huninn', sans-serif;
   font-size: 0.85rem;
   font-weight: 700;
   color: var(--text-main);
@@ -1499,7 +1526,7 @@ select.form-control option {
 
 /* GarageAI Assistant Modal & Floating Widget */
 .garage-ai-modal {
-  font-family: Arial, sans-serif;
+  font-family: 'Huninn', sans-serif;
   animation: modalScale 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 

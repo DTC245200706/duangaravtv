@@ -13,21 +13,74 @@ class RepairOrderService:
 
     ALLOWED_TRANSITIONS: Dict[RepairOrderStatus, Set[RepairOrderStatus]] = {
         RepairOrderStatus.DRAFT: {RepairOrderStatus.RECEIVED, RepairOrderStatus.CANCELLED},
-        RepairOrderStatus.RECEIVED: {RepairOrderStatus.INSPECTING, RepairOrderStatus.CANCELLED},
-        RepairOrderStatus.INSPECTING: {RepairOrderStatus.QUOTATION_PENDING, RepairOrderStatus.CANCELLED},
-        RepairOrderStatus.QUOTATION_PENDING: {RepairOrderStatus.WAITING_CUSTOMER_APPROVAL, RepairOrderStatus.CANCELLED},
-        RepairOrderStatus.WAITING_CUSTOMER_APPROVAL: {RepairOrderStatus.APPROVED, RepairOrderStatus.CANCELLED},
-        RepairOrderStatus.APPROVED: {RepairOrderStatus.IN_REPAIR, RepairOrderStatus.CANCELLED},
-        RepairOrderStatus.IN_REPAIR: {RepairOrderStatus.WAITING_PARTS, RepairOrderStatus.QUALITY_CHECK, RepairOrderStatus.CANCELLED},
-        RepairOrderStatus.WAITING_PARTS: {RepairOrderStatus.IN_REPAIR, RepairOrderStatus.CANCELLED},
-        RepairOrderStatus.QUALITY_CHECK: {RepairOrderStatus.COMPLETED, RepairOrderStatus.IN_REPAIR, RepairOrderStatus.CANCELLED},
-        RepairOrderStatus.COMPLETED: set(), # TrÃƒÂ¡Ã‚ÂºÃ‚Â¡ng thÃƒÆ’Ã‚Â¡i kÃƒÂ¡Ã‚ÂºÃ‚Â¿t thÃƒÆ’Ã‚Âºc
-        RepairOrderStatus.CANCELLED: set()  # TrÃƒÂ¡Ã‚ÂºÃ‚Â¡ng thÃƒÆ’Ã‚Â¡i kÃƒÂ¡Ã‚ÂºÃ‚Â¿t thÃƒÆ’Ã‚Âºc
+        RepairOrderStatus.RECEIVED: {
+            RepairOrderStatus.INSPECTING,
+            RepairOrderStatus.QUOTATION_PENDING,
+            RepairOrderStatus.WAITING_CUSTOMER_APPROVAL,
+            RepairOrderStatus.APPROVED,
+            RepairOrderStatus.IN_REPAIR,
+            RepairOrderStatus.CANCELLED
+        },
+        RepairOrderStatus.INSPECTING: {
+            RepairOrderStatus.QUOTATION_PENDING,
+            RepairOrderStatus.WAITING_CUSTOMER_APPROVAL,
+            RepairOrderStatus.APPROVED,
+            RepairOrderStatus.IN_REPAIR,
+            RepairOrderStatus.CANCELLED
+        },
+        RepairOrderStatus.QUOTATION_PENDING: {
+            RepairOrderStatus.WAITING_CUSTOMER_APPROVAL,
+            RepairOrderStatus.APPROVED,
+            RepairOrderStatus.IN_REPAIR,
+            RepairOrderStatus.CANCELLED
+        },
+        RepairOrderStatus.WAITING_CUSTOMER_APPROVAL: {
+            RepairOrderStatus.APPROVED,
+            RepairOrderStatus.IN_REPAIR,
+            RepairOrderStatus.CANCELLED
+        },
+        RepairOrderStatus.APPROVED: {
+            RepairOrderStatus.IN_REPAIR,
+            RepairOrderStatus.WAITING_PARTS,
+            RepairOrderStatus.QUALITY_CHECK,
+            RepairOrderStatus.COMPLETED,
+            RepairOrderStatus.CANCELLED
+        },
+        RepairOrderStatus.IN_REPAIR: {
+            RepairOrderStatus.WAITING_PARTS,
+            RepairOrderStatus.QUALITY_CHECK,
+            RepairOrderStatus.COMPLETED,
+            RepairOrderStatus.CANCELLED
+        },
+        RepairOrderStatus.WAITING_PARTS: {
+            RepairOrderStatus.IN_REPAIR,
+            RepairOrderStatus.QUALITY_CHECK,
+            RepairOrderStatus.COMPLETED,
+            RepairOrderStatus.CANCELLED
+        },
+        RepairOrderStatus.QUALITY_CHECK: {
+            RepairOrderStatus.COMPLETED,
+            RepairOrderStatus.IN_REPAIR,
+            RepairOrderStatus.APPROVED,
+            RepairOrderStatus.CANCELLED
+        },
+        RepairOrderStatus.COMPLETED: {
+            RepairOrderStatus.IN_REPAIR,
+            RepairOrderStatus.QUALITY_CHECK,
+            RepairOrderStatus.APPROVED,
+            RepairOrderStatus.RECEIVED
+        },
+        RepairOrderStatus.CANCELLED: {
+            RepairOrderStatus.RECEIVED,
+            RepairOrderStatus.DRAFT
+        }
     }
 
     @classmethod
-    def can_transition(cls, current: RepairOrderStatus, target: RepairOrderStatus) -> bool:
+    def can_transition(cls, current: RepairOrderStatus, target: RepairOrderStatus, is_admin: bool = False) -> bool:
         if current == target:
+            return True
+        if is_admin:
             return True
         allowed = cls.ALLOWED_TRANSITIONS.get(current, set())
         return target in allowed
@@ -38,13 +91,14 @@ class RepairOrderService:
         db: Session, 
         repair_order_id: int, 
         new_status: RepairOrderStatus,
-        user_id: Optional[int] = None
+        user_id: Optional[int] = None,
+        is_admin: bool = False
     ) -> RepairOrder:
         ro = db.query(RepairOrder).filter(RepairOrder.id == repair_order_id).first()
         if not ro:
-            raise HTTPException(status_code=404, detail="PhiÃƒÂ¡Ã‚ÂºÃ‚Â¿u sÃƒÂ¡Ã‚Â»Ã‚Â­a chÃƒÂ¡Ã‚Â»Ã‚Â¯a khÃƒÆ’Ã‚Â´ng tÃƒÂ¡Ã‚Â»Ã¢â‚¬Å“n tÃƒÂ¡Ã‚ÂºÃ‚Â¡i.")
+            raise HTTPException(status_code=404, detail="Phiếu sửa chữa không tồn tại.")
 
-        if not cls.can_transition(ro.status, new_status):  # type: ignore
+        if not cls.can_transition(ro.status, new_status, is_admin=is_admin):  # type: ignore
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Chuyển trạng thái không hợp lệ: Không thể chuyển từ '{ro.status.value}' sang '{new_status.value}'. Vui lòng tuân thủ quy trình tuần tự."

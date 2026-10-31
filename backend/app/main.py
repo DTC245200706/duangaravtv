@@ -242,6 +242,7 @@ def read_api_root():
     }
 
 @app.get("/")
+@app.get("/index.html")
 def read_root():
     index_path = os.path.join(root_dir, "index.html")
     if os.path.exists(index_path):
@@ -289,12 +290,33 @@ def read_styles():
         return FileResponse(css_path, media_type="text/css")
     return {"detail": "Styles not found"}
 
+@app.get("/booking-success.css")
+def read_booking_success():
+    css_path = os.path.join(root_dir, "booking-success.css")
+    if os.path.exists(css_path):
+        return FileResponse(css_path, media_type="text/css")
+    return {"detail": "booking-success.css not found"}
+
+@app.get("/accessibility.css")
+def read_accessibility():
+    css_path = os.path.join(root_dir, "accessibility.css")
+    if os.path.exists(css_path):
+        return FileResponse(css_path, media_type="text/css")
+    return {"detail": "accessibility.css not found"}
+
 @app.get("/app.js")
 def read_app_js():
     js_path = os.path.join(root_dir, "app.js")
     if os.path.exists(js_path):
         return FileResponse(js_path, media_type="application/javascript")
     return {"detail": "App JS not found"}
+
+@app.get("/static-config.js")
+def read_static_config():
+    js_path = os.path.join(root_dir, "static-config.js")
+    if os.path.exists(js_path):
+        return FileResponse(js_path, media_type="application/javascript")
+    return {"detail": "static-config.js not found"}
 
 @app.get("/health")
 @app.get("/api/health")

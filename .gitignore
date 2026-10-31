@@ -7,3 +7,5 @@ __pycache__/
 !garage.db
 .vscode/
 .idea/
+.agents/
+skills-lock.json

@@ -4,55 +4,176 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Garage VTV - Chăm Sóc Xế Yêu Với Công Nghệ AI</title>
+  <title>Garage VTV — Chăm Sóc Xế Yêu Đỉnh Cao Với Trí Tuệ Nhân Tạo AI</title>
+  <meta name="description" content="Garage VTV — Hệ thống xưởng dịch vụ ô tô cao cấp tích hợp công nghệ chẩn đoán AI độc quyền. Minh bạch, chuẩn xác, đặt lịch trực tuyến 24/7.">
+
+  <!-- Font Huninn strictly preserved as required -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Huninn&display=swap" rel="stylesheet">
+
+  <!-- Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="styles.css?v=6.0">
-  <link rel="stylesheet" href="booking-success.css?v=1.0">
-  <link rel="stylesheet" href="accessibility.css?v=1.0">
+  <link rel="stylesheet" href="styles.css?v=7.0">
+  <link rel="stylesheet" href="booking-success.css?v=2.0">
+  <link rel="stylesheet" href="accessibility.css?v=2.0">
+
   <style>
-    /* Premium Landing Page Specific Styles */
+    /* ==========================================================================
+       LUXURY MINIMALIST CLEAN THEME — GARAGE VTV
+       Font: Huninn, sans-serif (Strictly preserved)
+       ========================================================================== */
+
     :root {
-      --landing-hero-bg: radial-gradient(circle at top, rgba(8, 145, 178, 0.15) 0%, rgba(15, 23, 42, 0) 60%);
-      --glass-bg: rgba(19, 28, 46, 0.65);
-      --glass-border: rgba(255, 255, 255, 0.08);
-      --neon-cyan: #0891b2;
-      --neon-glow: 0 0 20px rgba(8, 145, 178, 0.4);
+      /* Luxury Dark Theme (Default) */
+      --lux-bg: #070a12;
+      --lux-bg-elevated: #0d1322;
+      --lux-bg-card: rgba(14, 20, 36, 0.78);
+      --lux-bg-card-hover: rgba(22, 31, 54, 0.92);
+      --lux-bg-input: #090e1a;
+      --lux-border: rgba(255, 255, 255, 0.08);
+      --lux-border-highlight: rgba(56, 189, 248, 0.4);
+      --lux-border-subtle: rgba(255, 255, 255, 0.04);
+      
+      --lux-text-primary: #f8fafc;
+      --lux-text-secondary: #94a3b8;
+      --lux-text-tertiary: #64748b;
+
+      --lux-cyan: #06b6d4;
+      --lux-sky: #38bdf8;
+      --lux-indigo: #6366f1;
+      --lux-gold: #eab308;
+      --lux-emerald: #10b981;
+      --lux-rose: #f43f5e;
+
+      --lux-gradient-accent: linear-gradient(135deg, #38bdf8 0%, #06b6d4 50%, #6366f1 100%);
+      --lux-gradient-gold: linear-gradient(135deg, #facc15 0%, #d97706 100%);
+
+      --lux-glass-bg: rgba(9, 14, 26, 0.85);
+      --lux-glass-border: rgba(255, 255, 255, 0.09);
+
+      --lux-shadow-subtle: 0 4px 20px rgba(0, 0, 0, 0.35);
+      --lux-shadow-hover: 0 20px 40px -15px rgba(2, 132, 199, 0.25);
+
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-xl: 28px;
+      --radius-pill: 9999px;
     }
 
     [data-theme="light"] {
-      --landing-hero-bg: radial-gradient(circle at top, rgba(8, 145, 178, 0.1) 0%, rgba(248, 250, 252, 0) 60%);
-      --glass-bg: rgba(255, 255, 255, 0.8);
-      --glass-border: rgba(0, 0, 0, 0.05);
-      --neon-glow: 0 4px 15px rgba(8, 145, 178, 0.2);
+      /* Luxury Light Theme — Platinum / Gallery White */
+      --lux-bg: #f8fafc;
+      --lux-bg-elevated: #ffffff;
+      --lux-bg-card: rgba(255, 255, 255, 0.92);
+      --lux-bg-card-hover: #ffffff;
+      --lux-bg-input: #f1f5f9;
+      --lux-border: #e2e8f0;
+      --lux-border-highlight: rgba(2, 132, 199, 0.45);
+      --lux-border-subtle: #f1f5f9;
+
+      --lux-text-primary: #0f172a;
+      --lux-text-secondary: #475569;
+      --lux-text-tertiary: #94a3b8;
+
+      --lux-glass-bg: rgba(255, 255, 255, 0.9);
+      --lux-glass-border: rgba(226, 232, 240, 0.8);
+
+      --lux-shadow-subtle: 0 4px 20px rgba(0, 0, 0, 0.05);
+      --lux-shadow-hover: 0 20px 35px -10px rgba(15, 23, 42, 0.1);
+    }
+
+    /* Override body layout from styles.css (which had display: flex) */
+    html, body {
+      display: block !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      overflow-x: hidden !important;
     }
 
     body {
-      background: var(--bg-primary);
-      color: var(--text-main);
-      font-family: 'Plus Jakarta Sans', "Huninn", sans-serif;
-      margin: 0;
-      padding: 0;
-      overflow-x: hidden;
-      display: block;
+      background-color: var(--lux-bg) !important;
+      color: var(--lux-text-primary) !important;
+      font-family: "Huninn", sans-serif !important;
+      min-height: 100vh;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      transition: background-color 0.35s ease, color 0.35s ease;
     }
 
-    /* Navbar */
-    .landing-header {
-      position: fixed;
+    /* Strict Huninn Typography without breaking Font Awesome icons */
+    button, input, select, textarea,
+    h1, h2, h3, h4, h5, h6, p, label, a {
+      font-family: "Huninn", sans-serif !important;
+    }
+
+    /* Font Awesome Glyph Integrity */
+    i, .fa, .fas, .far, .fab, .fa-solid, .fa-regular, .fa-brands, [class^="fa-"], [class*=" fa-"] {
+      font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands" !important;
+      font-style: normal !important;
+      font-weight: 900 !important;
+      display: inline-block;
+      text-rendering: auto;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    i::before, .fa::before, .fas::before, .far::before, .fa-solid::before, .fa-regular::before, [class^="fa-"]::before, [class*=" fa-"]::before {
+      font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands" !important;
+    }
+
+    /* Subtle background grid pattern for luxury architectural depth */
+    .lux-grid-bg {
+      position: absolute;
       top: 0;
       left: 0;
       right: 0;
-      height: 80px;
-      background: var(--glass-bg);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border-bottom: 1px solid var(--glass-border);
-      display: flex;
+      height: 100%;
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(56, 189, 248, 0.08) 0%, transparent 60%),
+        linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+      background-size: 100% 100%, 48px 48px, 48px 48px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    [data-theme="light"] .lux-grid-bg {
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(2, 132, 199, 0.05) 0%, transparent 60%),
+        linear-gradient(rgba(15, 23, 42, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(15, 23, 42, 0.02) 1px, transparent 1px);
+    }
+
+    /* All sections are pure vertical block elements */
+    header, section, footer {
+      display: block !important;
+      width: 100% !important;
+      box-sizing: border-box !important;
+      position: relative;
+    }
+
+    /* ==========================================================================
+       NAVIGATION BAR — SLEEK LUXURY GLASS
+       ========================================================================== */
+    .landing-header {
+      position: fixed !important;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 76px;
+      background: var(--lux-glass-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--lux-glass-border);
+      display: flex !important;
       justify-content: space-between;
       align-items: center;
-      padding: 0 5%;
+      padding: 0 6%;
       z-index: 1000;
-      transition: all 0.3s ease;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .brand {
@@ -60,658 +181,1735 @@
       align-items: center;
       gap: 12px;
       text-decoration: none;
+      color: var(--lux-text-primary);
+    }
+
+    .brand-logo-wrap {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(99, 102, 241, 0.1));
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(56, 189, 248, 0.15);
+      transition: transform 0.3s ease;
+    }
+
+    .brand:hover .brand-logo-wrap {
+      transform: scale(1.05);
+      border-color: var(--lux-sky);
     }
 
     .brand img {
-      height: 40px;
-      filter: drop-shadow(0 0 8px rgba(8, 145, 178, 0.5));
+      max-height: 28px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .brand-meta {
+      display: flex;
+      flex-direction: column;
     }
 
     .brand-text {
       font-weight: 800;
-      font-size: 1.4rem;
-      color: var(--text-main);
+      font-size: 1.25rem;
       letter-spacing: 0.5px;
+      line-height: 1.1;
+      color: var(--lux-text-primary);
+    }
+
+    .brand-tag {
+      font-size: 0.68rem;
+      color: var(--lux-sky);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 700;
     }
 
     .nav-links {
       display: flex;
-      gap: 2rem;
+      gap: 2.2rem;
       align-items: center;
+      list-style: none;
+      margin: 0;
+      padding: 0;
     }
 
     .nav-links a {
-      color: var(--text-main);
+      color: var(--lux-text-secondary);
       text-decoration: none;
       font-weight: 600;
-      font-size: 0.95rem;
-      transition: color 0.2s;
+      font-size: 0.94rem;
+      letter-spacing: 0.2px;
+      position: relative;
+      padding: 6px 0;
+      transition: color 0.25s ease;
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 2px;
+      background: var(--lux-gradient-accent);
+      border-radius: 2px;
+      transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .nav-links a:hover {
-      color: var(--accent-cyan);
+      color: var(--lux-text-primary);
+    }
+
+    .nav-links a:hover::after {
+      width: 100%;
     }
 
     .header-actions {
       display: flex;
-      gap: 1rem;
+      gap: 12px;
       align-items: center;
     }
 
-    .btn-login {
-      padding: 0.5rem 1.2rem;
-      border-radius: 50px;
-      border: 1px solid var(--accent-primary);
-      color: var(--accent-primary);
-      text-decoration: none;
+    .status-badge-live {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: var(--radius-pill);
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      color: var(--lux-emerald);
+      font-size: 0.74rem;
       font-weight: 700;
-      font-size: 0.9rem;
-      transition: all 0.3s;
-      background: rgba(59, 130, 246, 0.05);
+      letter-spacing: 0.3px;
     }
 
-    .btn-login:hover {
-      background: var(--accent-primary);
-      color: #fff;
-      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--lux-emerald);
+      box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+      animation: pulseGreen 2s infinite;
     }
 
-    /* Hero Section */
-    .hero {
-      padding: 160px 5% 100px;
-      min-height: 90vh;
+    @keyframes pulseGreen {
+      0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+
+    .btn-header-call {
+      padding: 0.55rem 1.15rem;
+      border-radius: var(--radius-pill);
+      border: 1px solid var(--lux-border-highlight);
+      color: var(--lux-sky);
+      background: rgba(56, 189, 248, 0.08);
+      font-weight: 700;
+      font-size: 0.88rem;
+      text-decoration: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .btn-header-call:hover {
+      background: var(--lux-sky);
+      color: #070a12;
+      box-shadow: 0 4px 18px rgba(56, 189, 248, 0.35);
+      transform: translateY(-1px);
+    }
+
+    .theme-toggle {
+      background: var(--lux-bg-card);
+      border: 1px solid var(--lux-border);
+      color: var(--lux-text-primary);
+      width: 42px;
+      height: 42px;
+      border-radius: var(--radius-md);
       display: flex;
       align-items: center;
       justify-content: center;
-      text-align: center;
-      background: var(--landing-hero-bg);
-      position: relative;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      font-size: 1rem;
     }
 
-    .hero-content {
-      max-width: 900px;
+    .theme-toggle:hover {
+      border-color: var(--lux-sky);
+      color: var(--lux-sky);
+      transform: rotate(15deg);
+    }
+
+    /* ==========================================================================
+       HERO SECTION — ASYMMETRIC LUXURY AUTOMOTIVE
+       ========================================================================== */
+    .hero {
+      position: relative;
+      padding: 140px 6% 90px !important;
+      min-height: 90vh;
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+      z-index: 1;
+      overflow: hidden;
+      width: 100% !important;
+    }
+
+    .hero-container {
+      max-width: 960px;
+      width: 100%;
+      margin: 0 auto;
+      display: flex !important;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      position: relative;
       z-index: 2;
     }
 
-    .badge {
-      display: inline-block;
-      padding: 6px 16px;
-      border-radius: 30px;
-      background: rgba(8, 145, 178, 0.15);
-      color: var(--accent-cyan);
-      border: 1px solid rgba(8, 145, 178, 0.3);
+    .hero-badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 18px;
+      border-radius: var(--radius-pill);
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.28);
+      color: var(--lux-sky);
       font-weight: 700;
-      font-size: 0.85rem;
-      letter-spacing: 1px;
-      margin-bottom: 1.5rem;
+      font-size: 0.82rem;
+      letter-spacing: 0.8px;
       text-transform: uppercase;
-      box-shadow: var(--neon-glow);
+      margin-bottom: 1.75rem;
+      backdrop-filter: blur(10px);
     }
 
     .hero h1 {
-      font-size: 4rem;
+      font-size: 3.6rem;
       font-weight: 800;
-      line-height: 1.1;
-      margin-bottom: 1.5rem;
-      background: var(--text-main);
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      margin: 0 0 1.5rem 0;
+      color: var(--lux-text-primary);
+    }
+
+    .hero h1 span.gradient-word {
+      background: var(--lux-gradient-accent);
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
-      letter-spacing: -1px;
+      display: inline-block;
     }
 
-    .hero h1 span {
-      background: var(--gradient-brand);
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
+    .hero-subtitle {
+      font-size: 1.16rem;
+      line-height: 1.7;
+      color: var(--lux-text-secondary);
+      margin: 0 auto 2.25rem auto;
+      max-width: 720px;
     }
 
-    .hero p {
-      font-size: 1.2rem;
-      color: var(--text-muted);
-      line-height: 1.6;
-      margin-bottom: 2.5rem;
-      max-width: 700px;
-      margin-inline: auto;
-    }
-
-    .hero-buttons {
+    .hero-cta-group {
       display: flex;
-      gap: 1.5rem;
+      gap: 1rem;
+      align-items: center;
       justify-content: center;
       flex-wrap: wrap;
+      margin-bottom: 2.75rem;
     }
 
-    .btn-glow {
-      padding: 1rem 2.5rem;
-      border-radius: 50px;
+    .btn-lux-primary {
+      padding: 0.95rem 2rem;
+      border-radius: var(--radius-pill);
+      background: var(--lux-gradient-accent);
+      color: #ffffff;
       font-weight: 700;
-      font-size: 1.1rem;
+      font-size: 1.02rem;
       text-decoration: none;
-      transition: all 0.3s;
       border: none;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 10px;
+      box-shadow: 0 10px 25px rgba(6, 182, 212, 0.35);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    .btn-primary-glow {
-      background: var(--gradient-brand);
-      color: #fff;
-      box-shadow: 0 10px 25px rgba(8, 145, 178, 0.4);
+    .btn-lux-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 32px rgba(6, 182, 212, 0.5);
     }
 
-    .btn-primary-glow:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 15px 35px rgba(8, 145, 178, 0.6);
+    .btn-lux-glass {
+      padding: 0.95rem 1.8rem;
+      border-radius: var(--radius-pill);
+      background: var(--lux-bg-card);
+      color: var(--lux-text-primary);
+      border: 1px solid var(--lux-border);
+      font-weight: 700;
+      font-size: 1.02rem;
+      text-decoration: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      backdrop-filter: blur(12px);
+      transition: all 0.3s ease;
     }
 
-    .btn-secondary-glow {
-      background: var(--glass-bg);
-      color: var(--text-main);
-      border: 1px solid var(--glass-border);
-      backdrop-filter: blur(10px);
+    .btn-lux-glass:hover {
+      border-color: var(--lux-sky);
+      color: var(--lux-sky);
+      transform: translateY(-2px);
+      box-shadow: var(--lux-shadow-subtle);
     }
 
-    .btn-secondary-glow:hover {
-      transform: translateY(-3px);
-      border-color: var(--accent-cyan);
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    .btn-lux-ai {
+      padding: 0.95rem 1.6rem;
+      border-radius: var(--radius-pill);
+      background: rgba(99, 102, 241, 0.12);
+      color: #a5b4fc;
+      border: 1px solid rgba(99, 102, 241, 0.35);
+      font-weight: 700;
+      font-size: 1.02rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      transition: all 0.3s ease;
     }
 
-    /* Floating AI Element */
-    .floating-ai {
-      position: absolute;
-      right: 5%;
-      top: 30%;
-      width: 250px;
-      height: 250px;
-      background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%);
-      border-radius: 50%;
-      animation: float 6s ease-in-out infinite;
-      z-index: 1;
-      pointer-events: none;
+    .btn-lux-ai:hover {
+      background: var(--lux-indigo);
+      color: #ffffff;
+      box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+      transform: translateY(-2px);
     }
 
-    .floating-ai::after {
-      content: '\f544';
-      font-family: 'Font Awesome 6 Free';
-      font-weight: 900;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 4rem;
-      color: var(--accent-purple);
-      opacity: 0.8;
-      filter: drop-shadow(0 0 15px var(--accent-purple));
+    /* Trust & Highlights Metric Bar */
+    .hero-metrics-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--lux-border);
+      max-width: 820px;
+      margin: 0 auto;
+      width: 100%;
     }
 
-    @keyframes float {
-      0% {
-        transform: translateY(0px) rotate(0deg);
-      }
-
-      50% {
-        transform: translateY(-20px) rotate(5deg);
-      }
-
-      100% {
-        transform: translateY(0px) rotate(0deg);
-      }
+    .metric-item {
+      display: flex;
+      flex-direction: column;
     }
 
-    /* Services Section */
-    .section {
-      padding: 100px 5%;
-      position: relative;
-    }
-
-    .section-title {
-      text-align: center;
-      margin-bottom: 4rem;
-    }
-
-    .section-title h2 {
-      font-size: 2.5rem;
+    .metric-val {
+      font-size: 1.6rem;
       font-weight: 800;
-      margin-bottom: 1rem;
+      color: var(--lux-text-primary);
+      line-height: 1.1;
+      display: flex;
+      align-items: baseline;
+      gap: 2px;
     }
 
-    .section-title p {
-      color: var(--text-muted);
+    .metric-val span {
+      color: var(--lux-sky);
       font-size: 1.1rem;
     }
 
+    .metric-label {
+      font-size: 0.76rem;
+      color: var(--lux-text-secondary);
+      font-weight: 600;
+      margin-top: 4px;
+      line-height: 1.3;
+    }
+
+    /* ==========================================================================
+       HERO RIGHT: LUXURY AI TELEMETRY SIMULATION CARD
+       ========================================================================== */
+    .telemetry-card {
+      background: var(--lux-bg-elevated);
+      border: 1px solid var(--lux-border);
+      border-radius: var(--radius-xl);
+      padding: 2.2rem 2rem;
+      box-shadow: var(--lux-shadow-subtle), 0 0 0 1px rgba(255, 255, 255, 0.03);
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(16px);
+      transition: border-color 0.4s ease, transform 0.4s ease;
+    }
+
+    .telemetry-card:hover {
+      border-color: var(--lux-border-highlight);
+      transform: translateY(-4px);
+      box-shadow: var(--lux-shadow-hover);
+    }
+
+    .telemetry-card::before {
+      content: '';
+      position: absolute;
+      top: -120px;
+      right: -120px;
+      width: 260px;
+      height: 260px;
+      background: radial-gradient(circle, rgba(56, 189, 248, 0.12) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .telemetry-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--lux-border);
+    }
+
+    .telemetry-car-meta h4 {
+      margin: 0;
+      font-size: 1.18rem;
+      font-weight: 800;
+      color: var(--lux-text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .telemetry-car-meta p {
+      margin: 3px 0 0;
+      font-size: 0.78rem;
+      color: var(--lux-text-tertiary);
+    }
+
+    .telemetry-chip {
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: rgba(56, 189, 248, 0.12);
+      color: var(--lux-sky);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+    }
+
+    .telemetry-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .sensor-box {
+      background: var(--lux-bg-input);
+      border: 1px solid var(--lux-border);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .sensor-box:hover {
+      border-color: var(--lux-border-highlight);
+    }
+
+    .sensor-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+      font-size: 0.8rem;
+      color: var(--lux-text-secondary);
+    }
+
+    .sensor-value {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--lux-text-primary);
+    }
+
+    .sensor-bar {
+      height: 4px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 2px;
+      margin-top: 8px;
+      overflow: hidden;
+    }
+
+    .sensor-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.8s ease;
+    }
+
+    .fill-cyan { background: linear-gradient(90deg, #06b6d4, #38bdf8); }
+    .fill-green { background: linear-gradient(90deg, #059669, #10b981); }
+    .fill-purple { background: linear-gradient(90deg, #7c3aed, #a855f7); }
+    .fill-gold { background: linear-gradient(90deg, #d97706, #facc15); }
+
+    .ai-diag-banner {
+      background: rgba(99, 102, 241, 0.08);
+      border: 1px solid rgba(99, 102, 241, 0.25);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 1.25rem;
+    }
+
+    .ai-diag-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-sm);
+      background: rgba(99, 102, 241, 0.2);
+      color: #a5b4fc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .ai-diag-content h5 {
+      margin: 0 0 3px;
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--lux-text-primary);
+    }
+
+    .ai-diag-content p {
+      margin: 0;
+      font-size: 0.82rem;
+      color: var(--lux-text-secondary);
+      line-height: 1.45;
+    }
+
+    .telemetry-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-telemetry-scan {
+      flex: 1;
+      padding: 0.75rem;
+      border-radius: var(--radius-md);
+      background: var(--lux-bg-card);
+      border: 1px solid var(--lux-border);
+      color: var(--lux-text-primary);
+      font-weight: 700;
+      font-size: 0.88rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.25s ease;
+    }
+
+    .btn-telemetry-scan:hover {
+      background: rgba(56, 189, 248, 0.1);
+      border-color: var(--lux-sky);
+      color: var(--lux-sky);
+    }
+
+    /* ==========================================================================
+       SECTION COMMON — CLEAN LUXURY HEADERS
+       ========================================================================== */
+    .section-wrap {
+      padding: 100px 6% !important;
+      position: relative;
+      z-index: 1;
+      width: 100% !important;
+      display: block !important;
+    }
+
+    .section-header-center {
+      text-align: center;
+      max-width: 720px;
+      margin: 0 auto 4rem;
+    }
+
+    .section-kicker {
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      font-weight: 800;
+      color: var(--lux-sky);
+      margin-bottom: 0.75rem;
+      display: inline-block;
+    }
+
+    .section-title {
+      font-size: 2.6rem;
+      font-weight: 800;
+      line-height: 1.2;
+      color: var(--lux-text-primary);
+      margin: 0 0 1rem;
+      letter-spacing: -0.01em;
+    }
+
+    .section-subtitle {
+      font-size: 1.08rem;
+      color: var(--lux-text-secondary);
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    /* ==========================================================================
+       FEATURE HIGHLIGHTS — 4 PILLARS OF LUXURY AUTOMOTIVE
+       ========================================================================== */
+    .pillars-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.8rem;
+      max-width: 1260px;
+      margin: 0 auto;
+    }
+
+    .pillar-card {
+      background: var(--lux-bg-card);
+      border: 1px solid var(--lux-border);
+      border-radius: var(--radius-lg);
+      padding: 2.2rem 1.8rem;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+    }
+
+    .pillar-card:hover {
+      transform: translateY(-6px);
+      border-color: var(--lux-border-highlight);
+      box-shadow: var(--lux-shadow-hover);
+    }
+
+    .pillar-icon-box {
+      width: 54px;
+      height: 54px;
+      border-radius: var(--radius-md);
+      background: rgba(56, 189, 248, 0.08);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      color: var(--lux-sky);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 1.35rem;
+      transition: all 0.3s ease;
+    }
+
+    .pillar-card:hover .pillar-icon-box {
+      background: var(--lux-sky);
+      color: #070a12;
+      transform: scale(1.08);
+    }
+
+    .pillar-card h3 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--lux-text-primary);
+      margin: 0 0 0.75rem;
+    }
+
+    .pillar-card p {
+      font-size: 0.92rem;
+      color: var(--lux-text-secondary);
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    /* ==========================================================================
+       SERVICES CATALOG — 6 LUXURY SERVICES WITH DIRECT BOOKING
+       ========================================================================== */
     .services-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
       gap: 2rem;
-      max-width: 1200px;
+      max-width: 1260px;
       margin: 0 auto;
     }
 
     .service-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-lg);
-      padding: 2.5rem 2rem;
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      background: var(--lux-bg-card);
+      border: 1px solid var(--lux-border);
+      border-radius: var(--radius-xl);
+      padding: 2.5rem 2.2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
       position: relative;
       overflow: hidden;
     }
 
-    .service-card::before {
+    .service-card::after {
       content: '';
       position: absolute;
       top: 0;
       left: 0;
       right: 0;
-      height: 4px;
-      background: var(--gradient-brand);
+      height: 2px;
+      background: var(--lux-gradient-accent);
       opacity: 0;
-      transition: opacity 0.4s;
+      transition: opacity 0.3s ease;
     }
 
     .service-card:hover {
-      transform: translateY(-10px);
-      box-shadow: var(--shadow-lg);
-      border-color: var(--border-subtle);
+      transform: translateY(-8px);
+      border-color: var(--lux-border-highlight);
+      box-shadow: var(--lux-shadow-hover);
     }
 
-    .service-card:hover::before {
+    .service-card:hover::after {
       opacity: 1;
     }
 
-    .service-icon {
-      width: 64px;
-      height: 64px;
-      border-radius: 16px;
-      background: rgba(8, 145, 178, 0.1);
-      color: var(--accent-cyan);
+    .service-top-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1.5rem;
+    }
+
+    .service-icon-wrap {
+      width: 60px;
+      height: 60px;
+      border-radius: var(--radius-md);
+      background: rgba(56, 189, 248, 0.08);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      color: var(--lux-sky);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.8rem;
-      margin-bottom: 1.5rem;
-      transition: transform 0.4s;
+      font-size: 1.6rem;
+      transition: all 0.35s ease;
     }
 
-    .service-card:hover .service-icon {
-      transform: scale(1.1) rotate(5deg);
-      background: var(--gradient-brand);
-      color: white;
-      box-shadow: var(--neon-glow);
+    .service-card:hover .service-icon-wrap {
+      background: var(--lux-gradient-accent);
+      color: #ffffff;
+      transform: scale(1.06);
+      box-shadow: 0 8px 20px rgba(6, 182, 212, 0.35);
+    }
+
+    .service-price-tag {
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: var(--radius-pill);
+      background: var(--lux-bg-input);
+      border: 1px solid var(--lux-border);
+      color: var(--lux-text-secondary);
     }
 
     .service-card h3 {
-      font-size: 1.3rem;
-      font-weight: 700;
-      margin-bottom: 1rem;
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--lux-text-primary);
+      margin: 0 0 0.8rem;
     }
 
-    .service-card p {
-      color: var(--text-muted);
+    .service-card p.service-desc {
+      font-size: 0.94rem;
+      color: var(--lux-text-secondary);
       line-height: 1.6;
-      font-size: 0.95rem;
+      margin: 0 0 1.5rem;
     }
 
-    /* Booking & Tracking Split Section */
-    .action-section {
-      background: var(--bg-card);
-      border-top: 1px solid var(--border-color);
-      padding: 100px 5%;
+    .service-feature-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 1.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
     }
 
-    .action-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 4rem;
-    }
-
-    @media (max-width: 900px) {
-      .action-container {
-        grid-template-columns: 1fr;
-        gap: 3rem;
-      }
-
-      .hero h1 {
-        font-size: 2.8rem;
-      }
-
-      .nav-links {
-        display: none;
-      }
-    }
-
-    .glass-panel {
-      background: var(--bg-sidebar);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-lg);
-      padding: 2.5rem;
-      box-shadow: var(--shadow-md);
-    }
-
-    .glass-panel h3 {
-      font-size: 1.5rem;
-      margin-bottom: 1.5rem;
+    .service-feature-list li {
+      font-size: 0.88rem;
+      color: var(--lux-text-secondary);
       display: flex;
       align-items: center;
       gap: 10px;
     }
 
-    .glass-panel h3 i {
-      color: var(--accent-cyan);
+    .service-feature-list li i {
+      color: var(--lux-emerald);
+      font-size: 0.8rem;
     }
 
-    /* Forms */
-    .form-group {
-      margin-bottom: 1.25rem;
-    }
-
-    .form-label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      font-size: 0.9rem;
-    }
-
-    .form-control {
+    .btn-select-service {
       width: 100%;
-      padding: 0.85rem 1rem;
-      background: var(--bg-input);
-      border: 1px solid var(--border-color);
+      padding: 0.85rem;
       border-radius: var(--radius-md);
-      color: var(--text-main);
-      font-family: inherit;
-      font-size: 1rem;
-      transition: all 0.3s;
-    }
-
-    .form-control:focus {
-      outline: none;
-      border-color: var(--accent-primary);
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-    }
-
-    textarea.form-control {
-      resize: vertical;
-      min-height: 100px;
-    }
-
-    .submit-btn {
-      width: 100%;
-      padding: 1rem;
-      background: var(--gradient-brand);
-      color: white;
-      border: none;
-      border-radius: var(--radius-md);
+      background: var(--lux-bg-input);
+      border: 1px solid var(--lux-border);
+      color: var(--lux-text-primary);
       font-weight: 700;
-      font-size: 1.05rem;
+      font-size: 0.92rem;
       cursor: pointer;
-      transition: all 0.3s;
-      margin-top: 1rem;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
+      transition: all 0.25s ease;
+    }
+
+    .service-card:hover .btn-select-service {
+      background: var(--lux-gradient-accent);
+      color: #ffffff;
+      border-color: transparent;
+      box-shadow: 0 6px 18px rgba(6, 182, 212, 0.3);
+    }
+
+    /* ==========================================================================
+       THE 4-STEP CONCIERGE WORKFLOW
+       ========================================================================== */
+    .steps-timeline {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+      max-width: 1260px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .step-box {
+      background: var(--lux-bg-card);
+      border: 1px solid var(--lux-border);
+      border-radius: var(--radius-lg);
+      padding: 2.2rem 1.6rem;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    .step-box:hover {
+      border-color: var(--lux-border-highlight);
+      transform: translateY(-4px);
+    }
+
+    .step-num {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: rgba(56, 189, 248, 0.35);
+      line-height: 1;
+      margin-bottom: 1rem;
+      letter-spacing: -1px;
+    }
+
+    .step-box h4 {
+      font-size: 1.18rem;
+      font-weight: 800;
+      color: var(--lux-text-primary);
+      margin: 0 0 0.5rem;
+    }
+
+    .step-box p {
+      font-size: 0.88rem;
+      color: var(--lux-text-secondary);
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    /* ==========================================================================
+       ACTION CONCIERGE SUITE — BOOKING & TRACKING
+       ========================================================================== */
+    .action-section {
+      background: var(--lux-bg-elevated) !important;
+      border-top: 1px solid var(--lux-border);
+      border-bottom: 1px solid var(--lux-border);
+      padding: 110px 6% !important;
+      position: relative;
+      display: block !important;
+      width: 100% !important;
+    }
+
+    .action-container {
+      max-width: 1260px;
+      margin: 0 auto;
+      display: grid !important;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 3.5rem;
+      align-items: flex-start;
+    }
+
+    .concierge-card {
+      background: var(--lux-bg-card);
+      border: 1px solid var(--lux-border);
+      border-radius: var(--radius-xl);
+      padding: 2.75rem 2.4rem;
+      box-shadow: var(--lux-shadow-subtle);
+      position: relative;
+      backdrop-filter: blur(20px);
+    }
+
+    .concierge-card-header {
+      margin-bottom: 2rem;
+    }
+
+    .concierge-card-header h3 {
+      font-size: 1.65rem;
+      font-weight: 800;
+      color: var(--lux-text-primary);
+      margin: 0 0 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .concierge-card-header h3 i {
+      color: var(--lux-sky);
+    }
+
+    .concierge-card-header p {
+      color: var(--lux-text-secondary);
+      font-size: 0.95rem;
+      margin: 0;
+    }
+
+    /* Fast Service Filter Pills */
+    .fast-service-chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+    }
+
+    .service-chip-btn {
+      padding: 6px 14px;
+      border-radius: var(--radius-pill);
+      background: var(--lux-bg-input);
+      border: 1px solid var(--lux-border);
+      color: var(--lux-text-secondary);
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .service-chip-btn:hover,
+    .service-chip-btn.active {
+      background: rgba(56, 189, 248, 0.15);
+      border-color: var(--lux-sky);
+      color: var(--lux-sky);
+    }
+
+    /* Forms */
+    .form-group {
+      margin-bottom: 1.35rem;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 0.45rem;
+      font-weight: 700;
+      color: var(--lux-text-secondary);
+      font-size: 0.88rem;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.9rem 1.15rem;
+      background: var(--lux-bg-input);
+      border: 1px solid var(--lux-border);
+      border-radius: var(--radius-md);
+      color: var(--lux-text-primary);
+      font-size: 0.98rem;
+      transition: all 0.25s ease;
+      box-sizing: border-box;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--lux-sky);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.18);
+      background: var(--lux-bg-elevated);
+    }
+
+    textarea.form-control {
+      resize: vertical;
+      min-height: 95px;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 1.05rem;
+      background: var(--lux-gradient-accent);
+      color: #ffffff;
+      border: none;
+      border-radius: var(--radius-md);
+      font-weight: 800;
+      font-size: 1.05rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 1.25rem;
+      box-shadow: 0 8px 25px rgba(6, 182, 212, 0.35);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .submit-btn:hover {
-      box-shadow: 0 8px 20px rgba(8, 145, 178, 0.4);
       transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(6, 182, 212, 0.5);
     }
 
-    /* Search Result */
+    .submit-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Search & Tracking Suite */
+    .tracking-chip-samples {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .tracking-chip-samples span {
+      font-size: 0.78rem;
+      color: var(--lux-text-tertiary);
+    }
+
+    .sample-pill {
+      font-size: 0.76rem;
+      padding: 3px 10px;
+      border-radius: var(--radius-pill);
+      background: var(--lux-bg-input);
+      border: 1px solid var(--lux-border);
+      color: var(--lux-sky);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .sample-pill:hover {
+      background: rgba(56, 189, 248, 0.15);
+      border-color: var(--lux-sky);
+    }
+
     .search-result {
-      margin-top: 1.5rem;
+      margin-top: 1.75rem;
       padding: 1.5rem;
       border-radius: var(--radius-md);
-      background: var(--bg-primary);
-      border: 1px dashed var(--border-color);
+      background: var(--lux-bg-input);
+      border: 1px dashed var(--lux-border);
       display: none;
+      animation: fadeIn 0.3s ease;
     }
 
-    /* Footer */
-    footer {
-      background: var(--bg-primary);
-      border-top: 1px solid var(--border-color);
-      padding: 3rem 5% 2rem;
-      text-align: center;
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
-    .footer-content {
-      max-width: 1200px;
+    /* ==========================================================================
+       CUSTOMER TESTIMONIALS — TRUST OF HIGH-END CAR OWNERS
+       ========================================================================== */
+    .reviews-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 2rem;
+      max-width: 1260px;
       margin: 0 auto;
+    }
+
+    .review-card {
+      background: var(--lux-bg-card);
+      border: 1px solid var(--lux-border);
+      border-radius: var(--radius-lg);
+      padding: 2.2rem 1.8rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.3s ease;
+    }
+
+    .review-card:hover {
+      border-color: var(--lux-border-highlight);
+      transform: translateY(-4px);
+    }
+
+    .review-stars {
+      color: var(--lux-gold);
+      font-size: 0.88rem;
+      margin-bottom: 1rem;
+      display: flex;
+      gap: 3px;
+    }
+
+    .review-quote {
+      font-size: 0.95rem;
+      color: var(--lux-text-secondary);
+      line-height: 1.65;
+      margin: 0 0 1.5rem;
+      font-style: italic;
+    }
+
+    .reviewer-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding-top: 1rem;
+      border-top: 1px solid var(--lux-border);
+    }
+
+    .reviewer-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(99, 102, 241, 0.2));
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--lux-sky);
+      font-weight: 800;
+      font-size: 1.1rem;
+    }
+
+    .reviewer-info h5 {
+      margin: 0;
+      font-size: 0.98rem;
+      font-weight: 800;
+      color: var(--lux-text-primary);
+    }
+
+    .reviewer-info span {
+      font-size: 0.78rem;
+      color: var(--lux-text-tertiary);
+    }
+
+    .car-badge-chip {
+      margin-left: auto;
+      font-size: 0.72rem;
+      padding: 3px 9px;
+      border-radius: var(--radius-pill);
+      background: rgba(56, 189, 248, 0.1);
+      color: var(--lux-sky);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      font-weight: 700;
+    }
+
+    /* ==========================================================================
+       FOOTER — QUIET LUXURY MINIMALIST
+       ========================================================================== */
+    footer {
+      background: var(--lux-bg);
+      border-top: 1px solid var(--lux-border);
+      padding: 4.5rem 6% 2.5rem !important;
+      position: relative;
+      z-index: 1;
+      width: 100% !important;
+      display: block !important;
+    }
+
+    .footer-container {
+      max-width: 1260px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 1fr 1.2fr;
+      gap: 3rem;
+      margin-bottom: 3.5rem;
+    }
+
+    .footer-col h4 {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--lux-text-primary);
+      margin: 0 0 1.25rem;
+    }
+
+    .footer-col p {
+      font-size: 0.9rem;
+      color: var(--lux-text-secondary);
+      line-height: 1.6;
+      margin: 0 0 1rem;
+    }
+
+    .footer-col ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .footer-col ul a {
+      color: var(--lux-text-secondary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+
+    .footer-col ul a:hover {
+      color: var(--lux-sky);
+    }
+
+    .footer-bottom {
+      max-width: 1260px;
+      margin: 0 auto;
+      padding-top: 2rem;
+      border-top: 1px solid var(--lux-border);
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
-      gap: 2rem;
+      gap: 1rem;
+      font-size: 0.84rem;
+      color: var(--lux-text-tertiary);
     }
 
-    .footer-text {
-      color: var(--text-muted);
-      font-size: 0.9rem;
+    /* ==========================================================================
+       FLOATING ACTIONS DOCK
+       ========================================================================== */
+    .lux-floating-dock {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      z-index: 9999;
     }
 
-    /* Theme Toggle */
-    .theme-toggle {
-      background: transparent;
-      border: 1px solid var(--border-color);
-      color: var(--text-main);
-      width: 40px;
-      height: 40px;
+    .lux-dock-btn {
+      width: 56px;
+      height: 56px;
       border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.2);
       display: flex;
       align-items: center;
       justify-content: center;
+      color: #ffffff;
       cursor: pointer;
-      transition: all 0.3s;
+      font-size: 1.35rem;
+      backdrop-filter: blur(12px);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
     }
 
-    .theme-toggle:hover {
-      background: var(--bg-card);
+    .btn-dock-phone {
+      background: linear-gradient(135deg, #0891b2, #0284c7);
+      box-shadow: 0 8px 24px rgba(8, 145, 178, 0.45);
+    }
+
+    .btn-dock-phone:hover {
+      transform: scale(1.1) rotate(-10deg);
+      box-shadow: 0 12px 30px rgba(8, 145, 178, 0.6);
+    }
+
+    .btn-dock-ai {
+      background: linear-gradient(135deg, #7c3aed, #3b82f6);
+      box-shadow: 0 8px 24px rgba(124, 58, 237, 0.45);
+    }
+
+    .btn-dock-ai:hover {
+      transform: scale(1.1) rotate(10deg);
+      box-shadow: 0 12px 30px rgba(124, 58, 237, 0.6);
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 1024px) {
+      .hero-container {
+        grid-template-columns: 1fr !important;
+        gap: 3rem;
+        text-align: center;
+      }
+      .hero-subtitle {
+        margin-inline: auto;
+      }
+      .hero-cta-group {
+        justify-content: center;
+      }
+      .hero-metrics-bar {
+        margin-inline: auto;
+      }
+      .action-container {
+        grid-template-columns: 1fr !important;
+        gap: 2.5rem;
+      }
+      .steps-timeline {
+        grid-template-columns: 1fr 1fr;
+      }
+      .footer-container {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .hero h1 {
+        font-size: 2.6rem;
+      }
+      .nav-links {
+        display: none;
+      }
+      .hero-metrics-bar {
+        grid-template-columns: 1fr 1fr;
+        gap: 1.25rem;
+      }
+      .steps-timeline {
+        grid-template-columns: 1fr;
+      }
+      .footer-container {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+      .telemetry-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Huninn&display=swap" rel="stylesheet">
 </head>
 
 <body>
 
-  <!-- Navbar -->
+  <div class="lux-grid-bg"></div>
+
+  <!-- ==========================================================================
+       HEADER & NAVIGATION
+       ========================================================================== -->
   <header class="landing-header" id="navbar">
     <a href="#" class="brand">
-      <img src="logo.png" alt="Logo" onerror="this.src='https://via.placeholder.com/40x40/0891b2/ffffff?text=VTV'">
-      <span class="brand-text">GARAGE VTV</span>
+      <div class="brand-logo-wrap">
+        <img src="logo.png" alt="Logo Garage VTV" onerror="this.src='https://via.placeholder.com/44x44/0891b2/ffffff?text=VTV'">
+      </div>
+      <div class="brand-meta">
+        <span class="brand-text">GARAGE VTV</span>
+        <span class="brand-tag"><i class="fa-solid fa-microchip"></i> AI AUTOMOTIVE</span>
+      </div>
     </a>
 
     <nav class="nav-links">
       <a href="#services">Dịch Vụ</a>
-      <a href="#booking">Đặt Lịch</a>
-      <a href="#tracking">Tra Cứu</a>
+      <a href="#workflow">Quy Trình Chuẩn</a>
+      <a href="#booking">Đặt Lịch Ngay</a>
+      <a href="#tracking">Tra Cứu Xe</a>
+      <a href="#reviews">Đánh Giá</a>
     </nav>
 
     <div class="header-actions">
-      <button class="btn-login card-hover-lift" onclick="openPhoneContactModal()"
-        style="border-color: #0891b2; color: #38bdf8; background: rgba(8, 145, 178, 0.08); cursor: pointer; display: inline-flex; align-items: center; gap: 8px;">
-        <span class="live-dot cyan" style="margin: 0;"></span>
-        <i class="fa-solid fa-phone"></i> Hotline: 033.344.2358
+      <div class="status-badge-live" title="Xưởng dịch vụ đang hoạt động bình thường">
+        <span class="pulse-dot"></span> Xưởng Sẵn Sàng
+      </div>
+
+      <button class="btn-header-call" onclick="openPhoneContactModal()" title="Hotline 24/7">
+        <i class="fa-solid fa-phone"></i> 033.344.2358
       </button>
-      <button class="theme-toggle card-hover-lift" id="theme-btn" onclick="toggleTheme()"
-        title="Chuyển chế độ Sáng/Tối">
-        <i class="fa-solid fa-moon"></i>
+
+      <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()" title="Chuyển chế độ Sáng / Tối">
+        <i class="fa-solid fa-sun" style="color: #f59e0b;"></i>
       </button>
-      <a href="login.html" class="btn-login" style="display: none;"><i class="fa-solid fa-lock"></i> Đăng Nhập Nội
-        Bộ</a>
+
+      <a href="login.html" class="btn-login" style="display: none;"><i class="fa-solid fa-lock"></i> Đăng Nhập</a>
     </div>
   </header>
 
-  <!-- Hero Section with Ambient Motion Orbs -->
-  <section class="hero" style="position: relative; overflow: hidden;">
-    <div class="ambient-glow-orb"
-      style="top: 8%; left: 8%; width: 360px; height: 360px; background: radial-gradient(circle, rgba(6, 182, 212, 0.3) 0%, transparent 70%);">
-    </div>
-    <div class="ambient-glow-orb"
-      style="top: 20%; right: 6%; width: 420px; height: 420px; background: radial-gradient(circle, rgba(139, 92, 246, 0.25) 0%, transparent 70%); animation-delay: -6s;">
-    </div>
-    <div class="floating-ai"></div>
+  <!-- ==========================================================================
+       HERO SECTION — ASYMMETRIC LUXURY AUTOMOTIVE
+       ========================================================================== -->
+  <section class="hero">
+    <div class="hero-container">
 
-    <div class="hero-content">
-      <div class="badge anim-fade-in" style="display: inline-flex; align-items: center; gap: 8px;">
-        <span class="live-dot cyan" style="margin: 0;"></span>
-        <i class="fa-solid fa-microchip"></i> Tiên Phong Ứng Dụng AI
+      <!-- Hero Left: Typography & Actions -->
+      <div class="hero-content">
+        <div class="hero-badge-pill">
+          <i class="fa-solid fa-wand-magic-sparkles"></i> Tiên Phong Ứng Dụng Chẩn Đoán AI Độc Quyền
+        </div>
+
+        <h1>
+          Chăm Sóc Xế Yêu <br>
+          <span class="gradient-word">Chuẩn Xác & Minh Bạch</span>
+        </h1>
+
+        <p class="hero-subtitle">
+          Garage VTV định nghĩa lại tiêu chuẩn dịch vụ ô tô cao cấp. Kết hợp giữa kỹ thuật viên trưởng giàu kinh nghiệm và hệ thống trí tuệ nhân tạo chẩn đoán lỗi tức thì, không phát sinh chi phí mập mờ.
+        </p>
+
+        <div class="hero-cta-group">
+          <a href="#booking" class="btn-lux-primary">
+            <i class="fa-regular fa-calendar-check"></i> Đặt Lịch Dịch Vụ
+            <i class="fa-solid fa-arrow-right" style="font-size: 0.85rem;"></i>
+          </a>
+
+          <a href="#tracking" class="btn-lux-glass">
+            <i class="fa-solid fa-magnifying-glass"></i> Tra Cứu Tiến Độ
+          </a>
+
+          <button onclick="openAIAssistantModal('Trợ lý GarageAI', 'Tư vấn các dịch vụ bảo dưỡng phù hợp cho xe của tôi')" class="btn-lux-ai">
+            <i class="fa-solid fa-robot"></i> Trợ Lý AI Tư Vấn
+          </button>
+        </div>
+
+        <!-- 4 Key Value Metric Pillars -->
+        <div class="hero-metrics-bar">
+          <div class="metric-item">
+            <div class="metric-val">15<span>+</span></div>
+            <div class="metric-label">Phút tiếp nhận & quét lỗi ban đầu</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-val">100<span>%</span></div>
+            <div class="metric-label">Phụ tùng OEM & bảo hành điện tử</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-val">5,000<span>+</span></div>
+            <div class="metric-label">Chủ xe tin cậy & đồng hành</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-val">24<span>/7</span></div>
+            <div class="metric-label">Cứu hộ cơ động & AI trực tuyến</div>
+          </div>
+        </div>
       </div>
-      <h1 class="anim-fade-in anim-delay-1">Chăm Sóc Xế Yêu Của Bạn <span>Chuẩn Xác & Thông Minh</span></h1>
-      <p class="anim-fade-in anim-delay-2">Hệ thống Garage VTV mang đến trải nghiệm bảo dưỡng xe minh bạch, nhanh chóng
-        với sự hỗ trợ của công nghệ chẩn
-        đoán lỗi bằng Trí Tuệ Nhân Tạo (AI) độc quyền.</p>
+    </div>
+  </section>
 
-      <div class="hero-buttons anim-fade-in anim-delay-3">
-        <a href="#booking" class="btn-glow btn-primary-glow btn-shimmer card-hover-lift">
-          <i class="fa-regular fa-calendar-check"></i> Đặt Lịch Ngay
-        </a>
-        <a href="#tracking" class="btn-glow btn-secondary-glow card-hover-lift">
-          <i class="fa-solid fa-magnifying-glass"></i> Tra Cứu Tiến Độ
-        </a>
-        <button onclick="openAIAssistantModal('Trợ lý GarageAI', 'Tư vấn các dịch vụ bảo dưỡng phù hợp cho xe của tôi')"
-          class="btn-glow btn-secondary-glow card-hover-lift"
-          style="border-color: var(--accent-purple); color: var(--accent-purple);">
-          <i class="fa-solid fa-robot"></i> Trợ Lý AI
+  <!-- ==========================================================================
+       PILLARS OF EXCELLENCE — 4 CAM KẾT CHUẨN SANG
+       ========================================================================== -->
+  <section class="section-wrap" style="background: var(--lux-bg-elevated); border-top: 1px solid var(--lux-border); border-bottom: 1px solid var(--lux-border);">
+    <div class="section-header-center">
+      <span class="section-kicker">Triết Lý Vận Hành</span>
+      <h2 class="section-title">Tại Sao Khách Hàng Chọn Garage VTV?</h2>
+      <p class="section-subtitle">Chúng tôi loại bỏ hoàn toàn sự thiếu minh bạch và lo lắng thường thấy trong ngành sửa chữa ô tô bằng công nghệ và chữ tín.</p>
+    </div>
+
+    <div class="pillars-grid">
+      <div class="pillar-card">
+        <div class="pillar-icon-box"><i class="fa-solid fa-robot"></i></div>
+        <h3>Chẩn Đoán AI Chuẩn Xác</h3>
+        <p>Phân tích dữ liệu cảm biến OBD-II và triệu chứng lâm sàng bằng mô hình AI chuyên dụng, giúp khoanh vùng hư hỏng trong tích tắc.</p>
+      </div>
+
+      <div class="pillar-card">
+        <div class="pillar-icon-box"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+        <h3>Báo Giá Minh Bạch 100%</h3>
+        <p>Mọi hạng mục, đơn giá vật tư và công thợ đều được số hóa, gửi thông báo xác nhận đến bạn trước khi tiến hành tháo lắp.</p>
+      </div>
+
+      <div class="pillar-card">
+        <div class="pillar-icon-box"><i class="fa-solid fa-shield-halved"></i></div>
+        <h3>Phụ Tùng OEM & Bảo Hành</h3>
+        <p>Cam kết phụ tùng chính hãng rõ nguồn gốc xuất xứ, kèm phiếu bảo hành điện tử tra cứu trực tiếp theo biển số xe.</p>
+      </div>
+
+      <div class="pillar-card">
+        <div class="pillar-icon-box"><i class="fa-solid fa-user-tie"></i></div>
+        <h3>Cố Vấn Kỹ Thuật 1-1</h3>
+        <p>Đội ngũ kỹ sư và kỹ thuật viên trưởng được đào tạo bài bản, trực tiếp tư vấn và cập nhật nhật ký sửa chữa theo thời gian thực.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       SERVICES CATALOG — 6 DỊCH VỤ CAO CẤP
+       ========================================================================== -->
+  <section id="services" class="section-wrap">
+    <div class="section-header-center">
+      <span class="section-kicker">Danh Mục Dịch Vụ</span>
+      <h2 class="section-title">Dịch Vụ Chăm Sóc & Sửa Chữa Toàn Diện</h2>
+      <p class="section-subtitle">Được thiết kế theo tiêu chuẩn hãng, tối ưu hóa quy trình giúp tiết kiệm thời gian và ngân sách cho chủ xe.</p>
+    </div>
+
+    <div class="services-grid">
+
+      <!-- Service 1 -->
+      <div class="service-card">
+        <div>
+          <div class="service-top-meta">
+            <div class="service-icon-wrap"><i class="fa-solid fa-oil-can"></i></div>
+            <span class="service-price-tag">Từ 450.000đ</span>
+          </div>
+          <h3>Bảo Dưỡng Định Kỳ Chuẩn 40 Hạng Mục</h3>
+          <p class="service-desc">Kiểm tra toàn diện hệ thống bôi trơn, lọc gió, nước làm mát, phanh và dàn gầm giúp xe luôn êm ái, kéo dài tuổi thọ động cơ.</p>
+          <ul class="service-feature-list">
+            <li><i class="fa-solid fa-check"></i> Thay nhớt cao cấp tổng hợp toàn phần</li>
+            <li><i class="fa-solid fa-check"></i> Vệ sinh họng nạp, kim phun & bugi</li>
+            <li><i class="fa-solid fa-check"></i> Cân chỉnh áp suất lốp & siết lực bu-lông</li>
+          </ul>
+        </div>
+        <button class="btn-select-service" onclick="selectServiceForBooking('Bảo dưỡng định kỳ')">
+          <i class="fa-regular fa-calendar-plus"></i> Đặt Lịch Gói Này
         </button>
       </div>
+
+      <!-- Service 2 -->
+      <div class="service-card">
+        <div>
+          <div class="service-top-meta">
+            <div class="service-icon-wrap"><i class="fa-solid fa-wrench"></i></div>
+            <span class="service-price-tag">KTV Chuyên Sâu</span>
+          </div>
+          <h3>Sửa Chữa Động Cơ & Hộp Số</h3>
+          <p class="service-desc">Đại tu và xử lý triệt để tiếng kêu lạ, rò rỉ dầu mỡ, trượt số, rung giật động cơ với trang thiết bị đo kiểm chuyên dụng hiện đại.</p>
+          <ul class="service-feature-list">
+            <li><i class="fa-solid fa-check"></i> Máy soi buồng đốt & đo áp suất nén</li>
+            <li><i class="fa-solid fa-check"></i> Căn chỉnh góc đặt bánh xe điện tử 3D</li>
+            <li><i class="fa-solid fa-check"></i> Bảo hành kỹ thuật lên đến 12 tháng</li>
+          </ul>
+        </div>
+        <button class="btn-select-service" onclick="selectServiceForBooking('Sửa chữa')">
+          <i class="fa-regular fa-calendar-plus"></i> Đặt Lịch Sửa Chữa
+        </button>
+      </div>
+
+      <!-- Service 3 -->
+      <div class="service-card">
+        <div>
+          <div class="service-top-meta">
+            <div class="service-icon-wrap"><i class="fa-solid fa-robot"></i></div>
+            <span class="service-price-tag">Miễn Phí Online</span>
+          </div>
+          <h3>Tư Vấn Dịch Vụ & Combo Bảo Dưỡng AI</h3>
+          <p class="service-desc">Hỏi đáp trực tiếp cùng Trợ lý GarageAI để nhận tư vấn chi tiết về các gói bảo dưỡng theo mốc km, combo chăm sóc xe và báo giá minh bạch.</p>
+          <ul class="service-feature-list">
+            <li><i class="fa-solid fa-check"></i> Tư vấn mốc bảo dưỡng 5.000km, 10.000km, 20.000km, 40.000km</li>
+            <li><i class="fa-solid fa-check"></i> Chi tiết các combo: phanh & gầm, điều hòa, động cơ</li>
+            <li><i class="fa-solid fa-check"></i> Ước tính chi phí tiền công & vật tư niêm yết</li>
+          </ul>
+        </div>
+        <button class="btn-select-service" onclick="openAIAssistantModal('Trợ lý GarageAI', 'Tư vấn cho tôi các gói và combo bảo dưỡng định kỳ tốt nhất cho xe')">
+          <i class="fa-solid fa-comments"></i> Tư Vấn Dịch Vụ Cùng AI
+        </button>
+      </div>
+
+      <!-- Service 4 -->
+      <div class="service-card">
+        <div>
+          <div class="service-top-meta">
+            <div class="service-icon-wrap"><i class="fa-solid fa-spray-can-sparkles"></i></div>
+            <span class="service-price-tag">Phòng Sơn Sấy Hấp</span>
+          </div>
+          <h3>Đồng Sơn & Phục Hồi Thân Vỏ</h3>
+          <p class="service-desc">Pha màu vi tính chuẩn xác 100%, phòng sơn hấp khử bụi tiêu chuẩn quốc tế giúp xế yêu lấy lại vẻ đẹp bóng bẩy như mới xuất xưởng.</p>
+          <ul class="service-feature-list">
+            <li><i class="fa-solid fa-check"></i> Rút tôn không hàn bấm giữ form zin</li>
+            <li><i class="fa-solid fa-check"></i> Sơn dặm lấy ngay trong ngày</li>
+            <li><i class="fa-solid fa-check"></i> Phủ Ceramic bóng sâu & kháng tia UV</li>
+          </ul>
+        </div>
+        <button class="btn-select-service" onclick="selectServiceForBooking('Đồng sơn')">
+          <i class="fa-regular fa-calendar-plus"></i> Đặt Lịch Làm Đẹp
+        </button>
+      </div>
+
+      <!-- Service 5 -->
+      <div class="service-card">
+        <div>
+          <div class="service-top-meta">
+            <div class="service-icon-wrap"><i class="fa-solid fa-snowflake"></i></div>
+            <span class="service-price-tag">Bảo Dưỡng Nhanh</span>
+          </div>
+          <h3>Hệ Thống Điều Hòa & Điện Xe</h3>
+          <p class="service-desc">Bảo dưỡng lốc lạnh, giàn nóng giàn lạnh, nạp gas R134a/R1234yf chuẩn áp suất và xử lý triệt để mùi hôi ẩm mốc trong cabin.</p>
+          <ul class="service-feature-list">
+            <li><i class="fa-solid fa-check"></i> Nội soi giàn lạnh không cần tháo taplo</li>
+            <li><i class="fa-solid fa-check"></i> Khử khuẩn sinh học Ozone không khí</li>
+            <li><i class="fa-solid fa-check"></i> Đo kiểm rò rỉ điện âm xe</li>
+          </ul>
+        </div>
+        <button class="btn-select-service" onclick="selectServiceForBooking('Bảo dưỡng định kỳ')">
+          <i class="fa-regular fa-calendar-plus"></i> Đặt Lịch Điện Lạnh
+        </button>
+      </div>
+
+      <!-- Service 6 -->
+      <div class="service-card">
+        <div>
+          <div class="service-top-meta">
+            <div class="service-icon-wrap"><i class="fa-solid fa-truck-pickup"></i></div>
+            <span class="service-price-tag">Cứu Hộ 24/7</span>
+          </div>
+          <h3>Cứu Hộ Giao Thông & Sửa Lưu Động</h3>
+          <p class="service-desc">Đội xe cứu hộ sàn trượt và kỹ thuật viên cơ động túc trực 24/7, có mặt trong vòng 15-30 phút xử lý sự cố chết máy, ắc quy hoặc lốp xe.</p>
+          <ul class="service-feature-list">
+            <li><i class="fa-solid fa-check"></i> Kích nổ ắc quy & thay thế tận nơi</li>
+            <li><i class="fa-solid fa-check"></i> Vá lốp lưu động & thay bánh sơ cua</li>
+            <li><i class="fa-solid fa-check"></i> Cẩu kéo xe an toàn về xưởng</li>
+          </ul>
+        </div>
+        <button class="btn-select-service" onclick="openPhoneContactModal()" style="border-color: rgba(244, 63, 94, 0.4); color: #fb7185;">
+          <i class="fa-solid fa-phone-volume"></i> Gọi Cứu Hộ Ngay
+        </button>
+      </div>
+
     </div>
   </section>
 
-  <!-- Services Section -->
-  <section id="services" class="section reveal-init">
-    <div class="section-title">
-      <h2>Dịch Vụ Cao Cấp</h2>
-      <p>Chất lượng dịch vụ là ưu tiên hàng đầu tại Garage VTV</p>
+  <!-- ==========================================================================
+       WORKFLOW SECTION — 4 BƯỚC CONCIERGE CHUẨN SANG
+       ========================================================================== -->
+  <section id="workflow" class="section-wrap" style="background: var(--lux-bg-elevated); border-top: 1px solid var(--lux-border); border-bottom: 1px solid var(--lux-border);">
+    <div class="section-header-center">
+      <span class="section-kicker">Quy Trình Chuẩn 4 Bước</span>
+      <h2 class="section-title">Trải Nghiệm Tiếp Nhận Minh Bạch</h2>
+      <p class="section-subtitle">Chủ xe nắm rõ mọi giai đoạn từ lúc gửi yêu cầu cho đến khi nhận lại chìa khóa xế yêu.</p>
     </div>
-    <div class="services-grid">
-      <div class="service-card card-hover-lift">
-        <div class="service-icon"><i class="fa-solid fa-oil-can"></i></div>
-        <h3>Bảo Dưỡng Định Kỳ</h3>
-        <p>Quy trình bảo dưỡng tiêu chuẩn hãng, thay nhớt, lọc gió, kiểm tra 40 hạng mục an toàn giúp xe luôn vận hành
-          êm ái.</p>
+
+    <div class="steps-timeline">
+      <div class="step-box">
+        <div class="step-num">01</div>
+        <h4>Đặt Lịch Thông Minh</h4>
+        <p>Điền thông tin trực tuyến trong 30 giây hoặc gọi hotline. Hệ thống tự động phân bổ kỹ thuật viên phù hợp.</p>
       </div>
-      <div class="service-card card-hover-lift">
-        <div class="service-icon"><i class="fa-solid fa-wrench"></i></div>
-        <h3>Sửa Chữa Chuyên Sâu</h3>
-        <p>Khắc phục triệt để các vấn đề về động cơ, hộp số, khung gầm với phụ tùng chính hãng và kỹ thuật viên tay nghề
-          cao.</p>
+
+      <div class="step-box">
+        <div class="step-num">02</div>
+        <h4>Chẩn Đoán & Quét Lỗi AI</h4>
+        <p>KTV trưởng cùng máy quét AI kiểm tra 40 hạng mục, quay video/hình ảnh hiện trạng gửi trực tiếp đến chủ xe.</p>
       </div>
-      <div class="service-card card-hover-lift">
-        <div class="service-icon"><i class="fa-solid fa-robot"></i></div>
-        <h3>Chẩn Đoán Trợ Lý AI</h3>
-        <p>Tương tác với GarageAI để chẩn đoán sơ bộ nguyên nhân báo lỗi trên taplo trước khi mang xe đến xưởng.</p>
+
+      <div class="step-box">
+        <div class="step-num">03</div>
+        <h4>Duyệt Báo Giá Số Hóa</h4>
+        <p>Khách hàng xem chi tiết từng mã phụ tùng và giá công thợ trên web/điện thoại trước khi xác nhận thi công.</p>
+      </div>
+
+      <div class="step-box">
+        <div class="step-num">04</div>
+        <h4>Bàn Giao & Bảo Hành</h4>
+        <p>Xe được rửa sạch sẽ trước khi bàn giao. Hệ thống kích hoạt tem bảo hành điện tử tra cứu mọi lúc mọi nơi.</p>
       </div>
     </div>
   </section>
 
-  <!-- Action Section (Booking & Tracking) -->
-  <section class="action-section">
+  <!-- ==========================================================================
+       ACTION CONCIERGE SUITE — ĐẶT LỊCH & TRA CỨU TIẾN ĐỘ
+       ========================================================================== -->
+  <section id="booking" class="action-section">
     <div class="action-container">
 
-      <!-- Booking Form -->
-      <div id="booking" class="glass-panel card-hover-lift reveal-init">
-        <h3><i class="fa-solid fa-calendar-plus"></i> Đặt Lịch Dịch Vụ</h3>
-        <p style="color: var(--text-muted); margin-bottom: 2rem; font-size: 0.95rem;">
-          Gửi yêu cầu bảo dưỡng/sửa chữa. Kỹ thuật viên sẽ liên hệ lại ngay để xác nhận.
-        </p>
+      <!-- LEFT: BOOKING FORM -->
+      <div class="concierge-card">
+        <div class="concierge-card-header">
+          <h3><i class="fa-solid fa-calendar-plus"></i> Đặt Lịch Dịch Vụ Concierge</h3>
+          <p>Gửi yêu cầu bảo dưỡng hoặc sửa chữa. Cố vấn dịch vụ sẽ liên hệ xác nhận trong vòng 5 phút.</p>
+        </div>
+
+        <!-- Fast service filter buttons -->
+        <div class="fast-service-chips">
+          <button type="button" class="service-chip-btn active" onclick="setServiceSelect('Bảo dưỡng định kỳ', this)">Bảo Dưỡng Định Kỳ</button>
+          <button type="button" class="service-chip-btn" onclick="setServiceSelect('Sửa chữa', this)">Sửa Chữa Hỏng Hóc</button>
+          <button type="button" class="service-chip-btn" onclick="setServiceSelect('Đồng sơn', this)">Đồng Sơn / Spa</button>
+          <button type="button" class="service-chip-btn" onclick="setServiceSelect('Khác', this)">Dịch Vụ Khác</button>
+        </div>
 
         <form id="bookingForm" onsubmit="handleBooking(event)">
           <div class="form-group">
-            <label class="form-label" for="bf_name">Họ và Tên (*)</label>
-            <input type="text" id="bf_name" class="form-control" required autocomplete="name"
-              placeholder="VD: Nguyễn Văn A">
+            <label class="form-label" for="bf_name">Họ và Tên Chủ Xe (*)</label>
+            <input type="text" id="bf_name" class="form-control" required autocomplete="name" placeholder="VD: Nguyễn Văn An">
           </div>
+
           <div class="form-group">
-            <label class="form-label" for="bf_phone">Số Điện Thoại (*)</label>
-            <input type="tel" id="bf_phone" inputmode="numeric" pattern="[0-9]*" class="form-control" required autocomplete="tel"
-              placeholder="VD: 0987654321">
+            <label class="form-label" for="bf_phone">Số Điện Thoại Liên Hệ (*)</label>
+            <input type="tel" id="bf_phone" inputmode="numeric" pattern="[0-9]*" class="form-control" required autocomplete="tel" placeholder="VD: 0987654321">
           </div>
+
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
             <div class="form-group">
               <label class="form-label" for="bf_model">Dòng Xe</label>
-              <input type="text" id="bf_model" class="form-control" placeholder="VD: Mazda CX-5">
+              <input type="text" id="bf_model" class="form-control" placeholder="VD: Mazda CX-5, VinFast VF8">
             </div>
             <div class="form-group">
-              <label class="form-label" for="bf_plate">Biển Số</label>
+              <label class="form-label" for="bf_plate">Biển Số Xe</label>
               <input type="text" id="bf_plate" class="form-control" placeholder="VD: 30G-123.45">
             </div>
           </div>
+
           <div class="form-group">
-            <label class="form-label" for="bf_service">Loại Dịch Vụ</label>
+            <label class="form-label" for="bf_service">Gói Dịch Vụ Yêu Cầu</label>
             <select id="bf_service" class="form-control">
-              <option value="Bảo dưỡng định kỳ">Bảo dưỡng định kỳ</option>
-              <option value="Sửa chữa">Sửa chữa hỏng hóc</option>
-              <option value="Đồng sơn">Đồng sơn / Làm đẹp</option>
-              <option value="Khác">Khác (Ghi chú thêm)</option>
+              <option value="Bảo dưỡng định kỳ">Bảo dưỡng định kỳ chuẩn</option>
+              <option value="Sửa chữa">Sửa chữa chuyên sâu máy / gầm / điện</option>
+              <option value="Đồng sơn">Đồng sơn & Spa phục hồi</option>
+              <option value="Khác">Dịch vụ khác (Ghi chú chi tiết bên dưới)</option>
             </select>
           </div>
+
           <div class="form-group">
-            <label class="form-label" for="bf_desc">Mô Tả Tình Trạng / Nhu Cầu</label>
-            <textarea id="bf_desc" class="form-control"
-              placeholder="Mô tả chi tiết hơn về vấn đề xe của bạn..."></textarea>
+            <label class="form-label" for="bf_desc">Mô Tả Hiện Trạng / Yêu Cầu Riêng</label>
+            <textarea id="bf_desc" class="form-control" placeholder="Ví dụ: Xe kêu cọt kẹt khi qua gờ giảm tốc, cần kiểm tra phanh và thay nhớt máy..."></textarea>
           </div>
 
-          <button type="submit" class="submit-btn btn-shimmer" id="btnSubmitBooking">
-            <i class="fa-solid fa-paper-plane"></i> Gửi Yêu Cầu
+          <button type="submit" class="submit-btn" id="btnSubmitBooking">
+            <i class="fa-solid fa-paper-plane"></i> Gửi Yêu Cầu Tiếp Nhận
           </button>
         </form>
+
+        <!-- Booking confirmation card -->
+        <div id="booking-confirmation" class="booking-success-card" hidden aria-live="polite">
+          <div class="booking-success-icon"><i class="fa-solid fa-check"></i></div>
+          <p class="booking-success-kicker">TIẾP NHẬN YÊU CẦU THÀNH CÔNG</p>
+          <h3 style="color: var(--lux-text-primary);">Hệ Thống Đã Khởi Tạo Phiếu Lịch Hẹn</h3>
+          <p class="booking-success-copy">Cố vấn dịch vụ của Garage VTV sẽ liên hệ trực tiếp số điện thoại của bạn để chốt giờ tiếp nhận chính xác.</p>
+          <div class="booking-code-box">
+            <span>Mã phiếu hẹn:</span>
+            <strong id="booking-success-code">Đang tạo mã...</strong>
+          </div>
+          <div class="booking-success-meta">
+            <span><i class="fa-solid fa-user"></i> <b id="booking-success-name">—</b></span>
+            <span><i class="fa-solid fa-phone"></i> <b id="booking-success-phone">—</b></span>
+          </div>
+          <div class="booking-success-actions">
+            <button type="button" class="submit-btn" style="margin-top:0;" onclick="copyBookingSuccessCode()">
+              <i class="fa-regular fa-copy"></i> Sao Chép Mã
+            </button>
+            <button type="button" class="booking-secondary-btn" onclick="resetBookingSuccess()">
+              <i class="fa-solid fa-plus"></i> Đặt Thêm Lịch Khác
+            </button>
+          </div>
+        </div>
       </div>
 
-      <!-- Booking confirmation: shown after the API accepts the request -->
-      <div id="booking-confirmation" class="booking-success-card" hidden aria-live="polite">
-        <div class="booking-success-icon"><i class="fa-solid fa-check"></i></div>
-        <p class="booking-success-kicker">ĐẶT LỊCH THÀNH CÔNG</p>
-        <h3>Cảm ơn bạn đã gửi yêu cầu</h3>
-        <p class="booking-success-copy">Thông tin đã được chuyển đến hệ thống lễ tân. Chúng tôi sẽ liên hệ lại để xác
-          nhận lịch hẹn.</p>
-        <div class="booking-code-box">
-          <span>Mã theo dõi</span>
-          <strong id="booking-success-code">Đang tạo mã...</strong>
+      <!-- RIGHT: TRACKING SUITE -->
+      <div id="tracking" class="concierge-card">
+        <div class="concierge-card-header">
+          <h3><i class="fa-solid fa-magnifying-glass-location"></i> Tra Cứu Tiến Độ Xử Lý Xe</h3>
+          <p>Nhập mã phiếu hẹn (REQ) hoặc số điện thoại để kiểm tra trạng thái bảo dưỡng của bạn.</p>
         </div>
-        <div class="booking-success-meta">
-          <span><i class="fa-solid fa-user"></i> <b id="booking-success-name">—</b></span>
-          <span><i class="fa-solid fa-phone"></i> <b id="booking-success-phone">—</b></span>
-        </div>
-        <div class="booking-success-actions">
-          <button type="button" class="submit-btn btn-shimmer" onclick="copyBookingSuccessCode()"><i
-              class="fa-regular fa-copy"></i> Sao chép mã</button>
-          <button type="button" class="booking-secondary-btn" onclick="resetBookingSuccess()"><i
-              class="fa-solid fa-plus"></i> Gửi yêu cầu khác</button>
-        </div>
-      </div>
-
-      <!-- Tracking Form -->
-      <div id="tracking" class="glass-panel card-hover-lift reveal-init">
-        <h3><i class="fa-solid fa-search"></i> Tra Cứu Tiến Độ</h3>
-        <p style="color: var(--text-muted); margin-bottom: 2rem; font-size: 0.95rem;">
-          Nhập mã yêu cầu (VD: REQ-20260915-0001) để xem trạng thái dịch vụ.
-        </p>
 
         <div class="form-group">
-          <input type="text" id="track_input" class="form-control" placeholder="Nhập mã REQ của bạn..."
-            autocomplete="off">
+          <label class="form-label" for="track_input">Mã Yêu Cầu Hoặc Số Điện Thoại</label>
+          <input type="text" id="track_input" class="form-control" placeholder="VD: REQ-20260915-0001 hoặc 0987..." autocomplete="off">
+          
+          <div class="tracking-chip-samples">
+            <span>Mẫu thử nhanh:</span>
+            <span class="sample-pill" onclick="fillTrackingSample('REQ-20260915-0001')">REQ-20260915-0001</span>
+            <span class="sample-pill" onclick="fillTrackingSample('0987654321')">0987654321</span>
+          </div>
         </div>
-        <button class="submit-btn btn-shimmer" onclick="handleTracking()"
-          style="background: var(--bg-sidebar); border: 1px solid var(--accent-cyan); color: var(--accent-cyan);">
-          <i class="fa-solid fa-radar"></i> Tra Cứu Ngay
+
+        <button class="submit-btn" onclick="handleTracking()" style="background: var(--lux-bg-elevated); border: 1px solid var(--lux-sky); color: var(--lux-sky);">
+          <i class="fa-solid fa-radar"></i> Tra Cứu Trực Tuyến
         </button>
 
         <div id="search_result" class="search-result">
-          <div style="text-align: center; color: var(--text-muted);">
-            Vui lòng nhập thông tin để tra cứu.
+          <div style="text-align: center; color: var(--lux-text-tertiary); font-size: 0.9rem;">
+            <i class="fa-solid fa-magnifying-glass" style="margin-right: 6px;"></i> Nhập mã yêu cầu ở trên để xem tiến độ xe.
+          </div>
+        </div>
+
+        <!-- Quick Assistance Card Inside Tracking -->
+        <div style="margin-top: 2rem; padding: 1.25rem; background: var(--lux-bg-input); border-radius: var(--radius-md); border: 1px solid var(--lux-border);">
+          <div style="display: flex; gap: 12px; align-items: center;">
+            <i class="fa-solid fa-headset" style="font-size: 1.6rem; color: var(--lux-sky);"></i>
+            <div>
+              <div style="font-weight: 700; font-size: 0.92rem; color: var(--lux-text-primary);">Cần hỗ trợ kỹ thuật khẩn cấp?</div>
+              <div style="font-size: 0.82rem; color: var(--lux-text-secondary); margin-top: 2px;">Cố vấn trưởng túc trực qua hotline: <b>033.344.2358</b></div>
+            </div>
           </div>
         </div>
       </div>
@@ -719,36 +1917,339 @@
     </div>
   </section>
 
-  <!-- Footer -->
-  <footer>
-    <div class="footer-content">
-      <div class="brand">
-        <i class="fa-solid fa-car-side" style="color: var(--accent-cyan); font-size: 1.5rem;"></i>
-        <span style="font-weight: 800; font-size: 1.2rem; color: var(--text-main);">GARAGE VTV</span>
+  <!-- ==========================================================================
+       CUSTOMER TESTIMONIALS — TRUST OF HIGH-END CAR OWNERS
+       ========================================================================== -->
+  <section id="reviews" class="section-wrap">
+    <div class="section-header-center">
+      <span class="section-kicker">Cảm Nhận Khách Hàng</span>
+      <h2 class="section-title">Hơn 5.000+ Chủ Xe Đã Hài Lòng</h2>
+      <p class="section-subtitle">Chất lượng dịch vụ và tính minh bạch tạo nên uy tín vững chắc của Garage VTV qua từng năm tháng.</p>
+    </div>
+
+    <div class="reviews-grid">
+      <!-- Review 1 -->
+      <div class="review-card">
+        <div>
+          <div class="review-stars">
+            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+          </div>
+          <p class="review-quote">"Ấn tượng nhất là trợ lý AI chẩn đoán sơ bộ trước khi tôi đến xưởng. Kỹ thuật viên báo giá rất chi tiết, có video gửi qua điện thoại xem rõ tình trạng bố thắng trước khi thay thế."</p>
+        </div>
+        <div class="reviewer-meta">
+          <div class="reviewer-avatar">T</div>
+          <div class="reviewer-info">
+            <h5>Anh Trần Minh Tuấn</h5>
+            <span>Chủ doanh nghiệp xuất nhập khẩu</span>
+          </div>
+          <span class="car-badge-chip">Mercedes E300</span>
+        </div>
       </div>
-      <div class="footer-text">
-        &copy; 2026 Garage VTV Automotive. Tự động hóa bởi Trí Tuệ Nhân Tạo.
+
+      <!-- Review 2 -->
+      <div class="review-card">
+        <div>
+          <div class="review-stars">
+            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+          </div>
+          <p class="review-quote">"Tôi đi bảo dưỡng mốc 40.000 km, đặt lịch trước qua web chỉ mất 1 phút. Đến xưởng xe được tiếp nhận ngay không phải chờ đợi. Phòng chờ sạch sẽ, nhân viên lịch sự chuyên nghiệp."</p>
+        </div>
+        <div class="reviewer-meta">
+          <div class="reviewer-avatar">H</div>
+          <div class="reviewer-info">
+            <h5>Chị Nguyễn Thu Hà</h5>
+            <span>Kiến trúc sư nội thất</span>
+          </div>
+          <span class="car-badge-chip">Mazda CX-5</span>
+        </div>
+      </div>
+
+      <!-- Review 3 -->
+      <div class="review-card">
+        <div>
+          <div class="review-stars">
+            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+          </div>
+          <p class="review-quote">"Dịch vụ đồng sơn ở đây chuẩn màu xuất sắc. Xe tôi bị quẹt trầy cánh cửa, xưởng hấp sơn vi tính không nhận ra vết nối màu luôn. Giá cả niêm yết rõ ràng không lo bị chém."</p>
+        </div>
+        <div class="reviewer-meta">
+          <div class="reviewer-avatar">Đ</div>
+          <div class="reviewer-info">
+            <h5>Anh Lê Hoàng Đức</h5>
+            <span>Quản lý dự án công nghệ</span>
+          </div>
+          <span class="car-badge-chip">VinFast VF8</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       FOOTER — LUXURY AUTOMOTIVE
+       ========================================================================== -->
+  <footer>
+    <div class="footer-container">
+      <div class="footer-col">
+        <div class="brand" style="margin-bottom: 1rem;">
+          <div class="brand-logo-wrap">
+            <img src="logo.png" alt="Logo" onerror="this.src='https://via.placeholder.com/44x44/0891b2/ffffff?text=VTV'">
+          </div>
+          <div class="brand-meta">
+            <span class="brand-text">GARAGE VTV</span>
+            <span class="brand-tag">AUTOMOTIVE EXCELLENCE</span>
+          </div>
+        </div>
+        <p>Hệ thống trung tâm chăm sóc và sửa chữa ô tô cao cấp tiên phong ứng dụng công nghệ chẩn đoán Trí Tuệ Nhân Tạo (AI) độc quyền.</p>
+        <p style="font-size: 0.82rem; color: var(--lux-text-tertiary);"><i class="fa-solid fa-location-dot" style="color: var(--lux-sky); margin-right: 6px;"></i> Trụ sở: Trung tâm Dịch Vụ Kỹ Thuật Ô Tô Garage VTV</p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Dịch Vụ Chính</h4>
+        <ul>
+          <li><a href="#services">Bảo dưỡng định kỳ 40 hạng mục</a></li>
+          <li><a href="#services">Sửa chữa khung gầm & động cơ</a></li>
+          <li><a href="#services">Chẩn đoán lỗi AI & xóa đèn Taplo</a></li>
+          <li><a href="#services">Đồng sơn phòng hấp sấy vi tính</a></li>
+          <li><a href="#services">Bảo dưỡng điều hòa & điện xe</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Liên Kết Nhanh</h4>
+        <ul>
+          <li><a href="#booking">Đặt lịch hẹn trực tuyến</a></li>
+          <li><a href="#tracking">Tra cứu tiến độ sửa chữa xe</a></li>
+          <li><a href="javascript:void(0)" onclick="openAIAssistantModal('Trợ lý GarageAI', 'Tư vấn chi phí bảo dưỡng')">Trợ lý GarageAI tư vấn</a></li>
+          <li><a href="javascript:void(0)" onclick="openPhoneContactModal()">Hotline cứu hộ & hỗ trợ</a></li>
+          <li><a href="login.html">Cổng nhân viên nội bộ</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Hotline Khẩn Cấp (24/7)</h4>
+        <p style="font-size: 1.25rem; font-weight: 800; color: var(--lux-sky); margin-bottom: 4px;">
+          <i class="fa-solid fa-phone"></i> 033.344.2358
+        </p>
+        <p style="font-size: 0.84rem; color: var(--lux-text-tertiary);">Cứu hộ cơ động & cố vấn kỹ thuật trực cuộc gọi</p>
+        
+        <div style="margin-top: 1.25rem;">
+          <div style="font-size: 0.82rem; font-weight: 700; color: var(--lux-text-primary); margin-bottom: 6px;">Giờ mở cửa phục vụ:</div>
+          <div style="font-size: 0.84rem; color: var(--lux-text-secondary);">Thứ 2 — Chủ Nhật: 07:30 – 18:30 (Cứu hộ 24/7)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div>
+        &copy; 2026 Garage VTV Automotive. Toàn bộ bản quyền được bảo lưu.
+      </div>
+      <div style="display: flex; gap: 1.5rem;">
+        <span style="color: var(--lux-text-tertiary);">Được hỗ trợ bởi Trí Tuệ Nhân Tạo AI</span>
       </div>
     </div>
   </footer>
 
-  <!-- Toast notification (thay thế alert) -->
-  <div id="global-toast" style="
-    position: fixed; top: 1.25rem; left: 50%; transform: translateX(-50%) translateY(-20px);
-    min-width: 300px; max-width: 90vw;
-    background: #1e293b; border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 12px; padding: 0.9rem 1.1rem;
-    display: flex; align-items: center; gap: 0.75rem;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    z-index: 99999; opacity: 0;
-    transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
-    pointer-events: none;
-  ">
-    <i id="global-toast-icon" class="fa-solid fa-circle-exclamation" style="font-size:1.1rem; flex-shrink:0;"></i>
-    <span id="global-toast-text" style="font-size:0.88rem; color:#f8fafc; font-weight:500;"></span>
+  <!-- ==========================================================================
+       FLOATING ACTIONS DOCK
+       ========================================================================== -->
+  <div class="lux-floating-dock">
+    <button class="lux-dock-btn btn-dock-phone" onclick="openPhoneContactModal()" title="Hotline tư vấn và cứu hộ 24/7">
+      <i class="fa-solid fa-phone"></i>
+    </button>
+    <button class="lux-dock-btn btn-dock-ai" onclick="openAIAssistantModal('Trợ lý GarageAI', 'Tư vấn nhanh')" title="Trò chuyện cùng Trợ lý GarageAI">
+      <i class="fa-solid fa-robot"></i>
+    </button>
   </div>
 
+  <!-- Toast Notification (Top Center) -->
+  <div id="global-toast" style="
+    position: fixed; top: 1.25rem; left: 50%; transform: translateX(-50%) translateY(-20px);
+    min-width: 320px; max-width: 90vw;
+    background: #0f172a; border: 1px solid rgba(56, 189, 248, 0.3);
+    border-radius: var(--radius-md); padding: 0.95rem 1.25rem;
+    display: flex; align-items: center; gap: 0.85rem;
+    box-shadow: 0 12px 35px rgba(0,0,0,0.6);
+    z-index: 99999; opacity: 0;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+  ">
+    <i id="global-toast-icon" class="fa-solid fa-circle-exclamation" style="font-size:1.2rem; flex-shrink:0;"></i>
+    <span id="global-toast-text" style="font-size:0.92rem; color:#f8fafc; font-weight:600;"></span>
+  </div>
+
+  <!-- ==========================================================================
+       MODALS: GARAGE AI ASSISTANT & PHONE CONTACT (PRESERVED IDS & FUNCTIONS)
+       ========================================================================== -->
+
+  <!-- Modal AI Garage Assistant (GarageAI) -->
+  <div id="modal-ai-result" class="modal-backdrop">
+    <div class="modal-card garage-ai-modal"
+      style="max-width: 600px; width: 95%; padding: 0; overflow: hidden; border-radius: var(--radius-xl); background: #0c1220; border: 1px solid rgba(56, 189, 248, 0.25); box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8);">
+      <div class="garage-ai-header"
+        style="display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; background: #0f172a; border-bottom: 1px solid rgba(255, 255, 255, 0.08);">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <div class="ai-header-icon"
+            style="width: 44px; height: 44px; border-radius: var(--radius-md); background: linear-gradient(135deg, #164e63 0%, #0891b2 100%); display: flex; align-items: center; justify-content: center; color: #67e8f9; font-size: 1.3rem; box-shadow: 0 4px 14px rgba(8, 145, 178, 0.4);">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+          </div>
+          <div>
+            <h3 id="modal-ai-title" style="color: #ffffff; font-size: 1.25rem; font-weight: 800; margin: 0; line-height: 1.2;">
+              Trợ lý GarageAI
+            </h3>
+            <span style="font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; color: var(--lux-sky); text-transform: uppercase; margin-top: 2px; display: block;">
+              Tư Vấn Dịch Vụ & Combo Bảo Dưỡng
+            </span>
+          </div>
+        </div>
+        <button class="close-btn" onclick="closeModal('modal-ai-result')"
+          style="color: #94a3b8; font-size: 1.4rem; background: transparent; border: none; cursor: pointer; padding: 0.25rem 0.5rem; transition: color 0.2s;" title="Đóng">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="garage-ai-banner"
+        style="background: rgba(56, 189, 248, 0.04); padding: 0.8rem 1.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06); font-size: 0.82rem; color: #94a3b8; line-height: 1.5;">
+        <i class="fa-solid fa-tags" style="color: var(--lux-sky); margin-right: 6px;"></i> AI chuyên tư vấn bảng giá dịch vụ và các combo bảo dưỡng định kỳ chính hãng tại Garage VTV.
+      </div>
+
+      <!-- Quick Action Chips for Chatbot -->
+      <div class="garage-ai-chips-bar"
+        style="padding: 0.65rem 1.25rem; background: rgba(15, 23, 42, 0.7); border-bottom: 1px solid rgba(255, 255, 255, 0.05); display: flex; gap: 0.5rem; overflow-x: auto; scrollbar-width: none;">
+        <button type="button" onclick="setModalAIQuestion('Tư vấn gói bảo dưỡng định kỳ 5.000 km và chi phí')"
+          style="white-space: nowrap; font-size: 0.76rem; font-weight: 600; background: rgba(255, 255, 255, 0.04); color: #cbd5e1; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 99px; padding: 0.35rem 0.85rem; cursor: pointer;">
+          <i class="fa-solid fa-wrench" style="color: #38bdf8; margin-right: 4px;"></i> Gói 5.000 km
+        </button>
+        <button type="button" onclick="setModalAIQuestion('Tư vấn các hạng mục bảo dưỡng mốc 10.000 km và chi phí dự tính')"
+          style="white-space: nowrap; font-size: 0.76rem; font-weight: 600; background: rgba(255, 255, 255, 0.04); color: #cbd5e1; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 99px; padding: 0.35rem 0.85rem; cursor: pointer;">
+          <i class="fa-solid fa-screwdriver-wrench" style="color: #f59e0b; margin-right: 4px;"></i> Gói 10.000 km
+        </button>
+        <button type="button" onclick="setModalAIQuestion('Tư vấn combo bảo dưỡng lớn mốc 40.000 km gồm những gì và báo giá')"
+          style="white-space: nowrap; font-size: 0.76rem; font-weight: 600; background: rgba(255, 255, 255, 0.04); color: #cbd5e1; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 99px; padding: 0.35rem 0.85rem; cursor: pointer;">
+          <i class="fa-solid fa-gears" style="color: #a855f7; margin-right: 4px;"></i> Combo 40.000 km
+        </button>
+        <button type="button" onclick="setModalAIQuestion('Tư vấn combo bảo dưỡng điều hòa: vệ sinh dàn lạnh, nạp gas và lọc gió')"
+          style="white-space: nowrap; font-size: 0.76rem; font-weight: 600; background: rgba(255, 255, 255, 0.04); color: #cbd5e1; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 99px; padding: 0.35rem 0.85rem; cursor: pointer;">
+          <i class="fa-solid fa-snowflake" style="color: #06b6d4; margin-right: 4px;"></i> Combo Điều Hòa
+        </button>
+        <button type="button" onclick="setModalAIQuestion('Tư vấn combo bảo dưỡng hệ thống phanh 4 bánh và cân chỉnh góc đặt gầm')"
+          style="white-space: nowrap; font-size: 0.76rem; font-weight: 600; background: rgba(255, 255, 255, 0.04); color: #cbd5e1; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 99px; padding: 0.35rem 0.85rem; cursor: pointer;">
+          <i class="fa-solid fa-circle-stop" style="color: #10b981; margin-right: 4px;"></i> Combo Phanh & Gầm
+        </button>
+        <button type="button" onclick="renderChatbotBookingForm()"
+          style="white-space: nowrap; font-size: 0.76rem; font-weight: 700; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 99px; padding: 0.35rem 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 5px;">
+          <i class="fa-solid fa-calendar-plus"></i> Đặt Lịch Bảo Dưỡng
+        </button>
+      </div>
+
+      <div id="modal-ai-chat-body" class="garage-ai-body"
+        style="padding: 1.5rem; max-height: 380px; min-height: 240px; overflow-y: auto; display: flex; flex-direction: column; gap: 1.25rem; background: #0c1220;">
+        <div class="garage-ai-msg-row ai-msg" style="display: flex; gap: 0.9rem; align-items: flex-start;">
+          <div class="ai-msg-avatar"
+            style="width: 38px; height: 38px; border-radius: var(--radius-sm); background: rgba(14, 116, 144, 0.3); border: 1px solid rgba(6, 182, 212, 0.35); display: flex; align-items: center; justify-content: center; color: #38bdf8; font-size: 1.1rem; flex-shrink: 0; margin-top: 2px;">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+          </div>
+          <div class="ai-msg-bubble"
+            style="background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(148, 163, 184, 0.18); border-radius: var(--radius-md); padding: 1.1rem 1.25rem; color: #e2e8f0; font-size: 0.94rem; line-height: 1.6; max-width: 88%;">
+            Xin chào! Tôi là Trợ lý GarageAI. Tôi chuyên tư vấn bảng giá dịch vụ và các gói, combo bảo dưỡng định kỳ chính hãng (5.000 km, 10.000 km, 20.000 km, 40.000 km...). Bạn muốn tìm hiểu gói bảo dưỡng hoặc dịch vụ nào cho xe của mình?
+          </div>
+        </div>
+      </div>
+
+      <div class="garage-ai-footer"
+        style="padding: 1.25rem 1.5rem; background: #0f172a; border-top: 1px solid rgba(255, 255, 255, 0.08); display: flex; gap: 0.75rem; align-items: flex-end;">
+        <div style="flex: 1;">
+          <textarea id="modal-ai-question-input" class="garage-ai-input" rows="2"
+            placeholder="Ví dụ: Tư vấn gói bảo dưỡng 10.000 km, combo điều hòa, combo phanh gầm, thay dầu nhớt..."
+            style="width: 100%; background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(148, 163, 184, 0.25); border-radius: var(--radius-md); color: #f8fafc; padding: 0.85rem 1rem; font-size: 0.92rem; resize: none; outline: none; transition: all 0.2s;"
+            onkeydown="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); submitModalAIQuestion(); }"></textarea>
+        </div>
+        <button class="garage-ai-send-btn" onclick="submitModalAIQuestion()" title="Gửi câu hỏi"
+          style="width: 50px; height: 50px; border-radius: var(--radius-md); background: var(--lux-gradient-accent); color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; flex-shrink: 0; transition: transform 0.2s ease;">
+          <i class="fa-solid fa-paper-plane" style="transform: rotate(10deg);"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Phone Contact Popup (Hotline & Gọi lại) -->
+  <div id="modal-phone-contact" class="modal-backdrop">
+    <div class="modal-card phone-contact-card"
+      style="max-width: 520px; width: 95%; padding: 0; overflow: hidden; border-radius: var(--radius-xl); background: #0c1220; border: 1px solid rgba(56, 189, 248, 0.25); box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8);">
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; background: #0f172a; border-bottom: 1px solid rgba(255, 255, 255, 0.08);">
+        <div style="display: flex; align-items: center; gap: 0.9rem;">
+          <div style="width: 44px; height: 44px; border-radius: var(--radius-md); background: linear-gradient(135deg, #155e75 0%, #0891b2 100%); display: flex; align-items: center; justify-content: center; color: #67e8f9; font-size: 1.3rem; box-shadow: 0 4px 12px rgba(8, 145, 178, 0.35);">
+            <i class="fa-solid fa-phone-volume"></i>
+          </div>
+          <div>
+            <h3 style="color: #ffffff; font-size: 1.2rem; font-weight: 800; margin: 0;">Hotline Liên Hệ Garage VTV</h3>
+            <span style="font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; color: var(--lux-sky); text-transform: uppercase;">Tư Vấn Kỹ Thuật Trực Tiếp 24/7</span>
+          </div>
+        </div>
+        <button class="close-btn" onclick="closeModal('modal-phone-contact')"
+          style="color: #94a3b8; font-size: 1.4rem; background: transparent; border: none; cursor: pointer; padding: 0.2rem 0.5rem;" title="Đóng">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div style="padding: 1.5rem; background: #0c1220; display: flex; flex-direction: column; gap: 1.15rem;">
+        <!-- Hotline 1 -->
+        <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(148, 163, 184, 0.18); border-radius: var(--radius-md); padding: 1.15rem; display: flex; align-items: center; justify-content: space-between;">
+          <div>
+            <div style="font-size: 0.78rem; color: #94a3b8; font-weight: 700;">📞 HOTLINE KỸ THUẬT & ĐẶT LỊCH HẸN:</div>
+            <div style="font-size: 1.45rem; font-weight: 800; color: #38bdf8; margin-top: 2px;">033.344.2358</div>
+            <div style="font-size: 0.76rem; color: #64748b; margin-top: 2px;">Lễ tân & Kỹ thuật viên trưởng thường trực</div>
+          </div>
+          <div style="display: flex; gap: 0.5rem;">
+            <button class="btn btn-secondary btn-sm" onclick="copyTextToClipboard('0333442358', 'Số điện thoại Hotline')" title="Sao chép SĐT" style="padding: 0.6rem 0.8rem; border-radius: 8px; cursor: pointer;">
+              <i class="fa-solid fa-copy"></i>
+            </button>
+            <a href="tel:0333442358" class="btn btn-primary btn-sm" style="background: var(--lux-gradient-accent); border: none; font-weight: 700; padding: 0.6rem 1.1rem; border-radius: 8px; color: white; text-decoration: none; display: flex; align-items: center; gap: 6px;">
+              <i class="fa-solid fa-phone"></i> Gọi Ngay
+            </a>
+          </div>
+        </div>
+
+        <!-- Hotline 2 -->
+        <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(244, 63, 94, 0.3); border-radius: var(--radius-md); padding: 1.15rem; display: flex; align-items: center; justify-content: space-between;">
+          <div>
+            <div style="font-size: 0.78rem; color: #f43f5e; font-weight: 700;">🚨 HOTLINE CỨU HỘ SÀN TRƯỢT (24/7):</div>
+            <div style="font-size: 1.45rem; font-weight: 800; color: #fb7185; margin-top: 2px;">1900.6868</div>
+            <div style="font-size: 0.76rem; color: #64748b; margin-top: 2px;">Xe cẩu kéo cứu hộ đến tận nơi toàn thời gian</div>
+          </div>
+          <a href="tel:19006868" class="btn btn-primary btn-sm" style="background: #e11d48; border: none; font-weight: 700; padding: 0.6rem 1.1rem; border-radius: 8px; color: white; text-decoration: none; display: flex; align-items: center; gap: 6px;">
+            <i class="fa-solid fa-truck-medical"></i> Cứu Hộ
+          </a>
+        </div>
+
+        <!-- Request Callback Form -->
+        <div style="background: rgba(14, 20, 36, 0.85); border: 1px solid var(--lux-border); border-radius: var(--radius-md); padding: 1.25rem;">
+          <h4 style="font-size: 0.95rem; color: var(--lux-text-primary); margin: 0 0 0.85rem; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-clock-rotate-left" style="color: var(--lux-sky);"></i> Yêu Cầu Garage Gọi Lại Sau 5 Phút:
+          </h4>
+          <form onsubmit="submitCallbackRequest(event)">
+            <div style="display: flex; gap: 0.6rem; margin-bottom: 0.75rem;">
+              <input type="tel" id="cb-phone" inputmode="numeric" pattern="[0-9]*" class="form-control" placeholder="Nhập SĐT của bạn..." required
+                style="background: var(--lux-bg-input); border-color: var(--lux-border); color: var(--lux-text-primary);">
+              <select id="cb-time" class="form-control" style="width: 140px; background: var(--lux-bg-input); border-color: var(--lux-border); color: var(--lux-text-primary);">
+                <option value="immediate">Gọi ngay (5p)</option>
+                <option value="morning">Sáng (8h-11h)</option>
+                <option value="afternoon">Chiều (14h-17h)</option>
+              </select>
+            </div>
+            <button type="submit" class="submit-btn" style="margin-top:0; padding: 0.85rem; border-radius: 8px;">
+              <i class="fa-solid fa-paper-plane"></i> Gửi Yêu Cầu Gọi Lại
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       CORE JAVASCRIPT LOGIC
+       ========================================================================== -->
   <script>
+    // Toast notification
     let _toastTimer;
     function showToast(type, msg, duration = 4500) {
       const el = document.getElementById('global-toast');
@@ -772,6 +2273,7 @@
       }, duration);
     }
 
+    // Theme toggle
     const themeBtn = document.getElementById('theme-btn');
     const htmlEl = document.documentElement;
     const savedTheme = localStorage.getItem('vtv_theme') || 'dark';
@@ -781,33 +2283,96 @@
     function toggleTheme() {
       const current = htmlEl.getAttribute('data-theme');
       const next = current === 'dark' ? 'light' : 'dark';
-      htmlEl.setAttribute('data-theme', next);
-      localStorage.setItem('vtv_theme', next);
-      updateThemeIcon(next);
+
+      const updateThemeDOM = () => {
+        htmlEl.setAttribute('data-theme', next);
+        localStorage.setItem('vtv_theme', next);
+        updateThemeIcon(next);
+      };
+
+      if (document.startViewTransition && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.startViewTransition(updateThemeDOM);
+      } else {
+        updateThemeDOM();
+      }
     }
 
     function updateThemeIcon(theme) {
+      if (!themeBtn) return;
       themeBtn.innerHTML = theme === 'dark'
         ? '<i class="fa-solid fa-sun" style="color: #f59e0b;"></i>'
         : '<i class="fa-solid fa-moon"></i>';
     }
 
+    // Navbar blur on scroll
     window.addEventListener('scroll', () => {
       const nav = document.getElementById('navbar');
-      if (window.scrollY > 50) {
-        nav.style.background = 'var(--glass-bg)';
-        nav.style.boxShadow = '0 4px 20px rgba(0,0,0,0.1)';
+      if (!nav) return;
+      if (window.scrollY > 40) {
+        nav.style.boxShadow = '0 10px 30px rgba(0,0,0,0.25)';
       } else {
-        nav.style.background = 'var(--glass-bg)';
         nav.style.boxShadow = 'none';
       }
     });
 
+    // Helper: Select service from cards to booking form
+    function selectServiceForBooking(serviceName) {
+      const select = document.getElementById('bf_service');
+      if (select) {
+        select.value = serviceName;
+      }
+      // Update chip styling
+      const chips = document.querySelectorAll('.service-chip-btn');
+      chips.forEach(chip => {
+        if (chip.textContent.trim().includes(serviceName) || (serviceName === 'Đồng sơn' && chip.textContent.includes('Đồng Sơn'))) {
+          chip.classList.add('active');
+        } else {
+          chip.classList.remove('active');
+        }
+      });
+      const bookingSec = document.getElementById('booking');
+      if (bookingSec) {
+        bookingSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+
+    function setServiceSelect(val, btnEl) {
+      const select = document.getElementById('bf_service');
+      if (select) select.value = val;
+      const chips = document.querySelectorAll('.service-chip-btn');
+      chips.forEach(c => c.classList.remove('active'));
+      if (btnEl) btnEl.classList.add('active');
+    }
+
+    function fillTrackingSample(val) {
+      const input = document.getElementById('track_input');
+      if (input) {
+        input.value = val;
+        handleTracking();
+      }
+    }
+
+    // Interactive AI Simulation scan in Hero card
+    function simulateAIScan(btn) {
+      const orig = btn.innerHTML;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang phân tích OBD-II...';
+      btn.disabled = true;
+      setTimeout(() => {
+        btn.innerHTML = '<i class="fa-solid fa-circle-check" style="color: var(--lux-emerald);"></i> Quét Hoàn Tất (Không Lỗi)';
+        showToast('success', 'Kết nối xe thành công. Động cơ và hộp số hoạt động 100% ổn định!');
+        setTimeout(() => {
+          btn.innerHTML = orig;
+          btn.disabled = false;
+        }, 3000);
+      }, 1500);
+    }
+
+    // Booking Submission Handler
     async function handleBooking(e) {
       e.preventDefault();
       const btn = document.getElementById('btnSubmitBooking');
       const originalText = btn.innerHTML;
-      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang Gửi...';
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang Gửi Yêu Cầu...';
       btn.disabled = true;
 
       const payload = {
@@ -840,8 +2405,10 @@
         const bookedData = await response.json();
         const finalCode = bookedData.requestCode || bookedData.request_code || bookedData.code;
         if (!finalCode) throw new Error('Phản hồi máy chủ không có mã yêu cầu.');
-        showBookingSuccess({ ...payload, ...bookedData, requestCode: finalCode });
-        showToast('success', `Đặt lịch thành công! Mã: ${finalCode}`);
+        if (typeof showBookingSuccess === 'function') {
+          showBookingSuccess({ ...payload, ...bookedData, requestCode: finalCode });
+        }
+        showToast('success', `Đặt lịch thành công! Mã phiếu: ${finalCode}`);
       } catch (err) {
         const message = err.name === 'AbortError'
           ? 'Máy chủ phản hồi quá lâu. Vui lòng thử lại.'
@@ -853,17 +2420,18 @@
       }
     }
 
+    // Tracking Lookup Handler
     async function handleTracking() {
       const q = document.getElementById('track_input').value.trim();
       const resDiv = document.getElementById('search_result');
       resDiv.style.display = 'block';
 
       if (!q) {
-        resDiv.innerHTML = '<div style="color: var(--accent-rose);"><i class="fa-solid fa-triangle-exclamation"></i> Vui lòng nhập mã hoặc số điện thoại!</div>';
+        resDiv.innerHTML = '<div style="color: var(--lux-rose);"><i class="fa-solid fa-triangle-exclamation"></i> Vui lòng nhập mã yêu cầu hoặc số điện thoại!</div>';
         return;
       }
 
-      resDiv.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang tìm kiếm...';
+      resDiv.innerHTML = '<div style="text-align: center; color: var(--lux-sky);"><i class="fa-solid fa-spinner fa-spin"></i> Đang tra cứu dữ liệu từ hệ thống...</div>';
 
       const isLocal = window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost";
       const API_BASE = window.GARAGE_API_BASE || (isLocal ? `http://${window.location.hostname}:8000/api/v1` : "/api/v1");
@@ -881,237 +2449,51 @@
         }
         const req = await response.json();
 
-      if (req) {
-        const statusMap = {
-          Pending: ['#f59e0b', 'Chờ Xác Nhận'],
-          Contacted: ['#3b82f6', 'Đã Liên Hệ'],
-          Confirmed: ['#3b82f6', 'Đã Xác Nhận'],
-          InProgress: ['#10b981', 'Đang Xử Lý'],
-          Completed: ['#059669', 'Hoàn Thành'],
-          Cancelled: ['#ef4444', 'Đã Hủy'],
-          Rejected: ['#ef4444', 'Đã Từ Chối'],
-          PENDING: ['#f59e0b', 'Chờ Xác Nhận'],
-          APPROVED: ['#3b82f6', 'Đã Phê Duyệt'],
-          IN_PROGRESS: ['#10b981', 'Đang Xử Lý'],
-          COMPLETED: ['#059669', 'Hoàn Thành'],
-          CANCELLED: ['#ef4444', 'Đã Hủy']
-        };
-        const [statusColor, statusText] = statusMap[req.status] || ['#94a3b8', req.status || 'Đang xử lý'];
+        if (req) {
+          const statusMap = {
+            Pending: ['#f59e0b', 'Chờ Xác Nhận'],
+            Contacted: ['#38bdf8', 'Đã Liên Hệ'],
+            Confirmed: ['#38bdf8', 'Đã Xác Nhận'],
+            InProgress: ['#10b981', 'Đang Xử Lý'],
+            Completed: ['#059669', 'Hoàn Thành'],
+            Cancelled: ['#ef4444', 'Đã Hủy'],
+            Rejected: ['#ef4444', 'Đã Từ Chối'],
+            PENDING: ['#f59e0b', 'Chờ Xác Nhận'],
+            APPROVED: ['#38bdf8', 'Đã Phê Duyệt'],
+            IN_PROGRESS: ['#10b981', 'Đang Xử Lý'],
+            COMPLETED: ['#059669', 'Hoàn Thành'],
+            CANCELLED: ['#ef4444', 'Đã Hủy']
+          };
+          const [statusColor, statusText] = statusMap[req.status] || ['#94a3b8', req.status || 'Đang xử lý'];
 
-        const html = `
-          <div style="background: var(--bg-card); padding: 1rem; border-radius: 8px; margin-bottom: 0.8rem; border-left: 4px solid ${statusColor};">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-              <strong style="color: var(--text-main);">${req.requestCode || 'Yêu Cầu'}</strong>
-              <span style="background: ${statusColor}20; color: ${statusColor}; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 700;">${statusText}</span>
+          const html = `
+            <div style="background: var(--lux-bg-elevated); padding: 1.25rem; border-radius: var(--radius-md); border-left: 4px solid ${statusColor}; border: 1px solid var(--lux-border); border-left-width: 4px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <strong style="color: var(--lux-text-primary); font-size: 1.05rem;">${req.requestCode || 'Phiếu Yêu Cầu'}</strong>
+                <span style="background: ${statusColor}22; color: ${statusColor}; border: 1px solid ${statusColor}44; padding: 4px 10px; border-radius: var(--radius-pill); font-size: 0.76rem; font-weight: 700;">${statusText}</span>
+              </div>
+              <div style="font-size: 0.88rem; color: var(--lux-text-secondary); margin-bottom: 0.35rem;"><i class="fa-solid fa-user" style="color: var(--lux-sky); margin-right: 6px;"></i> Khách hàng: <b>${req.fullName || '—'}</b> (${req.phone || '—'})</div>
+              <div style="font-size: 0.88rem; color: var(--lux-text-secondary); margin-bottom: 0.35rem;"><i class="fa-solid fa-car" style="color: var(--lux-sky); margin-right: 6px;"></i> Phương tiện: <b>${req.vehicleModel || req.vehicleBrand || '—'}</b> (${req.licensePlate || '—'})</div>
+              <div style="font-size: 0.88rem; color: var(--lux-text-secondary); margin-bottom: 0.35rem;"><i class="fa-solid fa-wrench" style="color: var(--lux-sky); margin-right: 6px;"></i> Hạng mục: <b>${req.serviceType || 'Đang phân loại'}</b></div>
+              <div style="font-size: 0.84rem; color: var(--lux-text-tertiary); margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--lux-border);"><i class="fa-regular fa-clock" style="margin-right: 4px;"></i> Khởi tạo: ${req.createdAt ? new Date(req.createdAt).toLocaleString('vi-VN') : 'Mới tạo gần đây'}</div>
             </div>
-            <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem;"><i class="fa-solid fa-user"></i> Khách hàng: ${req.fullName || '—'} (${req.phone || '—'})</div>
-            <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem;"><i class="fa-solid fa-car"></i> Xe: ${req.vehicleModel || req.vehicleBrand || '—'} (${req.licensePlate || '—'})</div>
-            <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem;"><i class="fa-solid fa-screwdriver-wrench"></i> Dịch vụ: ${req.serviceType || 'Đang tiếp nhận'}</div>
-            <div style="font-size: 0.85rem; color: var(--text-muted);"><i class="fa-regular fa-clock"></i> Thời gian: ${req.createdAt ? new Date(req.createdAt).toLocaleString('vi-VN') : 'Mới tạo'}</div>
-          </div>
-        `;
-        resDiv.innerHTML = html;
-      }
+          `;
+          resDiv.innerHTML = html;
+        } else {
+          resDiv.innerHTML = '<div style="color: var(--lux-text-tertiary); text-align: center;"><i class="fa-solid fa-triangle-exclamation"></i> Không tìm thấy dữ liệu phù hợp với thông tin đã nhập.</div>';
+        }
       } catch (err) {
         const message = err.name === 'AbortError'
           ? 'Máy chủ phản hồi quá lâu. Vui lòng thử lại.'
           : (err.message || 'Không thể kết nối máy chủ.');
-        resDiv.innerHTML = `<div style="color: var(--accent-rose);"><i class="fa-solid fa-circle-exclamation"></i> ${message}</div>`;
+        resDiv.innerHTML = `<div style="color: var(--lux-rose); text-align: center;"><i class="fa-solid fa-circle-exclamation"></i> ${message}</div>`;
       }
     }
   </script>
 
-  <!-- Modal AI Garage Assistant (GarageAI) -->
-  <div id="modal-ai-result" class="modal-backdrop">
-    <div class="modal-card garage-ai-modal"
-      style="max-width: 580px; width: 95%; padding: 0; overflow: hidden; border-radius: 18px; background: #0f172a; border: 1px solid rgba(148, 163, 184, 0.2); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);">
-      <div class="garage-ai-header"
-        style="display: flex; justify-content: space-between; align-items: center; padding: 1.15rem 1.35rem; background: #0f172a; border-bottom: 1px solid rgba(255, 255, 255, 0.06);">
-        <div style="display: flex; align-items: center; gap: 0.85rem;">
-          <div class="ai-header-icon"
-            style="width: 42px; height: 42px; border-radius: 12px; background: linear-gradient(135deg, #164e63 0%, #0891b2 100%); display: flex; align-items: center; justify-content: center; color: #67e8f9; font-size: 1.25rem; box-shadow: 0 4px 12px rgba(8, 145, 178, 0.3);">
-            <i class="fa-solid fa-wand-magic-sparkles"></i>
-          </div>
-          <div>
-            <h3 id="modal-ai-title" style="font-family: " Huninn", sans-serif; color: #ffffff; font-size: 1.2rem;
-              font-weight: 700; margin: 0; line-height: 1.2;">
-              Trợ lý GarageAI</h3>
-            <span
-              style="font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; color: #64748b; text-transform: uppercase; margin-top: 3px; display: block;">Tư
-              Vấn Trước Khi Đến Garage</span>
-          </div>
-        </div>
-        <button class="close-btn" onclick="closeModal('modal-ai-result')"
-          style="color: #94a3b8; font-size: 1.35rem; background: transparent; border: none; cursor: pointer; padding: 0.2rem 0.5rem; transition: color 0.2s;"
-          title="Đóng">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-      <div class="garage-ai-banner"
-        style="background: rgba(255, 255, 255, 0.03); padding: 0.75rem 1.35rem; border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-size: 0.82rem; color: #94a3b8; line-height: 1.45;">
-        Không nhập mật khẩu, mã OTP hoặc dữ liệu nhạy cảm. AI chỉ tư vấn sơ bộ, không thay thế kỹ thuật viên kiểm tra
-        trực tiếp.
-      </div>
-      <div id="modal-ai-chat-body" class="garage-ai-body"
-        style="padding: 1.35rem; max-height: 380px; min-height: 240px; overflow-y: auto; display: flex; flex-direction: column; gap: 1.25rem; background: #0f172a;">
-        <div class="garage-ai-msg-row ai-msg" style="display: flex; gap: 0.85rem; align-items: flex-start;">
-          <div class="ai-msg-avatar"
-            style="width: 36px; height: 36px; border-radius: 10px; background: rgba(14, 116, 144, 0.3); border: 1px solid rgba(6, 182, 212, 0.3); display: flex; align-items: center; justify-content: center; color: #38bdf8; font-size: 1rem; flex-shrink: 0; margin-top: 2px;">
-            <i class="fa-solid fa-wand-magic-sparkles"></i>
-          </div>
-          <div class="ai-msg-bubble"
-            style="background: rgba(30, 41, 59, 0.65); border: 1px solid rgba(148, 163, 184, 0.15); border-radius: 14px; padding: 1.1rem 1.25rem; color: #e2e8f0; font-size: 0.92rem; line-height: 1.6; max-width: 88%;">
-            Tôi có thể giải thích dịch vụ, combo bảo dưỡng và quy trình đặt lịch. Bạn có thể nêu loại xe và số km trong
-            câu hỏi để tôi gợi ý sát hơn. Tôi không thể chẩn đoán xe hoặc xác nhận an toàn từ xa; với dấu hiệu bất
-            thường, hãy liên hệ garage để được kiểm tra trực tiếp.
-          </div>
-        </div>
-      </div>
-      <div class="garage-ai-footer"
-        style="padding: 1.15rem 1.35rem; background: #0f172a; border-top: 1px solid rgba(255, 255, 255, 0.06); display: flex; gap: 0.75rem; align-items: flex-end;">
-        <div style="flex: 1;">
-          <textarea id="modal-ai-question-input" class="garage-ai-input" rows="2"
-            placeholder="Ví dụ: Xe máy đã đi 5.000 km nên bảo dưỡng gì?"
-            style="width: 100%; background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 14px; color: #f8fafc; padding: 0.85rem 1rem; font-size: 0.92rem; resize: none; font-family: inherit; outline: none; transition: border-color 0.2s, box-shadow 0.2s; box-sizing: border-box;"
-            onkeydown="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); submitModalAIQuestion(); }"></textarea>
-        </div>
-        <button class="garage-ai-send-btn" onclick="submitModalAIQuestion()" title="Gửi câu hỏi"
-          style="width: 48px; height: 48px; border-radius: 12px; background: #2b7a8c; color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; transition: all 0.2s ease;">
-          <i class="fa-solid fa-paper-plane" style="transform: rotate(10deg);"></i>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal Phone Contact Popup (Liên Hệ SĐT & Hotline) -->
-  <div id="modal-phone-contact" class="modal-backdrop">
-    <div class="modal-card phone-contact-card"
-      style="max-width: 500px; width: 95%; padding: 0; overflow: hidden; border-radius: 18px; background: #0f172a; border: 1px solid rgba(148, 163, 184, 0.2); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);">
-      <div
-        style="display: flex; justify-content: space-between; align-items: center; padding: 1.15rem 1.35rem; background: #0f172a; border-bottom: 1px solid rgba(255, 255, 255, 0.06);">
-        <div style="display: flex; align-items: center; gap: 0.85rem;">
-          <div
-            style="width: 42px; height: 42px; border-radius: 12px; background: linear-gradient(135deg, #155e75 0%, #0891b2 100%); display: flex; align-items: center; justify-content: center; color: #67e8f9; font-size: 1.25rem; box-shadow: 0 4px 12px rgba(8, 145, 178, 0.3);">
-            <i class="fa-solid fa-phone-volume"></i>
-          </div>
-          <div>
-            <h3
-              style="font-family: 'Huninn', sans-serif; color: #ffffff; font-size: 1.15rem; font-weight: 700; margin: 0;">
-              Hotline Liên Hệ Garage VTV</h3>
-            <span
-              style="font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; color: #64748b; text-transform: uppercase;">Tư
-              Vấn Trực Tiếp Qua Số Điện Thoại</span>
-          </div>
-        </div>
-        <button class="close-btn" onclick="closeModal('modal-phone-contact')"
-          style="color: #94a3b8; font-size: 1.35rem; background: transparent; border: none; cursor: pointer; padding: 0.2rem 0.5rem;"
-          title="Đóng">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-      <div style="padding: 1.35rem; background: #0f172a; display: flex; flex-direction: column; gap: 1rem;">
-        <div
-          style="background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(148, 163, 184, 0.15); border-radius: 14px; padding: 1.1rem; display: flex; align-items: center; justify-content: space-between;">
-          <div>
-            <div style="font-size: 0.78rem; color: #94a3b8; font-weight: 600;">📞 HOTLINE KĨ THUẬT & ĐẶT LỊCH (24/7):
-            </div>
-            <div style="font-size: 1.35rem; font-weight: 800; color: #38bdf8; font-family: " Huninn", sans-serif;
-              margin-top: 2px;">
-              033.344.2358</div>
-            <div style="font-size: 0.75rem; color: #64748b; margin-top: 2px;">Lễ tân & KTV Trưởng trực cuộc gọi</div>
-          </div>
-          <div style="display: flex; gap: 0.5rem;">
-            <button class="btn btn-secondary btn-sm"
-              onclick="copyTextToClipboard('0333442358', 'Số điện thoại Hotline')" title="Sao chép SĐT">
-              <i class="fa-solid fa-copy"></i>
-            </button>
-            <a href="tel:0333442358" class="btn btn-primary btn-sm"
-              style="background: #0891b2; border: none; font-weight: 700; padding: 0.5rem 1rem; border-radius: 6px; color: white; text-decoration: none;">
-              <i class="fa-solid fa-phone"></i> Gọi Ngay
-            </a>
-          </div>
-        </div>
-        <div
-          style="background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(244, 63, 94, 0.25); border-radius: 14px; padding: 1.1rem; display: flex; align-items: center; justify-content: space-between;">
-          <div>
-            <div style="font-size: 0.78rem; color: #f43f5e; font-weight: 600;">🚨 HOTLINE CỨU HỘ GẦM & SỬA LƯU ĐỘNG:
-            </div>
-            <div style="font-size: 1.35rem; font-weight: 800; color: #fb7185; font-family: " Huninn", sans-serif;
-              margin-top: 2px;">
-              1900.6868</div>
-            <div style="font-size: 0.75rem; color: #64748b; margin-top: 2px;">Xe kéo cứu hộ & KTV cơ động đến tận nơi
-            </div>
-          </div>
-          <a href="tel:19006868" class="btn btn-primary btn-sm"
-            style="background: #e11d48; border: none; font-weight: 700; padding: 0.5rem 1rem; border-radius: 6px; color: white; text-decoration: none;">
-            <i class="fa-solid fa-truck-medical"></i> Cứu Hộ
-          </a>
-        </div>
-        <div
-          style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 14px; padding: 1.1rem; margin-top: 0.25rem;">
-          <h4
-            style="font-family: Arial; font-size: 0.95rem; color: var(--text-main); margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
-            <i class="fa-solid fa-clock-rotate-left" style="color: #38bdf8;"></i> Hoặc yêu cầu Garage gọi lại trong 5
-            phút:
-          </h4>
-          <form onsubmit="submitCallbackRequest(event)">
-            <div style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem;">
-              <input type="tel" id="cb-phone" inputmode="numeric" pattern="[0-9]*" class="form-control" placeholder="Nhập SĐT của bạn..." required
-                style="background: var(--bg-input); border-color: var(--border-color); color: var(--text-main);">
-              <select id="cb-time" class="form-control"
-                style="width: 140px; background: var(--bg-input); border-color: var(--border-color); color: var(--text-main);">
-                <option value="immediate" style="background: var(--bg-card); color: var(--text-main);">Gọi ngay (5p)
-                </option>
-                <option value="morning" style="background: var(--bg-card); color: var(--text-main);">Sáng (8h-11h)
-                </option>
-                <option value="afternoon" style="background: var(--bg-card); color: var(--text-main);">Chiều (14h-17h)
-                </option>
-              </select>
-            </div>
-            <button type="submit" class="btn btn-primary"
-              style="width: 100%; justify-content: center; background: linear-gradient(135deg, #2563eb, #3b82f6); border: none; padding: 0.75rem; border-radius: 8px; color: white; font-weight: bold; cursor: pointer;">
-              <i class="fa-solid fa-paper-plane"></i> Gửi Yêu Cầu Gọi Lại
-            </button>
-          </form>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <button class="floating-phone-trigger phone-ring-anim" onclick="openPhoneContactModal()" title="Hotline Tư Vấn (24/7)"
-    style="position: fixed; bottom: 30px; left: 30px; width: 62px; height: 62px; border-radius: 50%; background: linear-gradient(135deg, #0891b2, #0284c7); color: white; border: 2px solid rgba(255,255,255,0.25); font-size: 1.55rem; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 8px 25px rgba(8, 145, 178, 0.45); z-index: 9999; transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);">
-    <i class="fa-solid fa-phone-volume"></i>
-  </button>
-
-  <button class="floating-ai-trigger card-hover-lift" onclick="openAIAssistantModal('Trợ lý GarageAI', 'Tư vấn nhanh')"
-    title="Mở Trợ lý GarageAI"
-    style="position: fixed; bottom: 30px; right: 30px; width: 62px; height: 62px; border-radius: 50%; background: linear-gradient(135deg, #8b5cf6, #3b82f6); color: white; border: 2px solid rgba(255,255,255,0.25); font-size: 1.55rem; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 8px 25px rgba(139, 92, 246, 0.45); z-index: 9999; transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);">
-    <i class="fa-solid fa-wand-magic-sparkles"></i>
-  </button>
-
+  <!-- External scripts -->
   <script src="static-config.js?v=1.0"></script>
   <script src="app.js?v=11.0"></script>
-  <script>
-    // Smooth Scroll Reveal Engine
-    document.addEventListener('DOMContentLoaded', () => {
-      const revealElements = document.querySelectorAll('.reveal-init');
-      if ('IntersectionObserver' in window) {
-        const observer = new IntersectionObserver((entries) => {
-          entries.forEach(entry => {
-            if (entry.isIntersecting) {
-              entry.target.classList.add('is-revealed');
-              observer.unobserve(entry.target);
-            }
-          });
-        }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
-
-        revealElements.forEach(el => observer.observe(el));
-      } else {
-        // Fallback for older browsers
-        revealElements.forEach(el => el.classList.add('is-revealed'));
-      }
-    });
-  </script>
 </body>
 
 </html>

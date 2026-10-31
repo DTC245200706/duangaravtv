@@ -1,6 +1,6 @@
 # pyrefly: ignore [missing-import]
 from fastapi import APIRouter, Depends, Query
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, Response
 from io import BytesIO
 import math
 # pyrefly: ignore [missing-import]
@@ -74,7 +74,7 @@ def export_revenue_report(
         media_type = "application/pdf"
         filename = f"{safe_name}.pdf"
     output.seek(0)
-    return StreamingResponse(output, media_type=media_type, headers={"Content-Disposition": f"attachment; filename={filename}"})
+    return Response(content=output.getvalue(), media_type=media_type, headers={"Content-Disposition": f"attachment; filename={filename}"})
 
 @router.get("/dashboard")
 def get_dashboard_summary(
