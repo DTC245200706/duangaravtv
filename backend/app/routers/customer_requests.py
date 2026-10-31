@@ -242,21 +242,35 @@ async def create_customer_request(payload: CustomerRequestCreate, db: Session = 
 # 2. REALTIME SSE: GET /api/v1/customer-requests/stream (Lắng Nghe Thông Báo Realtime)
 @router.get("/stream")
 async def stream_customer_requests(
-    current_user: User = Depends(require_roles([UserRole.MANAGER, UserRole.RECEPTIONIST]))
+    token: Optional[str] = Query(None)
 ):
     async def event_generator():
         client_queue = asyncio.Queue()
         sse_clients.append(client_queue)
         try:
+            # Gửi tín hiệu mở kết nối ban đầu
+            yield ": connected\n\n"
             while True:
-                data = await client_queue.get()
-                import json
-                yield f"event: message\ndata: {json.dumps(data, default=str)}\n\n"
+                try:
+                    data = await asyncio.wait_for(client_queue.get(), timeout=25.0)
+                    import json
+                    yield f"event: message\ndata: {json.dumps(data, default=str)}\n\n"
+                except asyncio.TimeoutError:
+                    # Heartbeat giữ kết nối SSE không bị ngắt bởi trình duyệt / proxy
+                    yield ": keepalive\n\n"
         except asyncio.CancelledError:
             if client_queue in sse_clients:
                 sse_clients.remove(client_queue)
 
-    return StreamingResponse(event_generator(), media_type="text/event-stream")
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no"
+        }
+    )
 
 
 # 3. PUBLIC: GET /api/v1/customer-requests/code/{requestCode} (Tra Cứu Trạng Thái Cho Khách Hàng)

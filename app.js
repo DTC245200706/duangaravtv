@@ -9,6 +9,21 @@ const API_BASE = configuredApiBase || (
     : "/api/v1"
 );
 
+// Universal HTML Escape Utility (Available globally)
+function escapeHTML(str) {
+  if (str === null || str === undefined) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+const escapeHtml = escapeHTML;
+window.escapeHTML = escapeHTML;
+window.escapeHtml = escapeHTML;
+
+
 // Application State
 let currentState = {
   currentRole: "receptionist",
@@ -4291,7 +4306,8 @@ let sseEventSource = null;
 
 function initSSERealtimeStream() {
   if (!isBackendAvailable || sseEventSource) return;
-  const streamUrl = `${API_BASE}/customer-requests/stream`;
+  const tokenParam = (currentState && currentState.token) ? `?token=${encodeURIComponent(currentState.token)}` : "";
+  const streamUrl = `${API_BASE}/customer-requests/stream${tokenParam}`;
   try {
     sseEventSource = new EventSource(streamUrl);
     sseEventSource.onmessage = (event) => {
