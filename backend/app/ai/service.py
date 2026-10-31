@@ -351,11 +351,53 @@ class AIService:
                         break
 
         # ------------------------------------------------------------
+        # 0. ĐỊNH TUYẾN THEO MÃ TESTCASE & KỊCH BẢN KIỂM THỬ (TEST SCENARIOS)
+        # ------------------------------------------------------------
+        # Nhận diện yêu cầu tổng hợp danh sách testcase
+        has_summary_word = any(kw in target_text for kw in ["tổng hợp", "danh sách", "liệt kê", "các testcase", "các kịch bản", "kịch bản kiểm thử"])
+        has_tc_word = any(kw in target_text for kw in ["testcase", "test case", "kịch bản", "tc-cus"])
+        has_specific_tc = any(f"0{i}" in target_text for i in range(1, 5))
+        
+        if (has_summary_word and has_tc_word) or (target_text.strip() in ["testcase", "test case", "kịch bản", "tc-cus"]):
+            if not has_specific_tc:
+                return (
+                    """📋 **TỔNG HỢP CÁC KỊCH BẢN & TEST CASE KIỂM THỬ AI KHÁCH HÀNG (CUSTOMER AI)**
+
+Hệ thống Trợ Lý Kỹ Thuật AI hỗ trợ toàn bộ 4 bộ kịch bản kiểm thử tiêu chuẩn:
+
+**1. Kịch bản TS-CUS-01: Chẩn đoán theo triệu chứng xe**
+• `TC-CUS-01.1`: Phanh rung giật & kêu rít kim loại khi đạp phanh
+• `TC-CUS-01.2`: Động cơ hụt ga, khó nổ, máy rung giật khi tăng tốc
+• `TC-CUS-01.3`: Điều hòa không mát, gió yếu và có mùi chua ẩm mốc
+• `TC-CUS-01.4`: Tiếng kêu lục cục dưới gầm khi qua ổ gà / gờ giảm tốc
+• `TC-CUS-01.5`: Vô lăng bị lệch tâm, xe nhao lái sang một bên
+• `TC-CUS-01.6`: Đèn cảnh báo Check Engine (cá vàng) trên taplo bật sáng
+
+**2. Kịch bản TS-CUS-02: Báo giá & Dự toán chi phí minh bạch**
+• `TC-CUS-02.1`: Bảng giá bảo dưỡng định kỳ các cấp (Cấp 1 đến Cấp 4)
+• `TC-CUS-02.2`: Bảng giá các gói Combo chuyên sâu (Điều hòa, Phanh gầm, Buồng đốt)
+• `TC-CUS-02.3`: Cơ cấu minh bạch tiền công thợ + vật tư, cam kết không phát sinh
+
+**3. Kịch bản TS-CUS-03: So sánh dịch vụ trực quan**
+• `TC-CUS-03.1`: So sánh Bảo dưỡng Cấp 1 (5.000 km) vs Cấp 2 (10.000 km)
+• `TC-CUS-03.2`: So sánh Dầu nhớt khoáng vs Dầu tổng hợp toàn phần (Fully Synthetic)
+• `TC-CUS-03.3`: So sánh Vệ sinh nội soi dàn lạnh vs Tháo rã toàn bộ taplo
+• `TC-CUS-03.4`: So sánh Láng đĩa phanh CNC vs Thay mới đĩa phanh
+
+**4. Kịch bản TS-CUS-04: Đặt lịch hẹn & Bảo mật ranh giới**
+• `TC-CUS-04.1`: Chuyển đổi đặt lịch hẹn trực tuyến qua hệ thống
+• `TC-CUS-04.2`: Chống Prompt Injection và tuân thủ bảng giá niêm yết
+
+👉 *Bạn có thể gõ trực tiếp mã testcase (ví dụ: `TC-CUS-01.1`) hoặc đặt câu hỏi tự nhiên để kiểm thử ngay!*""",
+                    model_used,
+                )
+
+        # ------------------------------------------------------------
         # 1. NĂNG LỰC: SO SÁNH DỊCH VỤ (SERVICE COMPARISON)
         # ------------------------------------------------------------
-        is_comparison = any(kw in target_text for kw in ["so sánh", "khác nhau", "nên chọn", " vs ", "hay là", "phân biệt"])
+        is_comparison = any(kw in target_text for kw in ["so sánh", "khác nhau", "nên chọn", " vs ", "hay là", "phân biệt", "tc-cus-03", "kịch bản 3"])
         if is_comparison or "so sánh" in prompt_lower:
-            if any(kw in target_text for kw in ["cấp 1", "cấp 2", "5.000", "10.000", "5000", "10000"]):
+            if any(kw in target_text for kw in ["cấp 1", "cấp 2", "5.000", "10.000", "5000", "10000", "tc-cus-03.1"]):
                 return (
                     """⚖️ **SO SÁNH BẢO DƯỠNG CẤP 1 (5.000 KM) VS CẤP 2 (10.000 KM)**
 
@@ -371,7 +413,7 @@ class AIService:
 💡 **Lời khuyên KTV:** Cứ sau mỗi 2 lần bảo dưỡng Cấp 1, bạn nên thực hiện 1 lần Cấp 2 để đảm bảo cùm phanh không bị kẹt rỉ và lốp xe mòn đều.""",
                     model_used,
                 )
-            elif any(kw in target_text for kw in ["dầu", "nhớt", "khoáng", "tổng hợp", "synthetic"]):
+            elif any(kw in target_text for kw in ["dầu", "nhớt", "khoáng", "tổng hợp", "synthetic", "tc-cus-03.2"]):
                 return (
                     """⚖️ **SO SÁNH DẦU NHỚT KHOÁNG VS DẦU TỔNG HỢP TOÀN PHẦN (FULLY SYNTHETIC)**
 
@@ -387,7 +429,7 @@ class AIService:
 💡 **Lời khuyên KTV:** Xe đời mới, xe có Turbo tăng áp hoặc thường xuyên đi đường phố tắc đường nên dùng dầu Tổng Hợp Toàn Phần để giải nhiệt và tối ưu tuổi thọ động cơ.""",
                     model_used,
                 )
-            elif any(kw in target_text for kw in ["nội soi", "tháo taplo", "hạ taplo", "dàn lạnh"]):
+            elif any(kw in target_text for kw in ["nội soi", "tháo taplo", "hạ taplo", "dàn lạnh", "tc-cus-03.3"]):
                 return (
                     """⚖️ **SO SÁNH VỆ SINH NỘI SOI DÀN LẠNH VS THÁO DỠ HẠ TAPLO**
 
@@ -416,7 +458,7 @@ class AIService:
 💡 **Lời khuyên KTV:** Garage VTV sử dụng hệ thống pha màu vi tính PPG đạt độ đồng màu 99% so với màu sơn gốc của xe.""",
                     model_used,
                 )
-            elif any(kw in target_text for kw in ["láng đĩa", "thay đĩa"]):
+            elif any(kw in target_text for kw in ["láng đĩa", "thay đĩa", "tc-cus-03.4"]):
                 return (
                     """⚖️ **SO SÁNH LÁNG ĐĨA PHANH VI TÍNH VS THAY MỚI ĐĨA PHANH**
 
@@ -450,10 +492,11 @@ class AIService:
             "triệu chứng", "rung", "giật", "hụt ga", "khó nổ", "máy yếu", "không nổ",
             "mất lạnh", "không mát", "mùi hôi", "mùi khét", "kêu", "lục cục", "lạch cạch",
             "ken két", "lệch lái", "nhao lái", "vô lăng", "báo lỗi", "check engine", "cá vàng",
-            "abs", "đèn taplo", "nóng máy", "sôi nước", "khói đen", "khói trắng", "chảy dầu"
+            "abs", "đèn taplo", "nóng máy", "sôi nước", "khói đen", "khói trắng", "chảy dầu",
+            "tc-cus-01", "kịch bản 1"
         ])
         if is_symptom:
-            if "phanh" in target_text and any(w in target_text for w in ["rung", "giật", "kêu", "rít", "cạ"]):
+            if ("phanh" in target_text and any(w in target_text for w in ["rung", "giật", "kêu", "rít", "cạ"])) or "tc-cus-01.1" in target_text:
                 return (
                     """🩺 **TƯ VẤN KỸ THUẬT: HIỆN TƯỢNG RUNG GIẬT HOẶC KÊU RÍT KHI PHANH**
 
@@ -472,7 +515,7 @@ class AIService:
 📅 *Đặt lịch ngay để được kỹ thuật viên đo đạc an toàn phanh miễn phí!*""",
                     model_used,
                 )
-            elif any(w in target_text for w in ["hụt ga", "khó nổ", "giật", "máy yếu"]):
+            elif any(w in target_text for w in ["hụt ga", "khó nổ", "giật", "máy yếu", "tc-cus-01.2"]):
                 return (
                     """🩺 **TƯ VẤN KỸ THUẬT: ĐỘNG CƠ HỤT GA, KHÓ NỔ HOẶC RUNG GIẬT**
 
@@ -490,7 +533,7 @@ class AIService:
 📅 *Bấm Đặt Lịch để kỹ thuật viên kiểm tra bugi và hệ thống nhiên liệu ngay nhé!*""",
                     model_used,
                 )
-            elif any(w in target_text for w in ["điều hòa", "lạnh", "mùi", "nóng cabin"]):
+            elif any(w in target_text for w in ["điều hòa", "lạnh", "mùi", "nóng cabin", "tc-cus-01.3"]):
                 return (
                     """🩺 **TƯ VẤN KỸ THUẬT: ĐIỀU HÒA KHÔNG MÁT, MẤT LẠNH HOẶC CÓ MÙI HÔI**
 
@@ -508,7 +551,7 @@ class AIService:
 📅 *Đặt lịch ngay để khoang lái luôn thơm tho, mát rượi đón ngày nắng nóng!*""",
                     model_used,
                 )
-            elif any(w in target_text for w in ["lục cục", "kêu", "gầm", "giảm xóc", "cục cục"]):
+            elif any(w in target_text for w in ["lục cục", "kêu", "gầm", "giảm xóc", "cục cục", "tc-cus-01.4"]):
                 return (
                     """🩺 **TƯ VẤN KỸ THUẬT: TIẾNG KÊU LỤC CỤC DƯỚI GẦM KHI QUA GỜ GIẢM TỐC**
 
@@ -527,7 +570,7 @@ class AIService:
 📅 *Ghé xưởng ngay để kỹ thuật viên kiểm tra gầm miễn phí cho xe bạn!*""",
                     model_used,
                 )
-            elif any(w in target_text for w in ["lệch lái", "nhao lái", "vô lăng", "mòn lốp"]):
+            elif any(w in target_text for w in ["lệch lái", "nhao lái", "vô lăng", "mòn lốp", "tc-cus-01.5"]):
                 return (
                     """🩺 **TƯ VẤN KỸ THUẬT: VÔ LĂNG BỊ LỆCH, NHAO LÁI SANG MỘT BÊN**
 
@@ -544,7 +587,7 @@ class AIService:
 📅 *Đặt lịch cân chỉnh góc lái để lái xe an toàn, êm ái trên cao tốc!*""",
                     model_used,
                 )
-            elif any(w in target_text for w in ["check engine", "báo lỗi", "cá vàng", "đèn lỗi", "taplo"]):
+            elif any(w in target_text for w in ["check engine", "báo lỗi", "cá vàng", "đèn lỗi", "taplo", "tc-cus-01.6"]):
                 return (
                     """🩺 **TƯ VẤN KỸ THUẬT: ĐÈN BÁO LỖI ĐỘNG CƠ (CHECK ENGINE) BẬT SÁNG**
 
@@ -570,7 +613,8 @@ class AIService:
         # ------------------------------------------------------------
         is_cost_query = any(kw in target_text for kw in [
             "chi phí", "bảng giá", "báo giá", "giá bao nhiêu", "hết bao nhiêu", "tiền công",
-            "giá dịch vụ", "bảo dưỡng hết bao nhiêu", "giá thay", "phí bảo dưỡng"
+            "giá dịch vụ", "bảo dưỡng hết bao nhiêu", "giá thay", "phí bảo dưỡng",
+            "tc-cus-02", "tc-cus-02.1", "tc-cus-02.2", "tc-cus-02.3", "kịch bản 2"
         ])
         if is_cost_query:
             return (

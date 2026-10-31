@@ -245,8 +245,41 @@ def run_admin_copilot_deterministic_fallback(question: str, context: Dict[str, A
     """Engine phân tích nội bộ chuyên sâu khi không có mạng ngoại vi hoặc chạy offline."""
     q_lower = (question or "").lower()
     
+    # 0. Định tuyến tổng hợp kịch bản kiểm thử Quản trị (Admin Test Scenarios)
+    if any(k in q_lower for k in ["tổng hợp testcase", "danh sách testcase", "kịch bản kiểm thử", "danh sách kịch bản", "test case quản trị", "tc-adm"]):
+        if not any(k in q_lower for k in ["tc-adm-01", "tc-adm-02", "tc-adm-03", "tc-adm-04", "tc-adm-05"]):
+            return """### 📋 TỔNG HỢP CÁC KỊCH BẢN & TEST CASE KIỂM THỬ AI QUẢN TRỊ (ADMIN COPILOT)
+
+Hệ thống **VTV AutoPilot** hỗ trợ toàn diện 5 bộ kịch bản kiểm thử vận hành thời gian thực:
+
+**1. Kịch bản TS-ADM-01: Tiếp nhận xe & Điều phối xưởng**
+• `TC-ADM-01.1`: Tra cứu tình trạng các xe đang sửa chữa thời gian thực (mã RO, biển số, triệu chứng)
+• `TC-ADM-01.2`: Đề xuất phác đồ kiểm tra kỹ thuật 3 bước chuyên sâu (OBD-II, gầm, áp suất buồng đốt)
+• `TC-ADM-01.3`: Điều phối nhân sự & cân đối tải lệnh sửa chữa cho từng kỹ thuật viên
+
+**2. Kịch bản TS-ADM-02: Tối ưu kho phụ tùng & Cảnh báo an toàn**
+• `TC-ADM-02.1`: Báo cáo quy mô, tổng số lượng và tổng giá trị tồn kho linh kiện
+• `TC-ADM-02.2`: Cảnh báo danh mục mặt hàng chạm/dưới ngưỡng an toàn (Low-stock) cần nhập gấp
+• `TC-ADM-02.3`: Tra cứu tồn kho & đơn giá linh kiện cụ thể (má phanh, lọc dầu, bugi, nhớt)
+
+**3. Kịch bản TS-ADM-03: Tài chính & Kiểm soát chống thất thoát**
+• `TC-ADM-03.1`: Báo cáo doanh thu thực thu (PAID), công nợ tồn đọng (UNPAID) và tỷ lệ thu hồi dòng tiền
+• `TC-ADM-03.2`: Các điểm kiểm soát rủi ro chống thất thoát (xuất kho gắn mã RO, định mức giờ công)
+
+**4. Kịch bản TS-ADM-04: Quản trị quan hệ khách hàng (Garage CRM)**
+• `TC-ADM-04.1`: Tổng quan chỉ số CRM (Tỷ lệ quay lại Retention, nhóm khách VIP / At-risk)
+• `TC-ADM-04.2`: Tự động nhắc bảo dưỡng định kỳ xe (chu kỳ 3 tháng / 5.000 km) qua Zalo OA/SMS
+• `TC-ADM-04.3`: Đánh giá chỉ số hài lòng CSAT và quy trình CSKH chuẩn hóa 3 - 7 - 30 ngày
+• `TC-ADM-04.4`: Chiến dịch voucher ưu đãi kích hoạt lại nhóm khách hàng có nguy cơ rời bỏ (At-risk)
+
+**5. Kịch bản TS-ADM-05: Giao diện điều hành & Ranh giới phân quyền bảo mật (RBAC)**
+• `TC-ADM-05.1`: Giao diện chat điều hành sạch sẽ, tối giản
+• `TC-ADM-05.2`: Ranh giới phân quyền bảo mật tài chính nhạy cảm (bảo vệ bảng lương, tài khoản ngân hàng)
+
+👉 *Bạn có thể gõ trực tiếp mã testcase (ví dụ: `TC-ADM-01.1` hoặc `TC-ADM-04.2`) hoặc đặt câu hỏi tự nhiên để kiểm thử ngay!*"""
+
     # 1. Domain: Chẩn đoán & Tiếp nhận lỗi xe
-    if any(k in q_lower for k in ["chẩn đoán", "chan doan", "lỗi xe", "loi xe", "sửa chữa", "triệu chứng", "phiếu", "ro-", "tiếp nhận", "macan", "porsche", "mercedes", "taplo"]):
+    if any(k in q_lower for k in ["chẩn đoán", "chan doan", "lỗi xe", "loi xe", "sửa chữa", "triệu chứng", "phiếu", "ro-", "tiếp nhận", "macan", "porsche", "mercedes", "taplo", "tc-adm-01", "tc-adm-01.1", "tc-adm-01.2", "kịch bản 5"]):
         ros = context.get("active_repair_orders", [])
         ro_lines = "\n".join([f"  • **{r['code']}** — Xe **{r['plate']}** ({r['vehicle']}): {r['symptoms']} *(Trạng thái: {r['status']})*" for r in ros[:4]]) or "  • Hiện không có xe đang sửa."
         return f"""### 🚗 BÁO CÁO TIẾP NHẬN & PHÂN TÍCH CHẨN ĐOÁN XE
@@ -267,7 +300,8 @@ def run_admin_copilot_deterministic_fallback(question: str, context: Dict[str, A
         "kho", "phụ tùng", "phu tung", "linh kiện", "linh kien", "tồn kho", "ton kho",
         "hàng tồn", "hang ton", "nhập hàng", "nhap hang", "hết hàng", "het hang",
         "cảnh báo", "vật tư", "vat tu", "stock", "lọc", "nhớt", "dầu", "phanh",
-        "bugi", "ắc quy", "ac quy", "bình điện", "gạt mưa", "lốp", "tồn"
+        "bugi", "ắc quy", "ac quy", "bình điện", "gạt mưa", "lốp", "tồn",
+        "tc-adm-02", "tc-adm-02.1", "tc-adm-02.2", "tc-adm-02.3", "kịch bản 6"
     ]
     if any(k in q_lower for k in inventory_keywords):
         parts = context.get("parts", {})
@@ -331,7 +365,7 @@ def run_admin_copilot_deterministic_fallback(question: str, context: Dict[str, A
 - Ghi nhận đặc thù thói quen lái xe và lịch sử bảo dưỡng của khách VIP vào hồ sơ khách hàng."""
 
     # 4. Domain: Điều phối công việc & Nhân sự
-    if any(k in q_lower for k in ["nhân sự", "nhan su", "điều phối", "dieu phoi", "kỹ thuật viên", "ktv", "thợ", "công việc", "năng suất"]):
+    if any(k in q_lower for k in ["nhân sự", "nhan su", "điều phối", "dieu phoi", "kỹ thuật viên", "ktv", "thợ", "công việc", "năng suất", "tc-adm-01.3"]):
         techs = context.get("technicians", [])
         tech_lines = "\n".join([f"  • KTV **{t['name']}**: Đang thực hiện **{t['active_orders']} lệnh sửa chữa**" for t in techs]) or "  • Đội ngũ kỹ thuật viên đang túc trực."
         
@@ -349,7 +383,7 @@ def run_admin_copilot_deterministic_fallback(question: str, context: Dict[str, A
 - Trưởng xưởng chủ động rà soát tiến độ vào các mốc 10:30 sáng và 15:30 chiều để luân chuyển thợ hỗ trợ các ca khó."""
 
     # 5. Domain: Tài chính & Chống thất thoát
-    if any(k in q_lower for k in ["tài chính", "tai chinh", "doanh thu", "thất thoát", "that thoat", "tiền", "hóa đơn", "công nợ", "lợi nhuận"]):
+    if any(k in q_lower for k in ["tài chính", "tai chinh", "doanh thu", "thất thoát", "that thoat", "tiền", "hóa đơn", "công nợ", "lợi nhuận", "tc-adm-03.1", "tc-adm-03.2", "kịch bản 7"]):
         fin = context.get("finances", {})
         paid = fin.get("paid_revenue", 0)
         unpaid = fin.get("unpaid_total", 0)
@@ -372,7 +406,8 @@ def run_admin_copilot_deterministic_fallback(question: str, context: Dict[str, A
         "crm", "chăm sóc khách hàng", "cham soc khach hang", "nhắc bảo dưỡng", "nhac bao duong",
         "định kỳ", "dinh ky", "khách vip", "khach vip", "rời bỏ", "roi bo", "at-risk", "at risk",
         "csat", "hài lòng", "hai long", "khảo sát", "khao sat", "retention", "tỷ lệ quay lại",
-        "zalo crm", "tin nhắn nhắc", "phân khúc", "phan khuc"
+        "zalo crm", "tin nhắn nhắc", "phân khúc", "phan khuc",
+        "tc-adm-04", "tc-adm-04.1", "tc-adm-04.2", "tc-adm-04.3", "tc-adm-04.4", "kịch bản 8"
     ]
     if any(k in q_lower for k in crm_keywords):
         crm = context.get("crm", {})
