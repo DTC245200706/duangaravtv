@@ -50,3 +50,19 @@ def test_crm_endpoints():
     if res_inter.status_code == 200:
         inter_list = res_inter.json()
         assert isinstance(inter_list, list)
+
+
+
+def test_admin_copilot_crm_intelligence():
+    from backend.app.database import SessionLocal
+    from backend.app.ai.admin_copilot import ask_admin_copilot
+    
+    db = SessionLocal()
+    try:
+        res = ask_admin_copilot(db, "Báo cáo cho tôi tình hình CRM và nhắc bảo dưỡng định kỳ xe")
+        assert res["success"] is True
+        assert "live_metrics" in res
+        assert "crm_due_reminders" in res["live_metrics"]
+        assert "QUẢN TRỊ QUAN HỆ KHÁCH HÀNG" in res["output"] or "CRM" in res["output"]
+    finally:
+        db.close()

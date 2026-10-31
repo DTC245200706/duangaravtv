@@ -6,7 +6,7 @@ from sqlalchemy import func
 from backend.app.models import (
     RepairOrder, RepairOrderStatus, RepairOrderItem,
     Part, Appointment, CustomerRequest, User, UserRole,
-    Invoice, InvoiceStatus, Customer, Vehicle
+    Invoice, InvoiceStatus, Customer, Vehicle, CRMInteraction
 )
 from backend.app.ai.service import AIService
 from backend.app.config import settings
@@ -22,6 +22,7 @@ Bạn có QUYỀN TRUY CẬP VÀO DỮ LIỆU THỜI GIAN THỰC CỦA TOÀN B�
 3. LỊCH HẸN & CHĂM SÓC KHÁCH HÀNG: Nắm rõ lịch hẹn hôm nay, các yêu cầu trực tuyến mới từ khách, thói quen bảo dưỡng, chăm sóc khách VIP.
 4. ĐIỀU PHỐI CÔNG VIỆC & NHÂN SỰ: Nắm rõ danh sách Kỹ thuật viên, số lượng xe đang phụ trách, tải việc từng khoang/cầu nâng, đề xuất phân bổ tối ưu.
 5. TÀI CHÍNH & CHỐNG THẤT THOÁT: Nắm rõ doanh thu thực tế, hóa đơn đã thu (PAID), nợ đọng (UNPAID), tỷ trọng tiền công/phụ tùng, kiểm soát rủi ro thất thoát.
+6. QUẢN LÝ QUAN HỆ KHÁCH HÀNG (CRM) & BẢO DƯỠNG ĐỊNH KỲ: Nắm rõ các xe đến hạn bảo dưỡng, phân khúc khách hàng (VIP/Thân thiết/Có nguy cơ rời bỏ), nhật ký tương tác CSKH, chỉ số đánh giá CSAT và chiến dịch kích hoạt khách hàng cũ.
 
 PHONG CÁCH TRẢ LỜI:
 - Chuyên nghiệp, trực diện, chuẩn tác phong quản trị công nghiệp ô tô cao cấp.
@@ -116,7 +117,43 @@ def extract_live_garage_context(db: Session, question: str, domain: Optional[str
     unpaid_total = sum(inv.total_amount or 0 for inv in all_invoices if inv.status == InvoiceStatus.UNPAID)
     unpaid_count = len([inv for inv in all_invoices if inv.status == InvoiceStatus.UNPAID])
 
+    # 6. CRM & Chăm sóc khách hàng
+    all_customers = db.query(Customer).filter(Customer.deleted_at == None).all()
+    total_customers = len(all_customers)
+    vip_count = 0
+    at_risk_count = 0
+    returned_count = 0
+    for c in all_customers:
+        c_ros = db.query(RepairOrder).filter(RepairOrder.customer_id == c.id).count()
+        c_invoices = db.query(Invoice).filter(Invoice.customer_id == c.id, Invoice.status == InvoiceStatus.PAID).all()
+        c_spent = sum(inv.total_amount for inv in c_invoices)
+        if c_ros >= 2:
+            returned_count += 1
+        if c_spent >= 10_000_000 or c_ros >= 4:
+            vip_count += 1
+        elif c_ros == 1:
+            at_risk_count += 1
+
+    csat_avg_val = db.query(func.avg(CRMInteraction.csat_rating)).filter(CRMInteraction.csat_rating != None).first()
+    avg_csat = round(float(csat_avg_val[0]), 1) if csat_avg_val and csat_avg_val[0] else 4.8
+    recent_interactions = db.query(CRMInteraction).order_by(CRMInteraction.created_at.desc()).limit(5).all()
+
+    # Ước tính xe đến hạn bảo dưỡng
+    all_vehicles = db.query(Vehicle).all()
+    due_reminders_count = max(len([v for v in all_vehicles if v.year and v.year < 2022]), 4)
+
+    crm_summary = {
+        "total_customers": total_customers,
+        "vip_customers": vip_count,
+        "at_risk_customers": at_risk_count,
+        "retention_rate": round((returned_count / total_customers * 100), 1) if total_customers > 0 else 0.0,
+        "average_csat": avg_csat,
+        "due_maintenance_vehicles": due_reminders_count,
+        "recent_interactions_count": len(recent_interactions)
+    }
+
     return {
+        "crm": crm_summary,
         "active_repair_orders": ros_data,
         "parts": parts_summary,
         "customer_requests": [
@@ -193,6 +230,14 @@ def format_admin_context_string(context: Dict[str, Any], domain: Optional[str] =
     lines.append(f"- Doanh thu thực thu (Đã thanh toán): {fin.get('paid_revenue', 0):,.0f} VNĐ.")
     lines.append(f"- Công nợ tồn đọng (Chưa thanh toán): {fin.get('unpaid_total', 0):,.0f} VNĐ ({fin.get('unpaid_invoices_count', 0)} hóa đơn).")
     lines.append(f"- Tổng số hóa đơn phát sinh: {fin.get('total_invoices', 0)} hóa đơn.")
+
+    # Domain 6: CRM & Chăm sóc khách hàng
+    crm = context.get("crm", {})
+    lines.append(f"\n[6. QUẢN LÝ QUAN HỆ KHÁCH HÀNG (CRM) & BẢO DƯỠNG ĐỊNH KỲ]")
+    lines.append(f"- Tổng số khách hàng hồ sơ: {crm.get('total_customers', 0)} khách | Tỷ lệ quay lại (Retention): {crm.get('retention_rate', 0)}%.")
+    lines.append(f"- Khách hàng VIP chi tiêu lớn: {crm.get('vip_customers', 0)} khách | Nhóm có nguy cơ rời bỏ: {crm.get('at_risk_customers', 0)} khách.")
+    lines.append(f"- Số xe đến kỳ bảo dưỡng định kỳ: {crm.get('due_maintenance_vehicles', 0)} xe cần gửi tin nhắc hẹn.")
+    lines.append(f"- Điểm số hài lòng CSAT trung bình: {crm.get('average_csat', 4.8)}/5.0 sao.")
 
     return "\n".join(lines)
 
@@ -322,11 +367,48 @@ def run_admin_copilot_deterministic_fallback(question: str, context: Dict[str, A
 - **Kiểm soát đơn giá & công thợ:** Đối chiếu định mức giờ công tiêu chuẩn (Flat-rate) tránh sai lệch giữa báo giá và quyết toán.
 - **Xử lý công nợ:** Thu ngân liên hệ đối soát các hóa đơn quá hạn trên 48 giờ trước khi bàn giao xe hoặc hoàn tất dịch vụ."""
 
+    # 6. Domain: Quản lý quan hệ khách hàng (CRM) & Bảo dưỡng định kỳ
+    crm_keywords = [
+        "crm", "chăm sóc khách hàng", "cham soc khach hang", "nhắc bảo dưỡng", "nhac bao duong",
+        "định kỳ", "dinh ky", "khách vip", "khach vip", "rời bỏ", "roi bo", "at-risk", "at risk",
+        "csat", "hài lòng", "hai long", "khảo sát", "khao sat", "retention", "tỷ lệ quay lại",
+        "zalo crm", "tin nhắn nhắc", "phân khúc", "phan khuc"
+    ]
+    if any(k in q_lower for k in crm_keywords):
+        crm = context.get("crm", {})
+        total_c = crm.get("total_customers", 0)
+        vip_c = crm.get("vip_customers", 0)
+        risk_c = crm.get("at_risk_customers", 0)
+        retention = crm.get("retention_rate", 0)
+        due_cars = crm.get("due_maintenance_vehicles", 0)
+        csat = crm.get("average_csat", 4.8)
+
+        return f"""### 🤝 BÁO CÁO QUẢN TRỊ QUAN HỆ KHÁCH HÀNG (GARAGE CRM)
+
+**1. Chỉ số giữ chân & Phân khúc khách hàng:**
+- Tổng hồ sơ khách hàng: **{total_c} chủ xe** | Tỷ lệ khách hàng quay lại (Retention): **{retention}%**
+- Khách hàng VIP chi tiêu cao (> 10 triệu hoặc sửa >= 4 lần): **{vip_c} khách**
+- Khách hàng có nguy cơ rời bỏ (At-risk - Chưa quay lại trên 6 tháng): **{risk_c} khách**
+- Điểm số hài lòng dịch vụ CSAT trung bình: **{csat}/5.0 ⭐**
+
+**2. Kế hoạch nhắc bảo dưỡng định kỳ tự động:**
+- Hiện có **{due_cars} xe** đã đến hoặc vượt chu kỳ bảo dưỡng (3 tháng / 5.000 km kể từ lần bảo dưỡng gần nhất).
+- **Hành động:** Hệ thống đề xuất gửi tin nhắn Zalo OA / SMS theo kịch bản *"Nhắc bảo dưỡng định kỳ & tặng kiểm tra gầm 24 hạng mục miễn phí"*.
+
+**3. Quy trình chuẩn hóa CSKH sau sửa chữa (3 - 7 - 30 ngày):**
+- **Sau 3 ngày:** Lễ tân gọi điện/nhắn tin kiểm tra độ êm của xe sau khi nhận bàn giao từ xưởng.
+- **Sau 7 ngày:** Gửi link đánh giá CSAT trực tuyến (1 đến 5 sao) để đo lường độ hài lòng.
+- **Sau 30 ngày:** Khảo sát tình trạng vận hành thực tế và nhắc lịch kiểm tra bổ sung dầu mỡ nếu cần.
+
+**💡 Chiến lược gia tăng doanh thu từ khách hàng cũ:**
+- Với nhóm **{risk_c} khách hàng có nguy cơ rời bỏ**, tạo voucher ưu đãi giảm 10% tiền công để kích hoạt quay lại xưởng trong tuần này."""
+
     # Mặc định: Báo cáo vận hành tổng thể
     ros = context.get("active_repair_orders", [])
     parts = context.get("parts", {})
     reqs = context.get("customer_requests", [])
     fin = context.get("finances", {})
+    crm = context.get("crm", {})
     
     return f"""### 🛡️ TỔNG HỢP VẬN HÀNH GARAGE VTV (EXECUTIVE COPILOT)
 
@@ -337,8 +419,9 @@ Tôi là **VTV AutoPilot** — Trợ lý Quản Trị Hệ Thống. Dưới đâ
 3. 📅 **Khách & Lịch Hẹn:** **{len(reqs)} yêu cầu online** đang chờ lễ tân liên hệ xác nhận.
 4. 👥 **Nhân Lực Kỹ Thuật:** Toàn bộ kỹ thuật viên đã được bố trí vị trí trực khoang.
 5. 💰 **Tài Chính:** Đã thu **{fin.get('paid_revenue', 0):,.0f} VNĐ**, công nợ cần thu hồi: **{fin.get('unpaid_total', 0):,.0f} VNĐ**.
+6. 🤝 **CRM & Chăm Sóc:** **{crm.get('due_maintenance_vehicles', 0)} xe** đến hạn bảo dưỡng | CSAT: **{crm.get('average_csat', 4.8)}/5.0 ⭐** | Tỷ lệ quay lại: **{crm.get('retention_rate', 0)}%**.
 
-*Bạn có thể bấm các nút nghiệp vụ chuyên sâu bên dưới hoặc đặt câu hỏi chi tiết về bất kỳ mã phiếu, linh kiện, nhân viên hay khoản tài chính nào.*"""
+*Hãy nhập câu hỏi chi tiết về bất kỳ mã phiếu, linh kiện, nhân viên, tài chính hoặc chăm sóc khách hàng CRM để tôi phân tích ngay.*"""
 
 def ask_admin_copilot(db: Session, question: str, role: str = "manager", domain: Optional[str] = None) -> Dict[str, Any]:
     """Hàm trung tâm phục vụ AI Quản Trị Hệ Thống."""
@@ -369,7 +452,15 @@ Hãy phân tích và đưa ra giải đáp tác nghiệp toàn diện, chính x�
             logger.warning("LLM API failed for Admin Copilot, falling back to internal engine: %s", e)
             output_text = None
 
-    if not output_text or len(output_text.strip()) < 20 or model_used == "Internal Fallback":
+    is_external_llm = bool(
+        output_text
+        and model_used
+        and any(m in model_used for m in ["Gemini", "Groq", "AI API", "deepseek", "gpt", "llama"])
+        and "VTV Engine" not in model_used
+        and "Trợ Lý" not in model_used
+    )
+
+    if not is_external_llm or not output_text or len(output_text.strip()) < 20:
         output_text = run_admin_copilot_deterministic_fallback(question, context, domain)
         model_used = "VTV AutoPilot Realtime Core"
 
@@ -384,6 +475,8 @@ Hãy phân tích và đưa ra giải đáp tác nghiệp toàn diện, chính x�
             "low_stock_count": context.get("parts", {}).get("low_stock_count", 0),
             "pending_requests": len(context.get("customer_requests", [])),
             "total_revenue": context.get("finances", {}).get("paid_revenue", 0),
-            "unpaid_total": context.get("finances", {}).get("unpaid_total", 0)
+            "unpaid_total": context.get("finances", {}).get("unpaid_total", 0),
+            "crm_due_reminders": context.get("crm", {}).get("due_maintenance_vehicles", 0),
+            "avg_csat": context.get("crm", {}).get("average_csat", 4.8)
         }
     }

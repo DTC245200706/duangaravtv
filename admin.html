@@ -1917,41 +1917,9 @@
         </button>
       </div>
 
-      <!-- Realtime System Context Strip -->
-      <div id="admin-ai-live-strip" style="background: rgba(2,132,199,0.06); padding: 0.6rem 1.25rem; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 0.74rem; color: #94a3b8; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
-        <div style="display: flex; align-items: center; gap: 0.4rem; color: #38bdf8; font-weight: 700;">
-          <i class="fa-solid fa-database"></i> Dữ liệu hệ thống đang đồng bộ thời gian thực
-        </div>
-        <div id="admin-ai-context-metrics" style="display: flex; gap: 0.65rem; font-weight: 600; color: #cbd5e1;">
-          <span><i class="fa-solid fa-car" style="color: #38bdf8;"></i> Xe sửa</span>
-          <span><i class="fa-solid fa-boxes-stacked" style="color: #f59e0b;"></i> Kho</span>
-          <span><i class="fa-solid fa-calendar-check" style="color: #10b981;"></i> Lịch hẹn</span>
-          <span><i class="fa-solid fa-sack-dollar" style="color: #c084fc;"></i> Tài chính</span>
-        </div>
-      </div>
-
-      <!-- 5 Specialized Domain Buttons (User requirement) -->
-      <div style="padding: 0.65rem 1.15rem; background: rgba(15,23,42,0.85); border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; gap: 0.45rem; overflow-x: auto; scrollbar-width: none;">
-        <button type="button" onclick="triggerAdminAIDomain('diagnostic')"
-          style="white-space: nowrap; font-size: 0.74rem; font-weight: 700; background: rgba(56,189,248,0.12); color: #38bdf8; border: 1px solid rgba(56,189,248,0.3); border-radius: 99px; padding: 0.35rem 0.75rem; cursor: pointer; display: flex; align-items: center; gap: 5px;">
-          <i class="fa-solid fa-car-burst"></i> 1. Tiếp Nhận & Chẩn Đoán Lỗi Xe
-        </button>
-        <button type="button" onclick="triggerAdminAIDomain('inventory')"
-          style="white-space: nowrap; font-size: 0.74rem; font-weight: 700; background: rgba(245,158,11,0.12); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); border-radius: 99px; padding: 0.35rem 0.75rem; cursor: pointer; display: flex; align-items: center; gap: 5px;">
-          <i class="fa-solid fa-boxes-stacked"></i> 2. Tối Ưu Kho Phụ Tùng
-        </button>
-        <button type="button" onclick="triggerAdminAIDomain('appointments')"
-          style="white-space: nowrap; font-size: 0.74rem; font-weight: 700; background: rgba(16,185,129,0.12); color: #34d399; border: 1px solid rgba(16,185,129,0.3); border-radius: 99px; padding: 0.35rem 0.75rem; cursor: pointer; display: flex; align-items: center; gap: 5px;">
-          <i class="fa-solid fa-calendar-check"></i> 3. Lịch Hẹn & Khách Hàng
-        </button>
-        <button type="button" onclick="triggerAdminAIDomain('dispatch')"
-          style="white-space: nowrap; font-size: 0.74rem; font-weight: 700; background: rgba(99,102,241,0.12); color: #818cf8; border: 1px solid rgba(99,102,241,0.3); border-radius: 99px; padding: 0.35rem 0.75rem; cursor: pointer; display: flex; align-items: center; gap: 5px;">
-          <i class="fa-solid fa-user-gear"></i> 4. Điều Phối Nhân Sự & Thợ
-        </button>
-        <button type="button" onclick="triggerAdminAIDomain('finance')"
-          style="white-space: nowrap; font-size: 0.74rem; font-weight: 700; background: rgba(168,85,247,0.12); color: #c084fc; border: 1px solid rgba(168,85,247,0.3); border-radius: 99px; padding: 0.35rem 0.75rem; cursor: pointer; display: flex; align-items: center; gap: 5px;">
-          <i class="fa-solid fa-shield-halved"></i> 5. Tài Chính & Chống Thất Thoát
-        </button>
+      <!-- Realtime System Context Strip (Hidden for clean chat interface) -->
+      <div id="admin-ai-live-strip" style="display: none;">
+        <div id="admin-ai-context-metrics"></div>
       </div>
 
       <!-- Chat Body -->
@@ -1961,13 +1929,9 @@
             <i class="fa-solid fa-robot"></i>
           </div>
           <div style="background: rgba(30,41,59,0.7); border: 1px solid rgba(148,163,184,0.15); border-radius: 14px; padding: 1.1rem 1.25rem; color: #e2e8f0; font-size: 0.92rem; line-height: 1.6; max-width: 90%;">
-            Chào bạn, tôi là <strong>VTV AutoPilot</strong> — Cố vấn AI Quản Trị Hệ Thống. Tôi có quyền đọc dữ liệu thời gian thực từ Database để hỗ trợ bạn:<br><br>
-            • 🚗 <strong>Tiếp nhận & chẩn đoán lỗi xe</strong> theo mã phiếu hoặc triệu chứng.<br>
-            • 📦 <strong>Cảnh báo tồn kho phụ tùng</strong> và đề xuất danh mục đặt hàng.<br>
-            • 📅 <strong>Rà soát lịch hẹn & yêu cầu đặt lịch online</strong> chưa tiếp nhận.<br>
-            • 👥 <strong>Điều phối thợ kỹ thuật</strong> và cân đối tải khoang xưởng.<br>
-            • 💰 <strong>Kiểm soát doanh thu, công nợ & chống thất thoát</strong>.<br><br>
-            <em>Bấm các nút nghiệp vụ trên thanh công cụ hoặc nhập câu hỏi trực tiếp bên dưới.</em>
+            Chào bạn! Tôi là <strong>VTV AutoPilot</strong> — Cố vấn AI Quản Trị Hệ Thống.<br><br>
+            Tôi hỗ trợ tra cứu và phân tích dữ liệu xe đang sửa, tồn kho linh kiện, lịch hẹn, điều phối thợ, tài chính và chăm sóc khách hàng CRM thời gian thực.<br><br>
+            <em>Hãy nhập câu hỏi bên dưới để tôi hỗ trợ ngay nhé!</em>
           </div>
         </div>
       </div>

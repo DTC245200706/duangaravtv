@@ -39,6 +39,7 @@ class RepairOrderService:
             RepairOrderStatus.IN_REPAIR,
             RepairOrderStatus.CANCELLED
         },
+        
         RepairOrderStatus.APPROVED: {
             RepairOrderStatus.IN_REPAIR,
             RepairOrderStatus.WAITING_PARTS,

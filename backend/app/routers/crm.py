@@ -398,3 +398,4 @@ def send_crm_message(
         "message": f"Đã gửi tin nhắn thành công qua {payload.channel.upper()} tới {customer.full_name} ({customer.phone})",
         "sent_at": datetime.now(timezone.utc).isoformat(),
     }
+
