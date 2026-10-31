@@ -239,41 +239,48 @@ class AIService:
                     logger.warning("Groq API error with model %s: %s", model_candidate, ge)
             return None
 
-        # 1. Nếu Gemini API key không đúng định dạng (Google API key luôn bắt đầu bằng 'AIza')
-        # và có Groq API key: dùng ngay Groq để tránh chờ đợi timeout vô ích
-        is_gemini_valid_format = gemini_api_key.startswith("AIza")
-        if not is_gemini_valid_format and groq_api_key:
-            res = _call_groq()
-            if res:
-                return res
-
-        # 2. Thử Google Gemini REST API nếu API key có định dạng hợp lệ
-        if gemini_api_key and is_gemini_valid_format:
-            try:
-                model_name = getattr(settings, "AI_MODEL_NAME", "gemini-1.5-flash") or "gemini-1.5-flash"
-                url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent"
-                headers = {
-                    "Content-Type": "application/json",
-                    "X-goog-api-key": gemini_api_key,
-                }
-                payload = {
-                    "system_instruction": {"parts": [{"text": system_prompt}]},
-                    "contents": [{"parts": [{"text": user_prompt}]}],
-                    "generationConfig": {"temperature": 0.4, "maxOutputTokens": 2048},
-                }
-                response = httpx.post(url, headers=headers, json=payload, timeout=5.0)
-                if response.status_code == 200:
-                    data = response.json()
-                    candidates = data.get("candidates") or []
-                    if candidates:
-                        parts = candidates[0].get("content", {}).get("parts") or []
-                        text = "".join(p.get("text", "") for p in parts).strip()
-                        if text:
-                            return text, f"Gemini ({model_name})"
-                else:
-                    logger.warning("Gemini REST API trả về HTTP %s: %s", response.status_code, response.text[:300])
-            except Exception as e:
-                logger.warning("Lỗi hoặc timeout gọi Gemini REST API: %s. Chuyển sang Groq fallback.", e)
+        # 1. Thử Google Gemini REST API (Ưu tiên số 1 khi có API Key)
+        # Hỗ trợ cả key bắt đầu bằng 'AQ.' hoặc 'AIza'
+        if gemini_api_key and len(gemini_api_key.strip()) > 15:
+            # Thứ tự ưu tiên: gemini-2.5-flash (ổn định, phản hồi cực nhanh), gemini-flash-latest
+            gemini_models = ["gemini-2.5-flash", "gemini-flash-latest", "gemini-1.5-flash"]
+            for model_name in gemini_models:
+                try:
+                    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent"
+                    headers = {
+                        "Content-Type": "application/json",
+                        "X-goog-api-key": gemini_api_key.strip(),
+                    }
+                    payload = {
+                        "contents": [
+                            {
+                                "parts": [
+                                    {
+                                        "text": f"{system_prompt}\n\n{user_prompt}"
+                                    }
+                                ]
+                            }
+                        ],
+                        "generationConfig": {"temperature": 0.35, "maxOutputTokens": 2048},
+                    }
+                    response = httpx.post(url, headers=headers, json=payload, timeout=18.0)
+                    if response.status_code == 200:
+                        data = response.json()
+                        candidates = data.get("candidates") or []
+                        if candidates:
+                            parts = candidates[0].get("content", {}).get("parts") or []
+                            text = "".join(p.get("text", "") for p in parts).strip()
+                            if text:
+                                logger.info("[AI Engine] Google Gemini (%s) phản hồi thành công!", model_name)
+                                return text, f"Google Gemini ({model_name})"
+                    elif response.status_code in [404, 503]:
+                        logger.warning("Gemini model %s trả về HTTP %s (quá tải hoặc không hỗ trợ), thử model tiếp theo...", model_name, response.status_code)
+                        continue
+                    else:
+                        logger.warning("Gemini REST API trả về HTTP %s: %s", response.status_code, response.text[:300])
+                        break
+                except Exception as e:
+                    logger.warning("Lỗi gọi Gemini REST API với model %s: %s", model_name, e)
 
         # 3. Groq API fallback nếu chưa gọi
         if groq_api_key:
@@ -490,10 +497,11 @@ Hệ thống Trợ Lý Kỹ Thuật AI hỗ trợ toàn bộ 4 bộ kịch bản
         # ------------------------------------------------------------
         is_symptom = any(kw in target_text for kw in [
             "triệu chứng", "rung", "giật", "hụt ga", "khó nổ", "máy yếu", "không nổ",
-            "mất lạnh", "không mát", "mùi hôi", "mùi khét", "kêu", "lục cục", "lạch cạch",
-            "ken két", "lệch lái", "nhao lái", "vô lăng", "báo lỗi", "check engine", "cá vàng",
-            "abs", "đèn taplo", "nóng máy", "sôi nước", "khói đen", "khói trắng", "chảy dầu",
-            "tc-cus-01", "kịch bản 1"
+            "mất lạnh", "không mát", "mùi hôi", "mùi khét", "mùi ẩm", "mùi chua", "mùi",
+            "điều hòa", "máy lạnh", "lạnh", "mát", "gas", "nạp gas", "lốc lạnh", "taplo", "tháo taplo",
+            "kêu", "lục cục", "lạch cạch", "ken két", "lệch lái", "nhao lái", "vô lăng",
+            "báo lỗi", "check engine", "cá vàng", "abs", "đèn taplo", "nóng máy", "sôi nước",
+            "khói đen", "khói trắng", "chảy dầu", "tc-cus-01", "kịch bản 1"
         ])
         if is_symptom:
             if ("phanh" in target_text and any(w in target_text for w in ["rung", "giật", "kêu", "rít", "cạ"])) or "tc-cus-01.1" in target_text:
@@ -515,6 +523,47 @@ Hệ thống Trợ Lý Kỹ Thuật AI hỗ trợ toàn bộ 4 bộ kịch bản
 📅 *Đặt lịch ngay để được kỹ thuật viên đo đạc an toàn phanh miễn phí!*""",
                     model_used,
                 )
+            elif any(w in target_text for w in ["rung nhẹ", "rung động cơ", "rung máy", "hao xăng", "tốn xăng", "hao nhiên liệu", "đèn đỏ rung"]) or (
+                    "rung" in target_text and any(w in target_text for w in ["dừng", "đèn đỏ", "chờ", "ga", "số d", "nhẹ"])
+                ):
+                return (
+                    """🩺 **TƯ VẤN KỸ THUẬT: ĐỘNG CƠ RUNG NHẸ KHI DỪNG VÀ HAO XĂNG NHIỀU**
+
+Với xe đã chạy **50.000 km**, hiện tượng **rung nhẹ khi dừng đèn đỏ kết hợp hao xăng hơn bình thường**, Kỹ thuật viên Garage VTV phân tích các nguyên nhân khả thi như sau:
+
+🔍 **Nguyên nhân khả thi theo thứ tự ưu tiên:**
+
+**1. Bugi đánh lửa mòn điện cực (Nguyên nhân số 1 ở xe 50.000 km):**
+- Bugi mòn làm tia lửa điện yếu, đốt cháy hỗn hợp xăng-khí không hoàn toàn.
+- Triệu chứng: máy rung nhẹ ở tốc độ thấp (khi dừng ở số D), tiêu hao xăng tăng 15-20%.
+- ⚠️ Mức độ: **TRUNG BÌNH** — Nên thay ngay để tránh hỏng bô-bin đánh lửa.
+
+**2. Cao su chân máy (Motor Mount) bị lão hóa xẹp:**
+- Ở mốc 50.000 km, cao su giảm chấn chân máy thường bắt đầu chai cứng/xẹp.
+- Rung động động cơ truyền trực tiếp vào khung cabin, đặc biệt rõ khi xe đứng yên số D.
+- ⚠️ Mức độ: **NHẸ-TRUNG BÌNH** — Không nguy hiểm nhưng gây mỏi lái xe đường dài.
+
+**3. Kim phun nhiên liệu nghẹt bẩn / họng ga bám muội:**
+- Kim phun bị nghẹt tia phun → ECU bơm thêm xăng để bù → hao xăng tăng.
+- Hỗn hợp hòa khí không đều giữa các xi-lanh → máy rung không đều.
+
+**4. Lọc gió động cơ bẩn tắc (kiểm tra đơn giản, sửa rẻ):**
+- Ở 50.000 km nếu chưa thay, lọc gió bít làm thiếu khí → ECU bơm thêm xăng.
+
+🛠️ **Đề xuất hạng mục kiểm tra & ước tính chi phí:**
+
+| Hạng mục | Ước tính chi phí |
+| :--- | :--- |
+| Thay bugi Iridium (4 cái) | **450.000 – 850.000 VNĐ** |
+| Kiểm tra & thay cao su chân máy | **600.000 – 1.400.000 VNĐ** |
+| **Combo Phục Hồi Công Suất** (Vệ sinh họng ga + Kim phun siêu âm + Buồng đốt) | **750.000 – 1.200.000 VNĐ** |
+| Thay lọc gió động cơ | **150.000 – 280.000 VNĐ** |
+
+💡 **Khuyến nghị của KTV:** Nên cắm máy chẩn đoán **OBD-II** trước để đọc mã lỗi và xem thông số **Long Term Fuel Trim** — nếu LTFT dương > 10% thì xác nhận ngay vấn đề nhiên liệu/đánh lửa, không cần đoán mò.
+
+📅 *Bấm **Đặt Lịch** để KTV Garage VTV kiểm tra bugi, chân máy và cắm máy đọc lỗi ngay trong buổi sáng!*""",
+                    model_used,
+                )
             elif any(w in target_text for w in ["hụt ga", "khó nổ", "giật", "máy yếu", "tc-cus-01.2"]):
                 return (
                     """🩺 **TƯ VẤN KỸ THUẬT: ĐỘNG CƠ HỤT GA, KHÓ NỔ HOẶC RUNG GIẬT**
@@ -533,9 +582,32 @@ Hệ thống Trợ Lý Kỹ Thuật AI hỗ trợ toàn bộ 4 bộ kịch bản
 📅 *Bấm Đặt Lịch để kỹ thuật viên kiểm tra bugi và hệ thống nhiên liệu ngay nhé!*""",
                     model_used,
                 )
-            elif any(w in target_text for w in ["điều hòa", "lạnh", "mùi", "nóng cabin", "tc-cus-01.3"]):
-                return (
-                    """🩺 **TƯ VẤN KỸ THUẬT: ĐIỀU HÒA KHÔNG MÁT, MẤT LẠNH HOẶC CÓ MÙI HÔI**
+            elif any(w in target_text for w in ["điều hòa", "máy lạnh", "lạnh", "mùi", "mùi ẩm", "mùi chua", "nóng cabin", "nạp gas", "tháo taplo", "nội soi", "tc-cus-01.3"]):
+                if any(w in target_text for w in ["mùi ẩm", "mùi chua", "vẫn lạnh", "nạp gas", "tháo taplo"]) or ("mùi" in target_text and any(w in target_text for w in ["lạnh", "bật", "gas", "taplo"])):
+                    return (
+                        """🩺 **TƯ VẤN KỸ THUẬT: ĐIỀU HÒA CÓ MÙI ẨM MỐC KHI MỚI BẬT (XE VẪN LẠNH)**
+
+Chào bạn! Với triệu chứng điều hòa xe **có mùi ẩm chua khi mới bật nhưng vẫn lạnh sâu**, Kỹ thuật viên Garage VTV giải đáp trực tiếp cho bạn như sau:
+
+1️⃣ **Có cần nạp gas không?**
+👉 **HOÀN TOÀN KHÔNG CẦN NẠP GAS.** Vì xe bật vẫn phả ra hơi lạnh bình thường chứng tỏ hệ thống lốc lạnh (Compressor) và lượng môi chất lạnh (Gas R134a) vẫn đủ áp suất tiêu chuẩn, hệ thống hoàn toàn kín không bị xì hở.
+
+2️⃣ **Có cần tháo taplo ngay không?**
+👉 **TUYỆT ĐỐI CHƯA CẦN THÁO TAPLO.** Việc tháo dỡ toàn bộ taplo rất tốn kém (2.500.000 – 4.000.000 VNĐ), mất 1–2 ngày và nguy cơ gãy lẫy nhựa, phát sinh tiếng kêu cọt kẹt khi xe chạy sau này. Phương án tháo taplo chỉ dùng khi giàn lạnh bị mục nát xì gas cần thay thế lõi mới.
+
+3️⃣ **Nên kiểm tra và xử lý gì trước?**
+• **Bước 1 — Kiểm tra & thay lọc gió điều hòa (Cabin Filter):** Sau thời gian sử dụng, lọc gió tích tụ bụi bẩn, hơi ẩm và xác côn trùng gây mùi ẩm mốc khi quạt gió mới khởi động. *(Chi phí: 150.000 – 250.000 VNĐ, thay trong 5 phút)*.
+• **Bước 2 — Kiểm tra thông tắc đường ống thoát nước ngưng:** Đảm bảo nước đọng không bị tràn ứ đọng nấm mốc dưới sàn xe.
+• **Bước 3 — Vệ sinh nội soi dàn lạnh camera HD + Diệt khuẩn Nano Bạc:** Kỹ thuật viên luồn ống camera HD vào hộp gió, phun dung dịch vi sinh bóc tách triệt để rêu mốc và thổi khô mà **không cần tháo taplo**. Dàn lạnh sạch 95%, hết sạch mùi hôi. *(Thời gian: 45 phút, chi phí trọn gói 650.000 – 850.000 VNĐ)*.
+
+💡 **Mẹo sử dụng phòng ngừa mùi ẩm:** Trước khi kết thúc hành trình hoặc tắt máy 2–3 phút, bạn nên **tắt nút A/C** và chỉ bật quạt gió thổi tự nhiên để sấy khô hơi nước đọng trên giàn lạnh, triệt tiêu môi trường ẩm mốc sinh sôi.
+
+📅 *Bạn có thể bấm nút **Xác Nhận Đặt Lịch** ngay phía trên để được KTV Garage VTV soi kiểm tra lọc gió và dàn lạnh miễn phí nhé!*""",
+                        model_used,
+                    )
+                else:
+                    return (
+                        """🩺 **TƯ VẤN KỸ THUẬT: ĐIỀU HÒA KHÔNG MÁT, MẤT LẠNH HOẶC CÓ MÙI HÔI**
 
 🔍 **Nhận định sơ bộ & Nguyên nhân:**
 1. **Dàn lạnh bám nấm mốc:** Môi trường ẩm ướt làm tích tụ vi khuẩn và bụi bẩn tạo mùi chua khó chịu khi vừa bật AC.
@@ -549,8 +621,8 @@ Hệ thống Trợ Lý Kỹ Thuật AI hỗ trợ toàn bộ 4 bộ kịch bản
 - **Combo Điều Hòa Mát Sâu:** Vệ sinh nội soi dàn lạnh camera HD + Xịt khử khuẩn nano bạc + Nạp gas bổ sung + Thay lọc gió than hoạt tính (**650.000 – 950.000 VNĐ** trọn gói trong 45 phút).
 
 📅 *Đặt lịch ngay để khoang lái luôn thơm tho, mát rượi đón ngày nắng nóng!*""",
-                    model_used,
-                )
+                        model_used,
+                    )
             elif any(w in target_text for w in ["lục cục", "kêu", "gầm", "giảm xóc", "cục cục", "tc-cus-01.4"]):
                 return (
                     """🩺 **TƯ VẤN KỸ THUẬT: TIẾNG KÊU LỤC CỤC DƯỚI GẦM KHI QUA GỜ GIẢM TỐC**
@@ -608,14 +680,37 @@ Hệ thống Trợ Lý Kỹ Thuật AI hỗ trợ toàn bộ 4 bộ kịch bản
                     model_used,
                 )
 
+        # Guard: is_symptom True but no sub-branch matched -> prevent fall-through to pricing
+        if is_symptom:
+            return (
+                """🧺 **TƯ VẤN KỸ THUẬT: PHÂN TÍCH TRIỆU CHỨNG XE**
+
+Kỹ thuật viên Garage VTV đã ghi nhận mô tả triệu chứng của bạn.
+
+🔍 **Nhận định sơ bộ & Hướng xử lý:**
+Với triệu chứng bạn mô tả, KTV cần kiểm tra thực tế để xác định chính xác nguyên nhân:
+
+1. **Cắm máy OBD-II đọc mã lỗi động cơ** — Chỉ mất 10 phút, chính xác tuyệt đối.
+2. **Kiểm tra trực quan** — KTV xem mức dầu, dây đai, cao su gầm, hệ thống phanh.
+3. **Lái thử thực tế** — Xác nhận điều kiện xuất hiện triệu chứng (tốc độ, nhiệt độ xe).
+
+⚠️ **Lưu ý an toàn:** Nếu có tiếng kêu lớn đột ngột, mùi khét, khói hoặc đèn đỏ cảnh báo → Dừng xe ngay.
+
+💰 **Chi phí chẩn đoán:** Kiểm tra + OBD-II = **Miễn phí** khi đặt lịch qua hệ thống.
+
+📅 *Bấm **Đặt Lịch** để KTV Garage VTV kiểm tra và tư vấn chi phí chính xác theo tình trạng thực tế!*""",
+                model_used,
+            )
+
         # ------------------------------------------------------------
         # 3. NĂNG LỰC: TƯ VẤN CHI PHÍ & BẢNG GIÁ DỊCH VỤ (COST / PRICING)
+        # Chỉ kích hoạt khi KHÔNG phải câu hỏi triệu chứng
         # ------------------------------------------------------------
         is_cost_query = any(kw in target_text for kw in [
             "chi phí", "bảng giá", "báo giá", "giá bao nhiêu", "hết bao nhiêu", "tiền công",
             "giá dịch vụ", "bảo dưỡng hết bao nhiêu", "giá thay", "phí bảo dưỡng",
             "tc-cus-02", "tc-cus-02.1", "tc-cus-02.2", "tc-cus-02.3", "kịch bản 2"
-        ])
+        ]) and not is_symptom
         if is_cost_query:
             return (
                 """💰 **BẢNG DỰ TOÁN CHI PHÍ DỊCH VỤ & BẢO DƯỠNG NIÊM YẾT TẠI GARAGE VTV**
@@ -754,8 +849,14 @@ Vui lòng đối chiếu số lượng, đơn giá phụ tùng và tiền công 
         # ------------------------------------------------------------
         # 6. GREETING & GENERAL
         # ------------------------------------------------------------
-        greeting_keywords = ["alo", "hello", "hi ", "hey", "xin chào", "chào", "ơi", "bạn ơi", "có ai", "test", "thử"]
-        if any(kw in prompt_lower for kw in greeting_keywords) or len(prompt_lower.strip()) <= 10:
+        clean_target = target_text.strip()
+        is_greeting = False
+        if len(clean_target) <= 18:
+            greeting_patterns = [r"^(alo|hello|hi|hey|xin chào|chào|bạn ơi|ad ơi|chào shop|chào ad)[\s!.]*$", r"^(test|thử)$"]
+            if any(re.search(pat, clean_target, re.IGNORECASE) for pat in greeting_patterns):
+                is_greeting = True
+
+        if is_greeting or len(clean_target) <= 4:
             return (
                 """👋 **Xin chào! Tôi là Trợ Lý Kỹ Thuật AI Garage VTV**!
 
@@ -1158,6 +1259,21 @@ Tôi sẵn sàng hỗ trợ bạn:
                 context_parts.append(format_report_context(report_for_query(db, question)))
             else:
                 context_parts.append("--- QUYỀN TÀI CHÍNH ---\nVai trò hiện tại không được xem báo cáo tài chính chi tiết. Yêu cầu Quản lý hoặc Thu ngân thực hiện tra cứu.")
+        # RAG Augmentation: Tự động truy xuất tri thức chuyên môn từ RAG Knowledge Base
+        if not is_admin:
+            try:
+                from backend.app.ai.rag import retrieve_knowledge
+                rag_chunks, _ = retrieve_knowledge(question, top_k=2, db=db)
+                if rag_chunks:
+                    rag_lines = ["--- TRI THỨC KỸ THUẬT & DỊCH VỤ GARAGE VTV (RAG) ---"]
+                    for c in rag_chunks:
+                        rag_lines.append(f"• {c.title}: {c.content}")
+                        if c.recommended_combo:
+                            rag_lines.append(f"  Combo đề xuất: {c.recommended_combo} ({c.estimated_cost})")
+                    context_parts.append("\n".join(rag_lines))
+            except Exception as e:
+                pass
+
         context_info = "\n\n".join(context_parts) if context_parts else "Không có thông tin xe hoặc phiếu sửa chữa cụ thể."
 
         prompt_template = PROMPT_ADMIN_ASSISTANT if is_admin else PROMPT_AI_ASSISTANT

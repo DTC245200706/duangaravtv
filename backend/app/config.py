@@ -60,7 +60,7 @@ class Settings(BaseSettings):
 
     # AI Configuration — Google Gemini (primary)
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
-    AI_MODEL_NAME: str = os.getenv("AI_MODEL_NAME", "gemini-1.5-flash")
+    AI_MODEL_NAME: str = os.getenv("AI_MODEL_NAME", "gemini-2.5-flash")
     # Groq AI (nhanh, miễn phí, không bị chặn VN)
     GROQ_API_KEY: str = os.getenv("GROQ_API_KEY", "")
     GROQ_MODEL: str = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")

@@ -63,6 +63,56 @@ def ask_customer_assistant(
         raise HTTPException(status_code=400, detail=res.get("output", "Lỗi AI"))
     return res
 
+@router.post("/rag/query")
+def query_rag_engine(
+    req: AIAssistantRequest,
+    db: Session = Depends(get_db),
+):
+    """Truy vấn trực tiếp RAG Engine (Retrieval-Augmented Generation) của Garage VTV."""
+    from backend.app.ai.rag import retrieve_knowledge, synthesize_rag_local_response
+    chunks, live_db = retrieve_knowledge(req.question, top_k=2, db=db)
+    answer = synthesize_rag_local_response(req.question, chunks, live_db)
+    return {
+        "success": True,
+        "feature": "rag_assistant",
+        "output": answer,
+        "model_used": "Garage VTV RAG Engine",
+        "retrieved_chunks": [
+            {
+                "id": c.chunk_id,
+                "category": c.category,
+                "title": c.title,
+                "combo": c.recommended_combo,
+                "cost": c.estimated_cost
+            }
+            for c in chunks
+        ],
+        "metadata": {
+            "query": req.question,
+            "total_retrieved": len(chunks)
+        }
+    }
+
+@router.get("/rag/knowledge")
+def get_rag_knowledge_catalog():
+    """Lấy danh mục tri thức kỹ thuật ô tô trong Knowledge Base."""
+    from backend.app.ai.rag import GARAGE_KNOWLEDGE_BASE
+    return {
+        "total_chunks": len(GARAGE_KNOWLEDGE_BASE),
+        "chunks": [
+            {
+                "id": c.chunk_id,
+                "category": c.category,
+                "title": c.title,
+                "keywords": c.keywords,
+                "combo": c.recommended_combo,
+                "cost": c.estimated_cost,
+                "time": c.time_estimate
+            }
+            for c in GARAGE_KNOWLEDGE_BASE
+        ]
+    }
+
 @router.post("/assistant", response_model=AIResponse)
 def ask_ai_assistant(
     req: AIAssistantRequest,

@@ -623,6 +623,26 @@ def ask_admin_copilot(db: Session, question: str, role: str = "manager", domain:
     """Hàm trung tâm phục vụ AI Quản Trị Hệ Thống."""
     context = extract_live_garage_context(db, question, domain)
     context_str = format_admin_context_string(context, domain)
+
+    # Ưu tiên kiểm thử kịch bản quản trị (Test Scenarios & Playbook)
+    q_lower = (question or "").lower()
+    if any(k in q_lower for k in ["tổng hợp testcase", "danh sách testcase", "kịch bản kiểm thử", "danh sách kịch bản", "test case quản trị", "tc-adm"]):
+        return {
+            "success": True,
+            "feature": "admin_copilot",
+            "domain": domain or "general",
+            "output": run_admin_copilot_deterministic_fallback(question, context, domain),
+            "model_used": "VTV AutoPilot Realtime Core",
+            "live_metrics": {
+                "active_cars": len(context.get("active_repair_orders", [])),
+                "low_stock_count": context.get("parts", {}).get("low_stock_count", 0),
+                "pending_requests": len(context.get("customer_requests", [])),
+                "total_revenue": context.get("finances", {}).get("paid_revenue", 0),
+                "unpaid_total": context.get("finances", {}).get("unpaid_total", 0),
+                "crm_due_reminders": context.get("crm", {}).get("due_maintenance_vehicles", 0),
+                "avg_csat": context.get("crm", {}).get("average_csat", 4.8)
+            }
+        }
     
     user_prompt = f"""CÂU HỎI TỪ NHÂN SỰ VẬN HÀNH ({role.upper()}):
 {question}
