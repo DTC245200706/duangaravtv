@@ -159,11 +159,21 @@ def update_repair_order_status(
     
     verify_technician_access(ro, current_user)
     
+    target_status = req.status
+    status_val = getattr(target_status, 'value', str(target_status))
+    if status_val == 'in_progress':
+        target_status = RepairOrderStatus.IN_REPAIR
+    elif status_val == 'finished':
+        target_status = RepairOrderStatus.COMPLETED
+
+    is_admin = current_user.role in [UserRole.MANAGER, 'manager', 'admin']
+
     updated_ro = ROService.transition_status(
         db=db,
         repair_order_id=ro_id,
-        new_status=req.status,
-        user_id=int(current_user.id) # type: ignore
+        new_status=target_status,
+        user_id=int(current_user.id),
+        is_admin=is_admin
     )
     return {
         "success": True,

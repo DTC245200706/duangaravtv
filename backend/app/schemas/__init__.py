@@ -222,6 +222,12 @@ class AIAssistantRequest(BaseModel):
     repair_order_id: Optional[int] = None
     vehicle_id: Optional[int] = None
 
+class AdminCopilotRequest(BaseModel):
+    question: str
+    domain: Optional[str] = "all"
+    repair_order_id: Optional[int] = None
+    vehicle_id: Optional[int] = None
+
 class AIHistorySummaryRequest(BaseModel):
     vehicle_id: int
 

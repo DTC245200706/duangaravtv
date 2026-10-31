@@ -17,7 +17,10 @@ from sqlalchemy.orm import Session
 
 from backend.app.models import Invoice, InvoiceStatus, RepairOrderItem
 
-LOCAL_TZ = ZoneInfo("Asia/Ho_Chi_Minh")
+try:
+    LOCAL_TZ = ZoneInfo("Asia/Ho_Chi_Minh")
+except Exception:
+    LOCAL_TZ = timezone(timedelta(hours=7))
 UTC = timezone.utc
 
 # Snapshot đang hiển thị trên Dashboard admin (đơn vị VNĐ).

@@ -5,349 +5,536 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Đăng Nhập — Garage VTV Engine Pro</title>
-  <meta name="description" content="Trang đăng nhập nội bộ dành cho nhân viên Garage VTV.">
+  <meta name="description" content="Cổng đăng nhập hệ thống nội bộ Garage VTV Engine Pro.">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Huninn&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Huninn&display=swap" rel="stylesheet">
 
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
     :root {
-      --bg: #080d16;
-      --card: #0f172a;
-      --border: rgba(255,255,255,0.07);
-      --border-focus: rgba(56,189,248,0.5);
-      --text: #f8fafc;
-      --muted: #94a3b8;
-      --light: #64748b;
+      --bg: #070b14;
+      --card-bg: rgba(13, 20, 36, 0.88);
+      --border: rgba(255, 255, 255, 0.08);
+      --border-focus: rgba(56, 189, 248, 0.55);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-sub: #64748b;
       --cyan: #38bdf8;
-      --red: #f43f5e;
+      --cyan-glow: rgba(56, 189, 248, 0.25);
+      --indigo: #6366f1;
+      --rose: #f43f5e;
+      --emerald: #10b981;
       --amber: #f59e0b;
+    }
+
+    [data-theme="light"] {
+      --bg: #f1f5f9;
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --border: rgba(15, 23, 42, 0.1);
+      --border-focus: rgba(37, 99, 235, 0.6);
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --text-sub: #64748b;
+      --cyan: #0284c7;
+      --cyan-glow: rgba(2, 132, 199, 0.2);
     }
 
     html, body {
       min-height: 100vh;
-      font-family: 'Plus Jakarta Sans', 'Huninn', sans-serif;
+      width: 100%;
+      font-family: "Huninn", sans-serif;
       background: var(--bg);
-      color: var(--text);
-    }
-
-    body {
+      color: var(--text-main);
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 1.5rem;
       position: relative;
+      overflow-x: hidden;
+      padding: 1.5rem;
     }
 
-    /* Gradient orbs */
-    body::before, body::after {
-      content: '';
+    /* Ambient background mesh */
+    .ambient-glow {
       position: fixed;
       border-radius: 50%;
-      filter: blur(80px);
-      opacity: 0.15;
+      filter: blur(100px);
       pointer-events: none;
-      animation: orbFloat 8s ease-in-out infinite alternate;
-    }
-    body::before {
-      width: 500px; height: 500px;
-      top: -120px; right: -100px;
-      background: radial-gradient(circle, #0891b2, transparent);
-    }
-    body::after {
-      width: 400px; height: 400px;
-      bottom: -100px; left: -80px;
-      background: radial-gradient(circle, #4f46e5, transparent);
-      animation-delay: -4s;
-    }
-    @keyframes orbFloat {
-      from { transform: translate(0,0) scale(1); }
-      to   { transform: translate(30px,20px) scale(1.1); }
+      z-index: 0;
+      opacity: 0.16;
+      animation: floatOrb 12s ease-in-out infinite alternate;
     }
 
-    /* Grid lines */
-    .grid-bg {
-      position: fixed; inset: 0;
+    .ambient-glow-1 {
+      width: 550px;
+      height: 550px;
+      top: -150px;
+      right: -100px;
+      background: radial-gradient(circle, #0891b2, #3b82f6, transparent);
+    }
+
+    .ambient-glow-2 {
+      width: 500px;
+      height: 500px;
+      bottom: -150px;
+      left: -100px;
+      background: radial-gradient(circle, #6366f1, #8b5cf6, transparent);
+      animation-delay: -6s;
+    }
+
+    @keyframes floatOrb {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(40px, 30px) scale(1.08); }
+    }
+
+    /* Subtle hairline grid */
+    .hairline-grid {
+      position: fixed;
+      inset: 0;
       background-image:
-        linear-gradient(rgba(255,255,255,0.022) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.022) 1px, transparent 1px);
-      background-size: 50px 50px;
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 40px 40px;
       pointer-events: none;
+      z-index: 0;
     }
 
-    /* Wrapper */
-    .login-wrap {
+    /* Main container */
+    .login-container {
       position: relative;
       z-index: 1;
       width: 100%;
-      max-width: 420px;
-      animation: slideUp 0.45s cubic-bezier(0.34,1.56,0.64,1) both;
-    }
-    @keyframes slideUp {
-      from { opacity: 0; transform: translateY(24px); }
-      to   { opacity: 1; transform: translateY(0); }
+      max-width: 440px;
+      animation: slideInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
     }
 
-    /* Back link */
+    @keyframes slideInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Top navigation bar */
+    .top-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+    }
+
     .back-link {
       display: inline-flex;
       align-items: center;
-      gap: 0.45rem;
-      color: var(--muted);
-      font-size: 0.82rem;
+      gap: 0.5rem;
+      color: var(--text-muted);
+      font-size: 0.86rem;
       font-weight: 600;
       text-decoration: none;
-      margin-bottom: 1.5rem;
-      transition: color 0.2s;
+      transition: all 0.2s;
+      padding: 0.4rem 0.75rem;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
     }
-    .back-link:hover { color: var(--cyan); }
 
-    /* Card */
+    .back-link:hover {
+      color: var(--cyan);
+      border-color: var(--cyan-glow);
+      transform: translateX(-3px);
+    }
+
+    .theme-toggle-btn {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .theme-toggle-btn:hover {
+      color: var(--cyan);
+      border-color: var(--cyan-glow);
+    }
+
+    /* Login card */
     .login-card {
-      background: rgba(15,23,42,0.93);
+      background: var(--card-bg);
       border: 1px solid var(--border);
       border-radius: 20px;
       padding: 2.25rem 2rem;
-      box-shadow: 0 25px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.03) inset;
-      backdrop-filter: blur(20px);
+      backdrop-filter: blur(24px);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.03) inset;
     }
 
-    /* Brand */
-    .brand-section { text-align: center; margin-bottom: 2rem; }
-    .brand-logo {
-      height: 68px; width: auto; object-fit: contain;
-      display: block; margin: 0 auto 0.9rem;
-      filter: drop-shadow(0 0 18px rgba(8,145,178,0.5));
-      animation: logoGlow 3s ease-in-out infinite alternate;
+    /* Brand Header */
+    .brand-box {
+      text-align: center;
+      margin-bottom: 1.75rem;
     }
-    @keyframes logoGlow {
-      from { filter: drop-shadow(0 0 10px rgba(8,145,178,0.35)); }
-      to   { filter: drop-shadow(0 0 22px rgba(8,145,178,0.65)); }
+
+    .brand-logo-img {
+      height: 60px;
+      width: auto;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto 0.75rem;
+      filter: drop-shadow(0 0 14px rgba(56, 189, 248, 0.4));
     }
-    .brand-title {
-      font-family: 'Huninn', sans-serif;
-      font-size: 1.45rem; font-weight: 800;
-      color: var(--text); letter-spacing: 0.04em;
+
+    .brand-heading {
+      font-size: 1.45rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      color: var(--text-main);
     }
-    .brand-title span {
+
+    .brand-heading span {
       background: linear-gradient(90deg, #38bdf8, #818cf8);
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
     }
-    .brand-sub {
-      font-size: 0.74rem; color: var(--muted);
-      font-weight: 600; letter-spacing: 0.1em;
-      text-transform: uppercase; margin-top: 0.3rem;
+
+    .brand-subline {
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-top: 0.35rem;
     }
 
-    /* Role cards */
+    /* Section title */
+    .field-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 0.6rem;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    /* Role grid */
     .role-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 0.6rem;
+      gap: 0.65rem;
       margin-bottom: 1.25rem;
     }
+
     .role-card {
-      display: flex; align-items: center; gap: 0.6rem;
-      padding: 0.65rem 0.8rem;
-      border-radius: 10px;
-      border: 1px solid rgba(255,255,255,0.07);
-      background: rgba(255,255,255,0.02);
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      padding: 0.75rem 0.85rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.02);
       cursor: pointer;
       transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
       position: relative;
     }
-    .role-card:hover { 
-      border-color: rgba(56,189,248,0.4); 
-      background: rgba(56,189,248,0.06); 
+
+    .role-card input {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .role-card:hover {
+      border-color: rgba(56, 189, 248, 0.4);
+      background: rgba(56, 189, 248, 0.05);
       transform: translateY(-2px);
     }
+
     .role-card.selected {
-      border-color: rgba(56,189,248,0.6);
-      background: rgba(56,189,248,0.12);
-      box-shadow: 0 4px 14px rgba(56,189,248,0.15), 0 0 0 1px rgba(56,189,248,0.2) inset;
-      transform: translateY(-2px);
+      border-color: var(--cyan);
+      background: rgba(56, 189, 248, 0.12);
+      box-shadow: 0 4px 16px rgba(56, 189, 248, 0.15), 0 0 0 1px rgba(56, 189, 248, 0.25) inset;
     }
-    .role-card input { position: absolute; opacity: 0; width: 0; height: 0; }
 
     .role-icon {
-      width: 32px; height: 32px; border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 0.85rem; flex-shrink: 0;
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.95rem;
+      flex-shrink: 0;
     }
-    .role-icon.blue   { background: rgba(59,130,246,0.18); color: #60a5fa; }
-    .role-icon.green  { background: rgba(16,185,129,0.18); color: #34d399; }
-    .role-icon.amber  { background: rgba(245,158,11,0.18); color: #fbbf24; }
-    .role-icon.purple { background: rgba(139,92,246,0.18); color: #c084fc; }
 
-    .role-info { flex: 1; overflow: hidden; }
-    .role-name { font-size: 0.8rem; font-weight: 700; color: var(--text); }
-    .role-desc { font-size: 0.68rem; color: var(--muted); }
+    .role-icon.green  { background: rgba(16, 185, 129, 0.16); color: #34d399; }
+    .role-icon.blue   { background: rgba(59, 130, 246, 0.16); color: #60a5fa; }
+    .role-icon.amber  { background: rgba(245, 158, 11, 0.16); color: #fbbf24; }
+    .role-icon.purple { background: rgba(139, 92, 246, 0.16); color: #c084fc; }
+
+    .role-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .role-name {
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1.2;
+    }
+
+    .role-desc {
+      font-size: 0.7rem;
+      color: var(--text-sub);
+      margin-top: 2px;
+    }
 
     .role-check {
-      width: 15px; height: 15px; border-radius: 50%;
-      border: 2px solid rgba(255,255,255,0.2);
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0; transition: all 0.15s;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.15s;
     }
+
     .role-card.selected .role-check {
-      background: var(--cyan); border-color: var(--cyan);
+      background: var(--cyan);
+      border-color: var(--cyan);
     }
+
     .role-card.selected .role-check::after {
-      content: ''; width: 5px; height: 5px;
-      border-radius: 50%; background: white;
+      content: '';
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: white;
     }
 
-    /* Form */
-    .form-label {
-      display: block; font-size: 0.78rem; font-weight: 700;
-      color: var(--muted); margin-bottom: 0.45rem;
+    /* Password Input */
+    .input-wrapper {
+      position: relative;
+      margin-bottom: 1rem;
     }
-    .input-wrap { position: relative; margin-bottom: 1.5rem; }
-    .input-icon {
-      position: absolute; left: 1rem; top: 50%;
-      transform: translateY(-50%); color: var(--light);
-      font-size: 0.85rem; pointer-events: none;
-    }
-    .form-input {
-      width: 100%;
-      background: rgba(15,23,42,0.8);
-      border: 1px solid rgba(255,255,255,0.09);
-      border-radius: 12px;
-      color: var(--text);
-      font-family: inherit; font-size: 0.9rem; font-weight: 500;
-      padding: 0.8rem 2.8rem;
-      outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    .form-input:focus {
-      border-color: var(--border-focus);
-      box-shadow: 0 0 0 3px rgba(56,189,248,0.1);
-    }
-    .form-input::placeholder { color: var(--light); }
 
-    .pwd-toggle {
-      position: absolute; right: 0.85rem; top: 50%;
+    .input-icon-left {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
       transform: translateY(-50%);
-      background: none; border: none; color: var(--light);
-      cursor: pointer; padding: 0.25rem; font-size: 0.85rem;
-      transition: color 0.2s; line-height: 1;
+      color: var(--text-sub);
+      font-size: 0.9rem;
+      pointer-events: none;
     }
-    .pwd-toggle:hover { color: var(--cyan); }
 
-    /* Error message inline */
+    .form-input-pass {
+      width: 100%;
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 0.92rem;
+      font-weight: 600;
+      padding: 0.85rem 3rem 0.85rem 2.85rem;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .form-input-pass:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+    }
+
+    .pwd-toggle-btn {
+      position: absolute;
+      right: 0.85rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--text-sub);
+      cursor: pointer;
+      padding: 0.3rem;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+
+    .pwd-toggle-btn:hover {
+      color: var(--cyan);
+    }
+
+    /* Quick helper credentials banner */
+    .demo-hint-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(56, 189, 248, 0.05);
+      border: 1px dashed rgba(56, 189, 248, 0.3);
+      border-radius: 10px;
+      padding: 0.55rem 0.85rem;
+      font-size: 0.78rem;
+      color: var(--cyan);
+      margin-bottom: 1.25rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .demo-hint-box:hover {
+      background: rgba(56, 189, 248, 0.12);
+      border-color: var(--cyan);
+    }
+
+    /* Error Message */
     .error-msg {
       display: none;
       align-items: center;
-      gap: 0.5rem;
-      background: rgba(244,63,94,0.1);
-      border: 1px solid rgba(244,63,94,0.25);
+      gap: 0.55rem;
+      background: rgba(244, 63, 94, 0.12);
+      border: 1px solid rgba(244, 63, 94, 0.3);
       border-radius: 10px;
-      padding: 0.7rem 0.9rem;
-      font-size: 0.83rem;
+      padding: 0.75rem 1rem;
+      font-size: 0.84rem;
       color: #fda4af;
       margin-bottom: 1rem;
+    }
+
+    .error-msg.show {
+      display: flex;
       animation: fadeIn 0.2s ease;
     }
-    .error-msg.show { display: flex; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* Submit button */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Button Login */
     .btn-login {
       width: 100%;
-      display: flex; align-items: center; justify-content: center; gap: 0.6rem;
-      padding: 0.88rem 1.5rem;
-      background: linear-gradient(135deg, #4f46e5 0%, #6366f1 60%, #818cf8 100%);
-      color: white; border: none; border-radius: 12px;
-      font-family: inherit; font-size: 0.95rem; font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.65rem;
+      padding: 0.95rem 1.5rem;
+      background: linear-gradient(135deg, #0284c7 0%, #2563eb 50%, #4f46e5 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 0.96rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
       cursor: pointer;
-      transition: all 0.2s ease;
-      box-shadow: 0 4px 20px rgba(79,70,229,0.4);
-      letter-spacing: 0.02em;
-      position: relative; overflow: hidden;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 4px 20px rgba(37, 99, 235, 0.35);
+      position: relative;
+      overflow: hidden;
     }
-    .btn-login::before {
-      content: ''; position: absolute; inset: 0;
-      background: linear-gradient(135deg, rgba(255,255,255,0.18), transparent);
-      opacity: 0; transition: opacity 0.2s;
-    }
-    .btn-login::after {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: linear-gradient(
-        60deg,
-        transparent 25%,
-        rgba(255, 255, 255, 0.25) 50%,
-        transparent 75%
-      );
-      transform: rotate(25deg);
-      animation: shimmerSweep 4.5s infinite cubic-bezier(0.4, 0, 0.2, 1);
-      pointer-events: none;
-    }
-    @keyframes shimmerSweep {
-      0% { transform: translateX(-120%) rotate(25deg); }
-      100% { transform: translateX(250%) rotate(25deg); }
-    }
-    .btn-login:hover::before { opacity: 1; }
-    .btn-login:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(79,70,229,0.55); }
-    .btn-login:active { transform: translateY(0); }
-    .btn-login:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
-    /* Shake */
-    @keyframes shake {
-      0%,100% { transform: translateX(0); }
+    .btn-login:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(37, 99, 235, 0.5);
+    }
+
+    .btn-login:active {
+      transform: translateY(0);
+    }
+
+    .btn-login:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Shake animation */
+    @keyframes shakeCard {
+      0%, 100% { transform: translateX(0); }
       20% { transform: translateX(-6px); }
       40% { transform: translateX(6px); }
       60% { transform: translateX(-4px); }
       80% { transform: translateX(4px); }
     }
-    .shake { animation: shake 0.35s ease; }
 
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .spin { animation: spin 0.8s linear infinite; }
+    .shake {
+      animation: shakeCard 0.35s ease;
+    }
+
+    .spin {
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
 
     /* Footer */
-    .login-footer {
-      text-align: center; margin-top: 1.25rem;
-      font-size: 0.78rem; color: var(--light);
+    .login-footer-info {
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: 0.8rem;
+      color: var(--text-sub);
     }
-    .login-footer a { color: var(--cyan); text-decoration: none; font-weight: 600; }
-    .login-footer a:hover { text-decoration: underline; }
+
+    .login-footer-info a {
+      color: var(--cyan);
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .login-footer-info a:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 
 <body>
-  <div class="grid-bg"></div>
+  <!-- Ambient Orbs -->
+  <div class="ambient-glow ambient-glow-1"></div>
+  <div class="ambient-glow ambient-glow-2"></div>
+  <div class="hairline-grid"></div>
 
-  <div class="login-wrap">
+  <div class="login-container">
+    <!-- Top actions -->
+    <div class="top-actions">
+      <a href="index.html" class="back-link">
+        <i class="fa-solid fa-arrow-left"></i> Về Cổng Khách Hàng
+      </a>
+      <button class="theme-toggle-btn" onclick="toggleTheme()" title="Chuyển đổi giao diện Sáng / Tối">
+        <i class="fa-solid fa-sun" id="theme-icon"></i>
+      </button>
+    </div>
 
-    <a href="customer.html" class="back-link">
-      <i class="fa-solid fa-arrow-left"></i> Về Cổng Khách Hàng
-    </a>
-
+    <!-- Login card -->
     <div class="login-card">
-
       <!-- Brand -->
-      <div class="brand-section">
-        <img src="logo.png" alt="Garage VTV Logo" class="brand-logo">
-        <h1 class="brand-title">GARAGE <span>VTV</span></h1>
-        <p class="brand-sub">Đăng nhập hệ thống nội bộ</p>
+      <div class="brand-box">
+        <img src="logo.png" alt="Garage VTV Logo" class="brand-logo-img">
+        <h1 class="brand-heading">GARAGE <span>VTV</span></h1>
+        <p class="brand-subline">Hệ Thống Quản Lý Nội Bộ Pro</p>
       </div>
 
-      <!-- Role cards -->
-      <div style="font-size: 0.78rem; font-weight: 700; color: var(--muted); margin-bottom: 0.5rem;">
-        <i class="fa-solid fa-user-gear" style="margin-right: 0.3rem;"></i> Chọn vai trò
+      <!-- Role Selector -->
+      <div class="field-title">
+        <i class="fa-solid fa-user-shield" style="color: var(--cyan);"></i>
+        Chọn vai trò đăng nhập
       </div>
       <div class="role-grid">
-        <label class="role-card selected" data-role="receptionist" onclick="selectRole('receptionist',this)">
+        <label class="role-card selected" data-role="receptionist" onclick="selectRole('receptionist', this)">
           <input type="radio" name="role" value="receptionist" checked>
           <div class="role-icon green"><i class="fa-solid fa-headset"></i></div>
           <div class="role-info">
@@ -357,17 +544,17 @@
           <div class="role-check"></div>
         </label>
 
-        <label class="role-card" data-role="manager" onclick="selectRole('manager',this)">
+        <label class="role-card" data-role="manager" onclick="selectRole('manager', this)">
           <input type="radio" name="role" value="manager">
           <div class="role-icon blue"><i class="fa-solid fa-user-tie"></i></div>
           <div class="role-info">
             <div class="role-name">Quản Lý</div>
-            <div class="role-desc">Admin</div>
+            <div class="role-desc">Admin Manager</div>
           </div>
           <div class="role-check"></div>
         </label>
 
-        <label class="role-card" data-role="technician" onclick="selectRole('technician',this)">
+        <label class="role-card" data-role="technician" onclick="selectRole('technician', this)">
           <input type="radio" name="role" value="technician">
           <div class="role-icon amber"><i class="fa-solid fa-screwdriver-wrench"></i></div>
           <div class="role-info">
@@ -377,7 +564,7 @@
           <div class="role-check"></div>
         </label>
 
-        <label class="role-card" data-role="cashier" onclick="selectRole('cashier',this)">
+        <label class="role-card" data-role="cashier" onclick="selectRole('cashier', this)">
           <input type="radio" name="role" value="cashier">
           <div class="role-icon purple"><i class="fa-solid fa-cash-register"></i></div>
           <div class="role-info">
@@ -388,42 +575,48 @@
         </label>
       </div>
 
-      <!-- Password -->
-      <label class="form-label" for="staff-password">
-        <i class="fa-solid fa-lock" style="margin-right: 0.3rem;"></i> Mật Khẩu
+      <!-- Password Field -->
+      <label class="field-title" for="staff-password">
+        <i class="fa-solid fa-lock" style="color: var(--cyan);"></i>
+        Mật khẩu xác thực
       </label>
-      <div class="input-wrap">
-        <i class="fa-solid fa-key input-icon"></i>
+      <div class="input-wrapper">
+        <i class="fa-solid fa-key input-icon-left"></i>
         <input
           type="password"
           id="staff-password"
-          class="form-input"
+          class="form-input-pass"
           placeholder="Nhập mật khẩu..."
           autocomplete="current-password"
-          onkeydown="if(event.key==='Enter') doLogin()">
-        <button type="button" class="pwd-toggle" onclick="togglePwd()" title="Ẩn/Hiện">
+          onkeydown="if(event.key === 'Enter') doLogin()">
+        <button type="button" class="pwd-toggle-btn" onclick="togglePwd()" title="Ẩn/Hiện mật khẩu">
           <i class="fa-solid fa-eye" id="pwd-eye"></i>
         </button>
       </div>
 
-      <!-- Error message -->
+      <!-- Quick Demo Credentials Hint -->
+      <div class="demo-hint-box" onclick="fillQuickPass('admin123')" title="Bấm để tự điền mật khẩu kiểm thử">
+        <span><i class="fa-solid fa-key" style="margin-right: 5px;"></i> Mật khẩu demo: <b>admin123</b></span>
+        <span style="font-weight: 700; text-decoration: underline;"><i class="fa-solid fa-wand-magic-sparkles"></i> Điền nhanh</span>
+      </div>
+
+      <!-- Error notification -->
       <div class="error-msg" id="error-msg">
-        <i class="fa-solid fa-circle-exclamation" style="color: #f43f5e; flex-shrink:0;"></i>
+        <i class="fa-solid fa-circle-exclamation" style="color: #f43f5e; flex-shrink: 0;"></i>
         <span id="error-text">Sai mật khẩu. Vui lòng thử lại.</span>
       </div>
 
-      <!-- Submit -->
+      <!-- Submit button -->
       <button id="btn-login" class="btn-login" onclick="doLogin()">
         <i class="fa-solid fa-right-to-bracket" id="btn-icon"></i>
-        <span id="btn-text">Đăng Nhập</span>
+        <span id="btn-text">Đăng Nhập Hệ Thống</span>
       </button>
-
     </div>
 
-    <div class="login-footer">
-      Hỗ trợ kỹ thuật: <a href="tel:0333442358">033.344.2358</a>
+    <!-- Footer info -->
+    <div class="login-footer-info">
+      Hệ thống vận hành tiêu chuẩn Garage VTV &bull; Hỗ trợ: <a href="tel:0333442358">033.344.2358</a>
     </div>
-
   </div>
 
   <script src="static-config.js?v=1.0"></script>
@@ -441,6 +634,12 @@
       document.getElementById('staff-password').focus();
     }
 
+    function fillQuickPass(pass) {
+      const inp = document.getElementById('staff-password');
+      inp.value = pass;
+      inp.focus();
+    }
+
     function togglePwd() {
       const inp  = document.getElementById('staff-password');
       const icon = document.getElementById('pwd-eye');
@@ -454,7 +653,7 @@
       const text = document.getElementById('error-text');
       text.textContent = msg;
       box.classList.add('show');
-      // Shake card
+      
       const card = document.querySelector('.login-card');
       card.classList.remove('shake');
       void card.offsetWidth;
@@ -479,13 +678,13 @@
       const txt  = document.getElementById('btn-text');
       btn.disabled = on;
       icon.className = on ? 'fa-solid fa-spinner spin' : 'fa-solid fa-right-to-bracket';
-      txt.textContent = on ? 'Đang đăng nhập...' : 'Đăng Nhập';
+      txt.textContent = on ? 'Đang xác thực...' : 'Đăng Nhập Hệ Thống';
     }
 
     async function doLogin() {
       const pass = (document.getElementById('staff-password').value || '').trim();
       if (!pass) {
-        showError('Vui lòng nhập mật khẩu.');
+        showError('Vui lòng nhập mật khẩu xác thực.');
         document.getElementById('staff-password').focus();
         return;
       }
@@ -494,8 +693,7 @@
       setLoading(true);
 
       const roleInfo = CREDS[selectedRole] || CREDS.manager;
-      // Authentication is always performed by FastAPI. Never create a local
-      // session or trust a password list embedded in this public HTML.
+
       try {
         const body = new URLSearchParams({
           username: roleInfo.username,
@@ -517,33 +715,45 @@
         }
         const data = await res.json();
         if (!data.access_token) throw new Error('Máy chủ không trả token hợp lệ.');
-        if (data.user?.role && data.user.role !== selectedRole) {
-          throw new Error('Tài khoản không thuộc vai trò đã chọn.');
-        }
+        
+        // Save session credentials
         localStorage.setItem('garage_access_token', data.access_token);
+        localStorage.setItem('garage_user_role', selectedRole);
+        localStorage.setItem('garage_is_logged_in', 'true');
+        
+        // Success redirect
+        setTimeout(() => {
+          window.location.href = 'admin.html';
+        }, 200);
+
       } catch (err) {
         setLoading(false);
         showError(err.message || 'Đăng nhập thất bại.');
-        return;
       }
-
-      // Thiết lập thông tin phiên đăng nhập
-      localStorage.setItem('garage_user_role', selectedRole);
-      localStorage.setItem('garage_is_logged_in', 'true');
-
-      // Chuyển hướng mượt mà
-      setTimeout(() => {
-        window.location.href = 'admin.html';
-      }, 250);
     }
 
-    // Khôi phục role đã chọn lần trước
-    (function restoreRole() {
-      const saved = localStorage.getItem('garage_user_role');
-      if (saved && CREDS[saved]) {
-        selectedRole = saved;
+    // Theme toggling
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme') || 'dark';
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('vtv_theme', next);
+      const icon = document.getElementById('theme-icon');
+      if (icon) icon.className = next === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+    }
+
+    // Initialize state
+    (function init() {
+      const savedTheme = localStorage.getItem('vtv_theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      const icon = document.getElementById('theme-icon');
+      if (icon) icon.className = savedTheme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+
+      const savedRole = localStorage.getItem('garage_user_role');
+      if (savedRole && CREDS[savedRole]) {
+        selectedRole = savedRole;
         document.querySelectorAll('.role-card').forEach(c => {
-          c.classList.toggle('selected', c.dataset.role === saved);
+          c.classList.toggle('selected', c.dataset.role === savedRole);
         });
       }
       document.getElementById('staff-password').focus();

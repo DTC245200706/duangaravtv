@@ -5,46 +5,50 @@ from sqlalchemy.orm import Session
 from backend.app.database import get_db
 from backend.app.models import AILog, User, UserRole, AIFeedback, AIKnowledgeBase
 from backend.app.schemas import (
-    AIAssistantRequest, AIHistorySummaryRequest, AIServiceExplainerRequest, AIDraftQuotationRequest, AIResponse,
+    AIAssistantRequest, AdminCopilotRequest, AIHistorySummaryRequest, AIServiceExplainerRequest, AIDraftQuotationRequest, AIResponse,
     AIEvaluationMetricsResponse, DemoScenarioResponse, AITechnicalTroubleshootRequest, AIOBDDiagnosticRequest,
     AIBusinessAnalysisRequest, AIPredictiveMaintenanceRequest, AICustomerProgressRequest,
     AIFeedbackCreate, AIKnowledgeBaseCreate, AIKnowledgeBaseOut
 )
 from backend.app.auth import get_current_user, require_roles
 from backend.app.ai.service import AIService
+from backend.app.ai.admin_copilot import ask_admin_copilot
 from backend.app.ai.scenarios import run_demo_scenario
 from backend.app.ai.benchmark import generate_ai_evaluation_report
 
 router = APIRouter(prefix="/api/v1/ai", tags=["AI Engine"])
 
-@router.post("/assistant", response_model=AIResponse)
-def ask_ai_assistant(
-    req: AIAssistantRequest,
+@router.post("/admin-copilot")
+def route_admin_copilot(
+    req: AdminCopilotRequest,
     db: Session = Depends(get_db),
-    current_user = Depends(require_roles([UserRole.MANAGER, UserRole.RECEPTIONIST, UserRole.TECHNICIAN]))
+    current_user: User = Depends(require_roles([UserRole.MANAGER, UserRole.RECEPTIONIST, UserRole.TECHNICIAN, UserRole.CASHIER]))
 ):
     """
-    Trợ Lý AI Garage Hợp Nhất: Giải đáp thắc mắc tự do về dịch vụ xe, kỹ thuật ô tô, báo giá nháp & giải thích quy trình.
+    VTV AutoPilot — AI Quản Trị Hệ Thống Vận Hành:
+    Truy cập dữ liệu thời gian thực của garage:
+    1. Tiếp nhận & chẩn đoán lỗi xe
+    2. Tối ưu kho phụ tùng
+    3. Lịch hẹn & chăm sóc khách hàng
+    4. Điều phối công việc & nhân sự
+    5. Tài chính & chống thất thoát
     """
-    res = AIService.ask_assistant(
-        db,
+    return ask_admin_copilot(
+        db=db,
         question=req.question,
-        repair_order_id=req.repair_order_id,
-        vehicle_id=req.vehicle_id,
-        mode="admin",
-        current_role=current_user.role.value
+        role=current_user.role.value if hasattr(current_user.role, "value") else str(current_user.role),
+        domain=req.domain
     )
-    if not res.get("success", False):
-        raise HTTPException(status_code=400, detail=res.get("output", "Lỗi AI"))
-    return res
 
+@router.post("/customer-assistant", response_model=AIResponse)
 @router.post("/assistant/open", response_model=AIResponse)
-def ask_ai_assistant_open(
+def ask_customer_assistant(
     req: AIAssistantRequest,
     db: Session = Depends(get_db),
 ):
     """
-    Trợ Lý AI Garage — Endpoint mở (không yêu cầu đăng nhập), dùng cho AI chat trên giao diện.
+    GarageAI — Trợ Lý Khách Hàng Thân Thiện:
+    Tư vấn mốc bảo dưỡng, báo giá công khai, đèn báo taplo và đặt lịch hẹn trực tuyến 24/7.
     """
     res = AIService.ask_assistant(
         db,
@@ -53,6 +57,27 @@ def ask_ai_assistant_open(
         vehicle_id=req.vehicle_id,
         mode="customer",
         current_role="customer"
+    )
+    if not res.get("success", False):
+        raise HTTPException(status_code=400, detail=res.get("output", "Lỗi AI"))
+    return res
+
+@router.post("/assistant", response_model=AIResponse)
+def ask_ai_assistant(
+    req: AIAssistantRequest,
+    db: Session = Depends(get_db),
+    current_user = Depends(require_roles([UserRole.MANAGER, UserRole.RECEPTIONIST, UserRole.TECHNICIAN]))
+):
+    """
+    Trợ Lý AI Garage Nội Bộ Cũ (Backward compatibility)
+    """
+    res = AIService.ask_assistant(
+        db,
+        question=req.question,
+        repair_order_id=req.repair_order_id,
+        vehicle_id=req.vehicle_id,
+        mode="admin",
+        current_role=current_user.role.value
     )
     if not res.get("success", False):
         raise HTTPException(status_code=400, detail=res.get("output", "Lỗi AI"))
