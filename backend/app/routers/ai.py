@@ -53,8 +53,9 @@ def ask_customer_assistant(
     res = AIService.ask_assistant(
         db,
         question=req.question,
-        repair_order_id=req.repair_order_id,
-        vehicle_id=req.vehicle_id,
+        # Public chat must not expose internal records via guessable numeric IDs.
+        repair_order_id=None,
+        vehicle_id=None,
         mode="customer",
         current_role="customer"
     )
@@ -66,7 +67,7 @@ def ask_customer_assistant(
 def ask_ai_assistant(
     req: AIAssistantRequest,
     db: Session = Depends(get_db),
-    current_user = Depends(require_roles([UserRole.MANAGER, UserRole.RECEPTIONIST, UserRole.TECHNICIAN]))
+    current_user: User = Depends(require_roles([UserRole.MANAGER, UserRole.RECEPTIONIST, UserRole.TECHNICIAN, UserRole.CASHIER]))
 ):
     """
     Trợ Lý AI Garage Nội Bộ Cũ (Backward compatibility)
