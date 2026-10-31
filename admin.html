@@ -584,6 +584,10 @@
       <li class="nav-item" data-view="customers">
         <i class="fa-solid fa-users"></i> Khách Hàng & Xe
       </li>
+      <li class="nav-item" data-view="crm" style="background: rgba(14, 165, 233, 0.1); border: 1px solid rgba(56, 189, 248, 0.25); color: #38bdf8; margin: 0.15rem 0.65rem; border-radius: var(--radius-sm);">
+        <i class="fa-solid fa-heart-pulse"></i> Quản Lý CRM (CSKH)
+        <span id="nav-badge-crm-due" class="nav-badge" style="display:none; background:#ef4444; color:#fff;">0</span>
+      </li>
       <li class="nav-item" data-view="customer-portal">
         <i class="fa-solid fa-user-plus"></i> Đăng Ký Khách Hàng
       </li>
@@ -1168,6 +1172,231 @@
                 </tr>
               </tbody>
             </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ╔══════════════════════════════════╗ -->
+      <!-- ║   VIEW: CRM - QUẢN LÝ CSKH       ║ -->
+      <!-- ╚══════════════════════════════════╝ -->
+      <section id="view-crm" class="view-section">
+        <!-- CRM Header -->
+        <div class="section-header" style="flex-wrap: wrap; gap: 1rem; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;">
+          <div>
+            <h3 class="section-title" style="display: flex; align-items: center; gap: 0.65rem;">
+              <i class="fa-solid fa-heart-pulse" style="color: #ec4899;"></i>
+              Quản Lý Chăm Sóc Khách Hàng (CRM)
+            </h3>
+            <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 3px;">
+              Tự động nhắc bảo dưỡng • Phân khúc khách hàng RFM • Khảo sát CSAT & Lịch sử tương tác
+            </div>
+          </div>
+          <div style="display: flex; gap: 0.65rem; align-items: center;">
+            <button class="btn btn-secondary btn-sm" onclick="loadCRMData()" title="Làm mới dữ liệu">
+              <i class="fa-solid fa-rotate"></i> Làm Mới
+            </button>
+            <button class="btn btn-primary btn-sm" onclick="openCRMInteractionModal()">
+              <i class="fa-solid fa-plus"></i> + Ghi Nhận Tương Tác
+            </button>
+          </div>
+        </div>
+
+        <!-- 4 KPI Cards CRM -->
+        <div class="kpi-grid" style="margin-bottom: 1.5rem;">
+          <div class="kpi-card blue">
+            <div>
+              <div class="kpi-label">Tổng Khách Hàng</div>
+              <div id="crm-kpi-total-customers" class="kpi-value">--</div>
+              <div class="kpi-trend up"><i class="fa-solid fa-users"></i> Khách hàng đã lưu vết</div>
+            </div>
+            <div class="kpi-icon blue"><i class="fa-solid fa-address-book"></i></div>
+          </div>
+
+          <div class="kpi-card amber">
+            <div>
+              <div class="kpi-label">Xe Đến Hạn Bảo Dưỡng</div>
+              <div id="crm-kpi-reminders-due" class="kpi-value" style="color: #f59e0b;">--</div>
+              <div class="kpi-trend down"><i class="fa-solid fa-bell"></i> Cần gọi/nhắn Zalo ngay</div>
+            </div>
+            <div class="kpi-icon amber"><i class="fa-solid fa-bell"></i></div>
+          </div>
+
+          <div class="kpi-card green">
+            <div>
+              <div class="kpi-label">Tỷ Lệ Quay Lại (Retention)</div>
+              <div id="crm-kpi-retention-rate" class="kpi-value" style="color: #10b981;">--%</div>
+              <div class="kpi-trend up"><i class="fa-solid fa-arrow-trend-up"></i> Khách hàng thân thiết ≥ 2 lần</div>
+            </div>
+            <div class="kpi-icon green"><i class="fa-solid fa-repeat"></i></div>
+          </div>
+
+          <div class="kpi-card purple">
+            <div>
+              <div class="kpi-label">Điểm Hài Lòng CSAT</div>
+              <div id="crm-kpi-csat-score" class="kpi-value" style="color: #c084fc;">-- / 5.0</div>
+              <div class="kpi-trend up"><i class="fa-solid fa-star" style="color: #fbbf24;"></i> Đánh giá sau dịch vụ</div>
+            </div>
+            <div class="kpi-icon purple"><i class="fa-solid fa-star"></i></div>
+          </div>
+        </div>
+
+        <!-- CRM Navigation Tabs -->
+        <div style="display: flex; gap: 0.5rem; margin-bottom: 1.25rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.5rem; overflow-x: auto;">
+          <button id="crm-tab-btn-reminders" class="btn btn-primary btn-sm" onclick="switchCRMTab('reminders')" style="display: flex; align-items: center; gap: 0.45rem;">
+            <i class="fa-solid fa-bell"></i> 🔔 Nhắc Bảo Dưỡng Tự Động
+            <span id="crm-badge-reminders" class="nav-badge" style="background:#ef4444; color:#fff; font-size:0.7rem; padding:1px 6px; border-radius:99px; margin-left:3px;">0</span>
+          </button>
+          <button id="crm-tab-btn-segments" class="btn btn-secondary btn-sm" onclick="switchCRMTab('segments')" style="display: flex; align-items: center; gap: 0.45rem;">
+            <i class="fa-solid fa-layer-group"></i> 👥 Phân Khúc Khách Hàng (RFM)
+          </button>
+          <button id="crm-tab-btn-interactions" class="btn btn-secondary btn-sm" onclick="switchCRMTab('interactions')" style="display: flex; align-items: center; gap: 0.45rem;">
+            <i class="fa-solid fa-clock-rotate-left"></i> 📝 Nhật Ký CSKH & CSAT
+          </button>
+        </div>
+
+        <!-- TAB 1: NHẮC BẢO DƯỠNG TỰ ĐỘNG -->
+        <div id="crm-content-reminders">
+          <div class="table-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; border-bottom: 1px solid var(--border-subtle); flex-wrap: wrap; gap: 0.75rem;">
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-main);">Bộ lọc trạng thái:</span>
+                <select id="crm-reminder-filter" class="form-control" style="width: auto; padding: 0.35rem 0.75rem; font-size: 0.82rem;" onchange="loadCRMReminders()">
+                  <option value="">Tất cả xe cần nhắc lịch</option>
+                  <option value="OVERDUE">Quá Hạn (≥ 180 ngày)</option>
+                  <option value="DUE">Đến Hạn (90 - 179 ngày)</option>
+                  <option value="UPCOMING">Sắp Đến Hạn (60 - 89 ngày)</option>
+                </select>
+              </div>
+              <div style="font-size: 0.78rem; color: var(--text-muted);">
+                <i class="fa-solid fa-circle-info"></i> Hệ thống tự động tính ngày dựa trên lịch sử bảo dưỡng gần nhất và số km xe.
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>Biển Số & Xe</th>
+                    <th>Chủ Xe & SĐT</th>
+                    <th>Số Km Hiện Tại</th>
+                    <th>Lần Bảo Dưỡng Cuối</th>
+                    <th>Gói Đề Xuất</th>
+                    <th>Trạng Thái</th>
+                    <th style="text-align: right;">Hành Động CSKH</th>
+                  </tr>
+                </thead>
+                <tbody id="crm-reminders-tbody">
+                  <tr>
+                    <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                      <i class="fa-solid fa-spinner fa-spin"></i> Đang tải danh sách nhắc bảo dưỡng...
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 2: PHÂN KHÚC KHÁCH HÀNG (RFM) -->
+        <div id="crm-content-segments" style="display: none;">
+          <!-- 4 Khối thống kê phân khúc -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
+            <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; padding: 1rem; cursor: pointer;" onclick="filterCRMSegment('VIP')">
+              <div style="font-size: 0.75rem; font-weight: 700; color: #fbbf24; text-transform: uppercase;">🌟 Khách Hàng VIP</div>
+              <div id="crm-count-vip" style="font-size: 1.6rem; font-weight: 800; color: #fff; margin: 4px 0;">--</div>
+              <div style="font-size: 0.72rem; color: #94a3b8;">Chi tiêu ≥ 10tr hoặc ≥ 4 lượt</div>
+            </div>
+            <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 1rem; cursor: pointer;" onclick="filterCRMSegment('LOYAL')">
+              <div style="font-size: 0.75rem; font-weight: 700; color: #34d399; text-transform: uppercase;">💎 Khách Thân Thiết</div>
+              <div id="crm-count-loyal" style="font-size: 1.6rem; font-weight: 800; color: #fff; margin: 4px 0;">--</div>
+              <div style="font-size: 0.72rem; color: #94a3b8;">Đã sửa chữa 2 - 3 lượt</div>
+            </div>
+            <div style="background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; padding: 1rem; cursor: pointer;" onclick="filterCRMSegment('NEW')">
+              <div style="font-size: 0.75rem; font-weight: 700; color: #38bdf8; text-transform: uppercase;">🆕 Khách Hàng Mới</div>
+              <div id="crm-count-new" style="font-size: 1.6rem; font-weight: 800; color: #fff; margin: 4px 0;">--</div>
+              <div style="font-size: 0.72rem; color: #94a3b8;">Làm dịch vụ 1 lần gần đây</div>
+            </div>
+            <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; padding: 1rem; cursor: pointer;" onclick="filterCRMSegment('AT_RISK')">
+              <div style="font-size: 0.75rem; font-weight: 700; color: #f87171; text-transform: uppercase;">⚠️ Nguy Cơ Rời Bỏ</div>
+              <div id="crm-count-at-risk" style="font-size: 1.6rem; font-weight: 800; color: #fff; margin: 4px 0;">--</div>
+              <div style="font-size: 0.72rem; color: #94a3b8;">> 180 ngày chưa quay lại</div>
+            </div>
+          </div>
+
+          <div class="table-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; border-bottom: 1px solid var(--border-subtle); flex-wrap: wrap; gap: 0.75rem;">
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-main);">Lọc phân khúc:</span>
+                <select id="crm-segment-filter" class="form-control" style="width: auto; padding: 0.35rem 0.75rem; font-size: 0.82rem;" onchange="loadCRMSegmentedCustomers()">
+                  <option value="">Tất cả phân khúc</option>
+                  <option value="VIP">🌟 Khách Hàng VIP</option>
+                  <option value="LOYAL">💎 Khách Thân Thiết</option>
+                  <option value="NEW">🆕 Khách Hàng Mới</option>
+                  <option value="AT_RISK">⚠️ Nguy Cơ Rời Bỏ</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>Mã & Tên Khách</th>
+                    <th>Số Điện Thoại</th>
+                    <th>Phân Khúc</th>
+                    <th>Tổng Chi Tiêu</th>
+                    <th>Số Lượt Ghé</th>
+                    <th>Lần Gần Nhất</th>
+                    <th>Biển Số Xe</th>
+                    <th style="text-align: right;">Thao Tác</th>
+                  </tr>
+                </thead>
+                <tbody id="crm-segments-tbody">
+                  <tr>
+                    <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                      <i class="fa-solid fa-spinner fa-spin"></i> Đang tải dữ liệu phân khúc...
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 3: NHẬT KÝ TƯƠNG TÁC CSKH & CSAT -->
+        <div id="crm-content-interactions" style="display: none;">
+          <div class="table-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; border-bottom: 1px solid var(--border-subtle); flex-wrap: wrap; gap: 0.75rem;">
+              <div style="font-size: 0.85rem; font-weight: 700; color: var(--text-main);">
+                Lịch sử gọi điện, tin nhắn Zalo/SMS và khảo sát mức độ hài lòng khách hàng
+              </div>
+              <button class="btn btn-primary btn-sm" onclick="openCRMInteractionModal()">
+                <i class="fa-solid fa-plus"></i> + Thêm Tương Tác
+              </button>
+            </div>
+
+            <div class="table-responsive">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>Thời Gian</th>
+                    <th>Khách Hàng</th>
+                    <th>Kênh / Loại</th>
+                    <th>Tiêu Đề / Nội Dung</th>
+                    <th>Kết Quả</th>
+                    <th>Đánh Giá CSAT</th>
+                    <th>Nhân Viên</th>
+                  </tr>
+                </thead>
+                <tbody id="crm-interactions-tbody">
+                  <tr>
+                    <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                      <i class="fa-solid fa-spinner fa-spin"></i> Đang tải nhật ký tương tác...
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </section>
@@ -2506,6 +2735,151 @@
       if (el) el.textContent = roleLabels[role] || role;
     })();
   </script>
+
+  <!-- ══════════════════ MODAL: CRM GỬI TIN NHẮN (ZALO / SMS) ══════════════════ -->
+  <div id="modal-crm-send-message" class="modal-backdrop">
+    <div class="modal-card" style="max-width: 540px; width: 95%;">
+      <div class="modal-header">
+        <h3 class="modal-title" style="display: flex; align-items: center; gap: 0.5rem;">
+          <i class="fa-solid fa-paper-plane" style="color: #38bdf8;"></i>
+          Gửi Tin Nhắn Chăm Sóc Khách Hàng
+        </h3>
+        <button class="close-btn" onclick="closeModal('modal-crm-send-message')">&times;</button>
+      </div>
+      <div class="modal-body" style="padding: 1.25rem;">
+        <input type="hidden" id="crm-send-customer-id">
+        <input type="hidden" id="crm-send-vehicle-id">
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.85rem;">
+          <div>
+            <label class="form-label">Khách Hàng:</label>
+            <input type="text" id="crm-send-customer-name" class="form-control" readonly style="background: rgba(15,23,42,0.6);">
+          </div>
+          <div>
+            <label class="form-label">Số Điện Thoại:</label>
+            <input type="text" id="crm-send-customer-phone" class="form-control" readonly style="background: rgba(15,23,42,0.6);">
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.85rem;">
+          <div>
+            <label class="form-label">Biển Số Xe:</label>
+            <input type="text" id="crm-send-license-plate" class="form-control" readonly style="background: rgba(15,23,42,0.6);">
+          </div>
+          <div>
+            <label class="form-label">Kênh Gửi:</label>
+            <select id="crm-send-channel" class="form-control" onchange="updateCRMTip()">
+              <option value="ZALO">📲 Zalo OA (Chính thức)</option>
+              <option value="SMS">💬 SMS Brandname</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 0.85rem;">
+          <label class="form-label">Mẫu Tin Nhắn (Template):</label>
+          <select id="crm-send-template-type" class="form-control" onchange="applyCRMTipTemplate()">
+            <option value="MAINTENANCE_DUE">🔔 Nhắc bảo dưỡng định kỳ</option>
+            <option value="CSAT_SURVEY">⭐ Khảo sát mức độ hài lòng dịch vụ (CSAT)</option>
+            <option value="THANK_YOU">🙏 Lời cảm ơn sau khi sửa chữa</option>
+            <option value="PROMOTION">🎁 Ưu đãi tri ân khách hàng thân thiết</option>
+          </select>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label class="form-label">Nội Dung Tin Nhắn:</label>
+          <textarea id="crm-send-content" class="form-control" rows="5" style="resize: vertical; font-size: 0.88rem; line-height: 1.5;"></textarea>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.65rem;">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modal-crm-send-message')">Hủy</button>
+          <button type="button" class="btn btn-primary" onclick="submitCRMSendMessage()">
+            <i class="fa-solid fa-paper-plane"></i> Gửi Tin Nhắn Ngay
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════ MODAL: CRM GHI NHẬN TƯƠNG TÁC / CSAT ══════════════════ -->
+  <div id="modal-crm-new-interaction" class="modal-backdrop">
+    <div class="modal-card" style="max-width: 560px; width: 95%;">
+      <div class="modal-header">
+        <h3 class="modal-title" style="display: flex; align-items: center; gap: 0.5rem;">
+          <i class="fa-solid fa-pen-to-square" style="color: #10b981;"></i>
+          Ghi Nhận Tương Tác Chăm Sóc Khách Hàng
+        </h3>
+        <button class="close-btn" onclick="closeModal('modal-crm-new-interaction')">&times;</button>
+      </div>
+      <div class="modal-body" style="padding: 1.25rem;">
+        <div class="form-group" style="margin-bottom: 0.85rem;">
+          <label class="form-label">Chọn Khách Hàng <span style="color:#ef4444;">*</span>:</label>
+          <select id="crm-inter-customer-select" class="form-control" onchange="onCRMCustomerSelected()">
+            <option value="">-- Chọn khách hàng --</option>
+          </select>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.85rem;">
+          <div>
+            <label class="form-label">Xe Liên Quan:</label>
+            <select id="crm-inter-vehicle-select" class="form-control">
+              <option value="">-- Không chọn xe --</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">Loại Tương Tác:</label>
+            <select id="crm-inter-type" class="form-control">
+              <option value="CALL">📞 Cuộc gọi điện thoại</option>
+              <option value="ZALO">📲 Tin nhắn Zalo</option>
+              <option value="SMS">💬 Tin nhắn SMS</option>
+              <option value="VISIT">🏢 Trực tiếp tại xưởng</option>
+              <option value="SURVEY">⭐ Khảo sát CSAT</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 0.85rem;">
+          <label class="form-label">Tiêu Đề Cuộc Trao Đổi <span style="color:#ef4444;">*</span>:</label>
+          <input type="text" id="crm-inter-subject" class="form-control" placeholder="Ví dụ: Gọi điện nhắc bảo dưỡng 10.000km">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 0.85rem;">
+          <label class="form-label">Nội Dung Chi Tiết:</label>
+          <textarea id="crm-inter-content" class="form-control" rows="3" placeholder="Ghi chú phản hồi của khách hàng..."></textarea>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem;">
+          <div>
+            <label class="form-label">Kết Quả Trao Đổi:</label>
+            <select id="crm-inter-outcome" class="form-control">
+              <option value="Đã đặt hẹn">📅 Đã đặt lịch hẹn</option>
+              <option value="Khách quan tâm">👍 Khách quan tâm</option>
+              <option value="Chưa liên hệ được">📵 Chưa liên hệ được (bận máy)</option>
+              <option value="Khách từ chối">❌ Khách chưa có nhu cầu</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">Đánh Giá CSAT (Hài lòng):</label>
+            <select id="crm-inter-csat" class="form-control">
+              <option value="">-- Chưa đánh giá --</option>
+              <option value="5">⭐⭐⭐⭐⭐ 5 Sao - Rất Hài Lòng</option>
+              <option value="4">⭐⭐⭐⭐ 4 Sao - Hài Lòng</option>
+              <option value="3">⭐⭐⭐ 3 Sao - Bình Thường</option>
+              <option value="2">⭐⭐ 2 Sao - Chưa Hài Lòng</option>
+              <option value="1">⭐ 1 Sao - Rất Thất Vọng</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.65rem;">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modal-crm-new-interaction')">Hủy</button>
+          <button type="button" class="btn btn-primary" onclick="submitCRMInteraction()">
+            <i class="fa-solid fa-floppy-disk"></i> Lưu Nhật Ký CSKH
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </body>
 
 </html>

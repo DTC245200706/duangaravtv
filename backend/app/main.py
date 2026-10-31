@@ -32,7 +32,7 @@ from backend.app.config import settings
 from backend.app.database import engine, Base, get_db, SessionLocal
 from backend.app.routers import (
     auth, customers, appointments, inventory, repair_orders, invoices, ai, analytics, customer_requests,
-    receptions, quotations, audit_logs, settings as settings_router
+    receptions, quotations, audit_logs, settings as settings_router, crm
 )
 
 import threading
@@ -233,6 +233,7 @@ app.include_router(receptions.router, prefix="/api/v1")
 app.include_router(quotations.router, prefix="/api/v1")
 app.include_router(audit_logs.router)
 app.include_router(settings_router.router)
+app.include_router(crm.router)
 
 # Serve Frontend from Project Root
 @app.api_route("/api/debug", methods=["GET", "POST"])

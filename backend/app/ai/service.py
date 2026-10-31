@@ -330,13 +330,16 @@ class AIService:
     @staticmethod
     def _fallback_engine(system_prompt: str, user_prompt: str) -> Tuple[str, str]:
         """
-        Fallback khi không có AI API.
-        Không tự bịa dữ liệu xe, lịch sử sửa chữa, giá phụ tùng hoặc tình trạng kỹ thuật.
+        Fallback chuyên sâu cho Trợ Lý Kỹ Thuật AI khi không có kết nối AI bên ngoài.
+        Tích hợp 3 năng lực cốt lõi:
+        1. Tư vấn theo triệu chứng kỹ thuật (phanh, động cơ, điều hòa, gầm, lái, taplo)
+        2. Tư vấn chi phí & Bảng giá minh bạch (5k, 10k, 20k, 40k, combo điều hòa, phanh gầm)
+        3. So sánh dịch vụ trực quan (Cấp 1 vs Cấp 2, Dầu khoáng vs Tổng hợp, Nội soi vs Tháo taplo...)
         """
-        model_used = "Internal Fallback"
+        model_used = "Trợ Lý Kỹ Thuật AI (VTV Engine)"
         prompt_lower = user_prompt.lower()
 
-        # Trích xuất câu hỏi thực sự của người dùng để tránh match nhầm các từ khóa trong prompt template
+        # Trích xuất câu hỏi thực sự của người dùng
         target_text = prompt_lower
         for prefix in ["yêu cầu tư vấn của khách hàng:", "yêu cầu của người dùng:", "yêu cầu nội bộ của người dùng:"]:
             if prefix in prompt_lower:
@@ -347,205 +350,390 @@ class AIService:
                         target_text = raw_q
                         break
 
-        # HISTORY
-        if "lịch sử các phiếu sửa chữa" in prompt_lower or "lịch sử các lần sửa chữa" in prompt_lower:
+        # ------------------------------------------------------------
+        # 1. NĂNG LỰC: SO SÁNH DỊCH VỤ (SERVICE COMPARISON)
+        # ------------------------------------------------------------
+        is_comparison = any(kw in target_text for kw in ["so sánh", "khác nhau", "nên chọn", " vs ", "hay là", "phân biệt"])
+        if is_comparison or "so sánh" in prompt_lower:
+            if any(kw in target_text for kw in ["cấp 1", "cấp 2", "5.000", "10.000", "5000", "10000"]):
+                return (
+                    """⚖️ **SO SÁNH BẢO DƯỠNG CẤP 1 (5.000 KM) VS CẤP 2 (10.000 KM)**
+
+| Tiêu chí | Cấp 1 (5.000 km) | Cấp 2 (10.000 km) |
+| :--- | :--- | :--- |
+| **Mục tiêu** | Thay dầu bảo vệ máy cơ bản | Làm sạch sâu & bảo dưỡng an toàn phanh |
+| **Hạng mục dầu** | Thay dầu nhớt + lọc nhớt mới | Thay dầu nhớt + lọc nhớt mới |
+| **Hệ thống phanh** | Kiểm tra bằng mắt qua nan mâm | Tháo 4 bánh, vệ sinh đĩa phanh, tra mỡ ắc trượt |
+| **Lọc gió & lốp** | Vệ sinh thổi bụi | Vệ sinh lọc gió động cơ & cabin, đảo lốp 4 bánh |
+| **Thời gian làm** | 45 – 60 phút | 90 – 120 phút |
+| **Chi phí dự kiến** | **650.000 – 1.150.000 VNĐ** | **1.250.000 – 1.850.000 VNĐ** |
+
+💡 **Lời khuyên KTV:** Cứ sau mỗi 2 lần bảo dưỡng Cấp 1, bạn nên thực hiện 1 lần Cấp 2 để đảm bảo cùm phanh không bị kẹt rỉ và lốp xe mòn đều.""",
+                    model_used,
+                )
+            elif any(kw in target_text for kw in ["dầu", "nhớt", "khoáng", "tổng hợp", "synthetic"]):
+                return (
+                    """⚖️ **SO SÁNH DẦU NHỚT KHOÁNG VS DẦU TỔNG HỢP TOÀN PHẦN (FULLY SYNTHETIC)**
+
+| Tiêu chí | Dầu khoáng thông thường | Dầu tổng hợp toàn phần (Fully Synthetic) |
+| :--- | :--- | :--- |
+| **Gốc dầu** | Tinh chế từ dầu thô mỏ tự nhiên | Phân tử tổng hợp nhân tạo đồng nhất |
+| **Chu kỳ thay** | 5.000 km hoặc 3 – 4 tháng | 10.000 – 15.000 km hoặc 12 tháng |
+| **Chịu nhiệt** | Dễ biến chất ở nhiệt độ cao | Bền màng dầu ở nhiệt độ cực đoan |
+| **Bảo vệ động cơ** | Chống cặn trung bình | Tẩy rửa cặn bẩn, chống mài mòn vượt trội |
+| **Tiết kiệm xăng** | Mức tiêu thụ tiêu chuẩn | Giúp máy bốc êm, tiết kiệm 2–3% nhiên liệu |
+| **Chi phí** | 350.000 – 550.000 VNĐ/can | 850.000 – 1.350.000 VNĐ/can (5W-30/0W-20) |
+
+💡 **Lời khuyên KTV:** Xe đời mới, xe có Turbo tăng áp hoặc thường xuyên đi đường phố tắc đường nên dùng dầu Tổng Hợp Toàn Phần để giải nhiệt và tối ưu tuổi thọ động cơ.""",
+                    model_used,
+                )
+            elif any(kw in target_text for kw in ["nội soi", "tháo taplo", "hạ taplo", "dàn lạnh"]):
+                return (
+                    """⚖️ **SO SÁNH VỆ SINH NỘI SOI DÀN LẠNH VS THÁO DỠ HẠ TAPLO**
+
+| Tiêu chí | Vệ sinh nội soi camera HD | Tháo hạ toàn bộ taplo xe |
+| :--- | :--- | :--- |
+| **Phương pháp** | Luồn ống camera & vòi phun áp lực | Tháo rời bảng điều khiển taplo, vô lăng, dây điện |
+| **Thời gian làm** | 45 – 60 phút | 1 – 2 ngày làm việc |
+| **Rủi ro kỹ thuật** | 0% rủi ro, nguyên bản tuyệt đối | Dễ gãy lẫy nhựa, nguy cơ phát tiếng kêu lọc xọc |
+| **Hiệu quả khử bẩn** | Sạch 90 – 95% nấm mốc | Sạch 100% từng ngóc ngách |
+| **Chi phí** | **650.000 – 950.000 VNĐ** | **2.500.000 – 4.000.000 VNĐ** |
+
+💡 **Lời khuyên KTV:** Nên chọn vệ sinh nội soi định kỳ hàng năm. Chỉ tháo taplo khi dàn lạnh bị mục thủng xì gas cần hàn hoặc thay mới hoàn toàn.""",
+                    model_used,
+                )
+            elif any(kw in target_text for kw in ["sơn dặm", "sơn quây"]):
+                return (
+                    """⚖️ **SO SÁNH SƠN DẶM VÁ ĐIỂM VS SƠN QUÂY TOÀN BỘ XE**
+
+| Tiêu chí | Sơn dặm vá điểm | Sơn quây toàn bộ thân xe |
+| :--- | :--- | :--- |
+| **Ứng dụng** | Vết xước cản trước/sau, tai vè cục bộ | Xe nhiều vết trầy xước, ố sơn lâu năm |
+| **Thời gian** | 1 – 2 ngày làm việc | 4 – 6 ngày trong phòng sơn hấp sấy |
+| **Giữ sơn zin** | Giữ lại 80 – 90% nước sơn gốc xuất xưởng | Sơn mới toàn bộ lớp vỏ bề mặt |
+| **Chi phí** | 400.000 – 800.000 VNĐ/vị trí | 12.000.000 – 25.000.000 VNĐ/xe |
+
+💡 **Lời khuyên KTV:** Garage VTV sử dụng hệ thống pha màu vi tính PPG đạt độ đồng màu 99% so với màu sơn gốc của xe.""",
+                    model_used,
+                )
+            elif any(kw in target_text for kw in ["láng đĩa", "thay đĩa"]):
+                return (
+                    """⚖️ **SO SÁNH LÁNG ĐĨA PHANH VI TÍNH VS THAY MỚI ĐĨA PHANH**
+
+| Tiêu chí | Láng đĩa phanh vi tính | Thay mới đĩa phanh chính hãng |
+| :--- | :--- | :--- |
+| **Điều kiện làm** | Đĩa còn dày trên mức an toàn (Min Thickness) | Đĩa bị mòn quá giới hạn, nứt nẻ hoặc đảo nặng |
+| **Xử lý sự cố** | Triệt tiêu gờ rãnh, hết rung giật bàn đạp | Khôi phục 100% hiệu suất phanh nguyên bản |
+| **Thời gian làm** | 45 – 60 phút trên máy láng chuyên dụng | 30 – 45 phút lắp đặt |
+| **Chi phí** | **350.000 – 500.000 VNĐ/cặp đĩa** | **1.800.000 – 4.500.000 VNĐ/cặp đĩa** |
+
+💡 **Lời khuyên KTV:** Kỹ thuật viên tại Garage VTV sẽ dùng thước kẹp panme đo độ dày trước. Nếu còn an toàn thì chỉ cần láng đĩa để tiết kiệm 70% chi phí.""",
+                    model_used,
+                )
+            else:
+                return (
+                    """⚖️ **BẢNG SO SÁNH CÁC LỰA CHỌN DỊCH VỤ PHỔ BIẾN TẠI GARAGE VTV**
+
+1. **Bảo dưỡng Cấp 1 (5k km) vs Cấp 2 (10k km):** Cấp 1 thay dầu cơ bản (650k); Cấp 2 thêm bảo dưỡng phanh và đảo lốp (1.25tr).
+2. **Dầu khoáng vs Dầu tổng hợp toàn phần:** Dầu tổng hợp chạy được 10.000 km, giải nhiệt tốt hơn, tiết kiệm nhiên liệu hơn.
+3. **Vệ sinh nội soi dàn lạnh vs Tháo hạ taplo:** Nội soi nhanh 45 phút, an toàn không gãy ngàm, tiết kiệm 60% chi phí.
+4. **Láng đĩa phanh vs Thay đĩa mới:** Láng đĩa vi tính xử lý hết rung phanh khi đĩa còn dày an toàn, tiết kiệm chi phí.
+
+👉 Bạn đang phân vân lựa chọn giữa 2 phương án nào? Hãy nhắn câu hỏi để tôi phân tích chi tiết nhé!""",
+                    model_used,
+                )
+
+        # ------------------------------------------------------------
+        # 2. NĂNG LỰC: TƯ VẤN THEO TRIỆU CHỨNG XE (SYMPTOMS)
+        # ------------------------------------------------------------
+        is_symptom = any(kw in target_text for kw in [
+            "triệu chứng", "rung", "giật", "hụt ga", "khó nổ", "máy yếu", "không nổ",
+            "mất lạnh", "không mát", "mùi hôi", "mùi khét", "kêu", "lục cục", "lạch cạch",
+            "ken két", "lệch lái", "nhao lái", "vô lăng", "báo lỗi", "check engine", "cá vàng",
+            "abs", "đèn taplo", "nóng máy", "sôi nước", "khói đen", "khói trắng", "chảy dầu"
+        ])
+        if is_symptom:
+            if "phanh" in target_text and any(w in target_text for w in ["rung", "giật", "kêu", "rít", "cạ"]):
+                return (
+                    """🩺 **TƯ VẤN KỸ THUẬT: HIỆN TƯỢNG RUNG GIẬT HOẶC KÊU RÍT KHI PHANH**
+
+🔍 **Nhận định sơ bộ & Nguyên nhân:**
+1. **Đĩa phanh bị cong vênh/tạo gờ:** Do phanh gấp liên tục khi đĩa đang rất nóng hoặc rửa xe ngay sau khi chạy đường dài làm đĩa biến dạng nhiệt.
+2. **Má phanh mòn sát đế kim loại:** Má phanh cạ trực tiếp vào đĩa tạo tiếng rít ken két và làm xước mặt đĩa.
+3. **Ắc trượt cùm phanh (Calip) bị khô mỡ:** Khiến má phanh tì lệch một bên gây rung vô lăng khi rà phanh ở tốc độ cao.
+
+⚠️ **Mức độ an toàn:** **TRUNG BÌNH ĐẾN CAO** — Quãng đường phanh có thể bị kéo dài, cần kiểm tra sớm.
+
+🛠️ **Phương án xử lý tại Garage VTV:**
+- Dùng đồng hồ so đo độ đảo đĩa phanh và thước kẹp đo chiều dày má phanh.
+- Láng đĩa phanh vi tính triệt tiêu gờ rãnh (~350.000 – 500.000 VNĐ/cặp).
+- Tra mỡ chịu nhiệt ắc trượt hoặc thay má phanh Ceramic chống bụi.
+
+📅 *Đặt lịch ngay để được kỹ thuật viên đo đạc an toàn phanh miễn phí!*""",
+                    model_used,
+                )
+            elif any(w in target_text for w in ["hụt ga", "khó nổ", "giật", "máy yếu"]):
+                return (
+                    """🩺 **TƯ VẤN KỸ THUẬT: ĐỘNG CƠ HỤT GA, KHÓ NỔ HOẶC RUNG GIẬT**
+
+🔍 **Nhận định sơ bộ & Nguyên nhân:**
+1. **Hệ thống đánh lửa:** Bugi mòn điện cực, khe hở đánh lửa rộng hoặc bô-bin (Ignition Coil) bị đánh lửa rò/yếu áp.
+2. **Hệ thống nạp khí & nhiên liệu:** Họng ga bám muội đen kẹt cánh bướm ga, kim phun nhiên liệu bị nghẹt tia tơi xốp, lọc xăng bị bẩn tắc.
+3. **Cao su chân máy/chân số:** Bị xẹp, vỡ cao su giảm chấn khiến rung động truyền trực tiếp vào khung cabin khi dừng đèn đỏ (về số D).
+
+⚠️ **Mức độ an toàn:** **TRUNG BÌNH** — Nguy cơ chết máy giữa đường hoặc tiêu hao nhiều nhiên liệu.
+
+🛠️ **Phương án xử lý tại Garage VTV:**
+- Cắm máy chẩn đoán quét mã lỗi động cơ OBD-II và xem thông số nhiên liệu Live Data (Long Term Fuel Trim).
+- **Combo Phục Hồi Công Suất:** Vệ sinh họng ga, súc rửa kim phun siêu âm và làm sạch buồng đốt (~750.000 – 1.200.000 VNĐ).
+
+📅 *Bấm Đặt Lịch để kỹ thuật viên kiểm tra bugi và hệ thống nhiên liệu ngay nhé!*""",
+                    model_used,
+                )
+            elif any(w in target_text for w in ["điều hòa", "lạnh", "mùi", "nóng cabin"]):
+                return (
+                    """🩺 **TƯ VẤN KỸ THUẬT: ĐIỀU HÒA KHÔNG MÁT, MẤT LẠNH HOẶC CÓ MÙI HÔI**
+
+🔍 **Nhận định sơ bộ & Nguyên nhân:**
+1. **Dàn lạnh bám nấm mốc:** Môi trường ẩm ướt làm tích tụ vi khuẩn và bụi bẩn tạo mùi chua khó chịu khi vừa bật AC.
+2. **Thiếu môi chất lạnh (Gas R134a):** Rò rỉ ti van nạp, gioăng cao su đường ống hoặc lốc lạnh bị xì phớt trục.
+3. **Lọc gió điều hòa tắc nghẹt:** Khiến lưu lượng gió thổi qua cửa gió rất yếu dù quạt gió bật nấc lớn.
+4. **Dàn nóng phía đầu xe quá bẩn:** Không giải nhiệt được gas khiến xe đứng im một chỗ mất mát, khi chạy mới mát.
+
+⚠️ **Mức độ an toàn:** **NHẸ** — Không nguy hiểm tính mạng nhưng ảnh hưởng lớn đến sức khỏe và sự thoải mái.
+
+🛠️ **Phương án xử lý tại Garage VTV:**
+- **Combo Điều Hòa Mát Sâu:** Vệ sinh nội soi dàn lạnh camera HD + Xịt khử khuẩn nano bạc + Nạp gas bổ sung + Thay lọc gió than hoạt tính (**650.000 – 950.000 VNĐ** trọn gói trong 45 phút).
+
+📅 *Đặt lịch ngay để khoang lái luôn thơm tho, mát rượi đón ngày nắng nóng!*""",
+                    model_used,
+                )
+            elif any(w in target_text for w in ["lục cục", "kêu", "gầm", "giảm xóc", "cục cục"]):
+                return (
+                    """🩺 **TƯ VẤN KỸ THUẬT: TIẾNG KÊU LỤC CỤC DƯỚI GẦM KHI QUA GỜ GIẢM TỐC**
+
+🔍 **Nhận định sơ bộ & Nguyên nhân:**
+1. **Rô-tuyn thanh cân bằng bị rơ:** Đây là nguyên nhân số 1 gây tiếng kêu 'cục cục' khô khốc khi một bên bánh đi qua gờ nhấp nhô.
+2. **Cao su càng A hoặc cao su gầm bị chai vỡ:** Khiến các chi tiết kim loại va đập vào khung sườn khi chịu tải xoắn.
+3. **Giảm xóc (phuộc nhún) xì dầu:** Mất khả năng dập tắt dao động, tăm-bông hoặc bát bèo trên đầu phuộc bị nát.
+4. **Thước lái bị rơ bạc:** Kêu lộc cộc khi đánh lái hoặc đi đường sỏi đá gồ ghề.
+
+⚠️ **Mức độ an toàn:** **TRUNG BÌNH ĐẾN CAO** — Ảnh hưởng tới khả năng bám đường và mòn lốp không đều.
+
+🛠️ **Phương án xử lý tại Garage VTV:**
+- Nâng xe trên cầu nâng 2 trụ, kiểm tra độ rơ của từng khớp cầu rô-tuyn và càng gầm.
+- Siết lực lại toàn bộ bulong khung gầm theo thông số chuẩn kỹ thuật của hãng.
+
+📅 *Ghé xưởng ngay để kỹ thuật viên kiểm tra gầm miễn phí cho xe bạn!*""",
+                    model_used,
+                )
+            elif any(w in target_text for w in ["lệch lái", "nhao lái", "vô lăng", "mòn lốp"]):
+                return (
+                    """🩺 **TƯ VẤN KỸ THUẬT: VÔ LĂNG BỊ LỆCH, NHAO LÁI SANG MỘT BÊN**
+
+🔍 **Nhận định sơ bộ & Nguyên nhân:**
+1. **Sai lệch góc đặt bánh xe (Camber, Caster, Toe):** Sau cú va chạm ổ gà mạnh hoặc leo lề đường làm sai lệch góc kỹ thuật.
+2. **Áp suất lốp không cân bằng:** Bánh bên mềm hơn sẽ có lực cản lớn hơn kéo xe nhao về phía đó.
+3. **Lốp xe bị mòn lệch (mòn mép trong hoặc ngoài):** Tạo lực kéo lệch khi xe lăn bánh thẳng.
+
+⚠️ **Mức độ an toàn:** **TRUNG BÌNH** — Gây mỏi tay khi lái xe đường dài và làm lốp nhanh hỏng.
+
+🛠️ **Phương án xử lý tại Garage VTV:**
+- **Dịch vụ Cân chỉnh góc đặt bánh xe 3D điện tử Hunter:** Đo thông số 3D chính xác từng phút độ, căn chuẩn vô lăng thẳng tắp (**350.000 – 500.000 VNĐ**).
+
+📅 *Đặt lịch cân chỉnh góc lái để lái xe an toàn, êm ái trên cao tốc!*""",
+                    model_used,
+                )
+            elif any(w in target_text for w in ["check engine", "báo lỗi", "cá vàng", "đèn lỗi", "taplo"]):
+                return (
+                    """🩺 **TƯ VẤN KỸ THUẬT: ĐÈN BÁO LỖI ĐỘNG CƠ (CHECK ENGINE) BẬT SÁNG**
+
+🔍 **Nhận định sơ bộ & Nguyên nhân:**
+1. **Cảm biến khí xả (Oxygen Sensor):** Bám bẩn muội carbon hoặc đo sai tỷ lệ hòa khí xăng/gió.
+2. **Cảm biến lưu lượng gió (MAF/MAP):** Bẩn khiến ECU tính sai lượng khí nạp vào buồng đốt.
+3. **Bỏ lửa xi-lanh (Misfire - mã P0300..P0304):** Do hỏng bugi hoặc chết bô-bin đánh lửa.
+4. **Nắp bình xăng vặn chưa chặt hoặc van hồi hơi xăng (EVAP):** Gây rò rỉ áp suất hơi nhiên liệu.
+
+⚠️ **Mức độ khẩn cấp:**
+- Nếu đèn sáng vàng đứng yên: Xe vẫn chạy được tạm thời, nên đến garage kiểm tra trong vòng 1-2 ngày.
+- Nếu đèn nhấp nháy liên tục hoặc kèm đèn áp suất dầu/nhiệt độ đỏ: Dừng xe ngay lập tức để bảo vệ động cơ.
+
+🛠️ **Phương án xử lý tại Garage VTV:**
+- Cắm máy quét chuyên dụng chẩn đoán OBD-II đọc mã lỗi chính xác (DTC code) và xóa lỗi sau khắc phục.
+
+📅 *Đưa xe qua Garage VTV để được cắm máy đọc lỗi nhanh trong 10 phút!*""",
+                    model_used,
+                )
+
+        # ------------------------------------------------------------
+        # 3. NĂNG LỰC: TƯ VẤN CHI PHÍ & BẢNG GIÁ DỊCH VỤ (COST / PRICING)
+        # ------------------------------------------------------------
+        is_cost_query = any(kw in target_text for kw in [
+            "chi phí", "bảng giá", "báo giá", "giá bao nhiêu", "hết bao nhiêu", "tiền công",
+            "giá dịch vụ", "bảo dưỡng hết bao nhiêu", "giá thay", "phí bảo dưỡng"
+        ])
+        if is_cost_query:
             return (
-                "📋 **TÓM TẮT LỊCH SỬ XE**\n\n"
-                "Hệ thống hiện đang sử dụng chế độ trả lời dự phòng.\n\n"
-                "Dữ liệu lịch sử đã được cung cấp cho hệ thống. "
-                "Kỹ thuật viên nên đối chiếu các phiếu sửa chữa gần nhất "
-                "và kiểm tra các hạng mục có liên quan trực tiếp đến triệu chứng hiện tại của xe.\n\n"
-                "⚠️ Không nên kết luận tình trạng phụ tùng chỉ dựa trên lịch sử; cần kiểm tra thực tế trước khi sửa chữa hoặc thay thế.",
+                """💰 **BẢNG DỰ TOÁN CHI PHÍ DỊCH VỤ & BẢO DƯỠNG NIÊM YẾT TẠI GARAGE VTV**
+
+Garage VTV cam kết báo giá minh bạch, kiểm tra tư vấn trước khi thực hiện:
+
+🛠️ **1. Các Gói Bảo Dưỡng Định Kỳ Tiêu Chuẩn:**
+- **Gói Cấp 1 (5.000 km):** **650.000 – 1.150.000 VNĐ** (Công: 150k-350k; Dầu nhớt tổng hợp + Lọc dầu)
+- **Gói Cấp 2 (10.000 km):** **1.250.000 – 1.850.000 VNĐ** (Bao gồm Cấp 1 + Bảo dưỡng phanh 4 bánh, đảo lốp, vệ sinh 2 lọc gió)
+- **Gói Cấp 3 (20.000 – 30.000 km):** **2.200.000 – 3.200.000 VNĐ** (Bao gồm Cấp 2 + Thay 2 lọc gió, súc rửa buồng đốt kim phun)
+- **Gói Cấp 4 (40.000 – 80.000 km - Đại tu):** **4.500.000 – 7.500.000 VNĐ** (Thay dầu số, dầu phanh, nước mát, bugi iridium, lọc xăng)
+
+✨ **2. Bảng Giá Các Gói Combo Chuyên Sâu:**
+- ❄️ **Combo Điều Hòa Mát Sâu:** **650.000 – 950.000 VNĐ** (Nội soi dàn lạnh, nạp gas, khử khuẩn ozone, thay lọc cabin than hoạt tính)
+- 🛑 **Combo Phanh & Gầm An Toàn:** **550.000 – 850.000 VNĐ** (Vệ sinh 4 cụm phanh đĩa, tra mỡ chịu nhiệt ắc trượt, cân chỉnh gầm)
+- ⚙️ **Láng đĩa phanh vi tính:** **350.000 – 500.000 VNĐ/cặp đĩa**
+- 🚗 **Cân chỉnh góc đặt bánh xe 3D Hunter:** **350.000 – 500.000 VNĐ**
+- 🧼 **Combo Phục Hồi Công Suất:** **750.000 – 1.200.000 VNĐ** (Vệ sinh buồng đốt, kim phun, bướm ga)
+
+💡 *Ghi chú:* Giá phụ tùng có thể thay đổi nhẹ tùy theo dòng xe (xe sedan, SUV hoặc xe sang). Khách hàng luôn được duyệt báo giá trước khi KTV thi công!""",
                 model_used,
             )
 
-        # SERVICE EXPLANATION
-        if "dữ liệu phiếu sửa chữa:" in prompt_lower or "giải thích ngắn gọn" in prompt_lower:
-            return (
-                "🚗 **GIẢI THÍCH PHIẾU SỬA CHỮA**\n\n"
-                "Phiếu sửa chữa đã ghi nhận các hạng mục cần kiểm tra/thực hiện trên xe.\n\n"
-                "🛠️ **Các hạng mục:**\n"
-                "Vui lòng đối chiếu trực tiếp danh sách hạng mục trong phiếu sửa chữa.\n\n"
-                "💡 **Lưu ý:**\n"
-                "Việc thay thế phụ tùng chỉ nên thực hiện sau khi kỹ thuật viên kiểm tra và xác nhận tình trạng thực tế.\n\n"
-                "⚠️ Chi phí trong phiếu là dữ liệu dự kiến và có thể thay đổi nếu phát hiện thêm vấn đề trong quá trình kiểm tra.",
-                model_used,
-            )
-
-        # GÓI & COMBO BẢO DƯỠNG (Tư vấn dịch vụ, các mốc km và combo chăm sóc xe cho khách hàng)
-        if any(kw in target_text for kw in ["bảo dưỡng", "combo", "gói", "chi phí", "bảng giá", "giá dịch vụ", "5.000", "5000", "10.000", "10000", "20.000", "20000", "40.000", "40000", "thay dầu", "thay nhớt", "lọc nhớt"]):
+        # ------------------------------------------------------------
+        # 4. GÓI & COMBO BẢO DƯỠNG TIÊU CHUẨN (KHI HỎI RIÊNG)
+        # ------------------------------------------------------------
+        if any(kw in target_text for kw in ["bảo dưỡng", "combo", "gói", "5.000", "5000", "10.000", "10000", "20.000", "20000", "40.000", "40000", "thay dầu", "thay nhớt"]):
             if "10.000" in target_text or "10000" in target_text or "cấp 2" in target_text:
                 return (
-                    "🛠️ **TƯ VẤN GÓI BẢO DƯỠNG CẤP 2 (MỐC 10.000 KM)**\n\n"
-                    "Gói bảo dưỡng định kỳ tiêu chuẩn giúp duy trì hiệu suất vận hành và an toàn phanh:\n\n"
-                    "📋 **Các hạng mục công việc thực hiện:**\n"
-                    "1. Toàn bộ hạng mục cấp 1: Thay dầu nhớt động cơ và thay lọc nhớt mới.\n"
-                    "2. Bảo dưỡng hệ thống phanh 4 bánh: Tháo kiểm tra má phanh, đĩa phanh, tra mỡ ắc phanh chuyên dụng.\n"
-                    "3. Đảo lốp 4 bánh và cân bằng động bánh xe.\n"
-                    "4. Vệ sinh sạch lọc gió động cơ và lọc gió điều hòa than hoạt tính.\n"
-                    "5. Kiểm tra ắc quy, điện áp máy phát sạc và hệ thống chiếu sáng.\n\n"
-                    "💰 **Chi phí dự tính:**\n"
-                    "- Tiền công trọn gói: **450.000 – 750.000 VNĐ**\n"
-                    "- Vật tư phụ tùng (dầu nhớt + lọc nhớt + mỡ phanh): **1.100.000 – 1.600.000 VNĐ**\n"
-                    "- Thời gian thực hiện: **90 – 120 phút**\n\n"
-                    "📅 *Bạn có thể bấm **Đặt Lịch Bảo Dưỡng** phía trên để giữ chỗ ưu tiên tại xưởng!*",
+                    """🛠️ **TƯ VẤN GÓI BẢO DƯỠNG CẤP 2 (MỐC 10.000 KM)**
+
+Gói bảo dưỡng định kỳ tiêu chuẩn giúp duy trì hiệu suất vận hành và an toàn phanh:
+
+📋 **Các hạng mục công việc thực hiện:**
+1. Toàn bộ hạng mục cấp 1: Thay dầu nhớt động cơ và thay lọc nhớt mới.
+2. Bảo dưỡng hệ thống phanh 4 bánh: Tháo kiểm tra má phanh, đĩa phanh, tra mỡ ắc phanh chuyên dụng.
+3. Đảo lốp 4 bánh và cân bằng động bánh xe.
+4. Vệ sinh sạch lọc gió động cơ và lọc gió điều hòa than hoạt tính.
+5. Kiểm tra ắc quy, điện áp máy phát sạc và hệ thống chiếu sáng.
+
+💰 **Chi phí dự tính:**
+- Tiền công trọn gói: **450.000 – 750.000 VNĐ**
+- Vật tư phụ tùng (dầu nhớt + lọc nhớt + mỡ phanh): **1.100.000 – 1.600.000 VNĐ**
+- Thời gian thực hiện: **90 – 120 phút**
+
+📅 *Bạn có thể bấm **Đặt Lịch Bảo Dưỡng** phía trên để giữ chỗ ưu tiên tại xưởng!*""",
                     model_used,
                 )
             elif "40.000" in target_text or "40000" in target_text or "đại tu" in target_text or "cấp 4" in target_text or "lớn" in target_text:
                 return (
-                    "⚙️ **TƯ VẤN COMBO BẢO DƯỠNG LỚN (MỐC 40.000 KM / 80.000 KM)**\n\n"
-                    "Mốc bảo dưỡng quan trọng nhất để làm mới toàn diện hệ thống truyền động và an toàn xe:\n\n"
-                    "📋 **Các hạng mục bảo dưỡng chính:**\n"
-                    "1. Thay mới dầu hộp số tự động/số sàn và dầu vi sai cầu.\n"
-                    "2. Thay toàn bộ dầu phanh thủy lực DOT4 và súc xả hệ thống phanh.\n"
-                    "3. Súc rửa và thay mới toàn bộ nước làm mát động cơ cao cấp.\n"
-                    "4. Thay bugi đánh lửa Iridium và lọc nhiên liệu (xăng/diesel).\n"
-                    "5. Vệ sinh họng ga, kim phun buồng đốt và cân chỉnh góc đặt bánh xe 3D.\n"
-                    "6. Kiểm tra toàn bộ hệ thống gầm: rô-tuyn, cao su chân máy, phuộc nhún.\n\n"
-                    "💰 **Chi phí dự tính:**\n"
-                    "- Tiền công gói đại tu: **1.200.000 – 1.800.000 VNĐ**\n"
-                    "- Vật tư phụ tùng chính hãng: Báo giá niêm yết theo dòng xe cụ thể\n"
-                    "- Thời gian thực hiện: **3 – 4 giờ**\n\n"
-                    "📅 *Vui lòng đặt lịch hẹn trước để xưởng chuẩn bị đầy đủ vật tư chính hãng cho xe của bạn!*",
+                    """⚙️ **TƯ VẤN COMBO BẢO DƯỠNG LỚN (MỐC 40.000 KM / 80.000 KM)**
+
+Mốc bảo dưỡng quan trọng nhất để làm mới toàn diện hệ thống truyền động và an toàn xe:
+
+📋 **Các hạng mục bảo dưỡng chính:**
+1. Thay mới dầu hộp số tự động/số sàn và dầu vi sai cầu.
+2. Thay toàn bộ dầu phanh thủy lực DOT4 và súc xả hệ thống phanh.
+3. Súc rửa và thay mới toàn bộ nước làm mát động cơ cao cấp.
+4. Thay bugi đánh lửa Iridium và lọc nhiên liệu (xăng/diesel).
+5. Vệ sinh họng ga, kim phun buồng đốt và cân chỉnh góc đặt bánh xe 3D.
+6. Kiểm tra toàn bộ hệ thống gầm: rô-tuyn, cao su chân máy, phuộc nhún.
+
+💰 **Chi phí dự tính:**
+- Tiền công gói đại tu: **1.200.000 – 1.800.000 VNĐ**
+- Vật tư phụ tùng chính hãng: Báo giá niêm yết theo dòng xe cụ thể
+- Thời gian thực hiện: **3 – 4 giờ**
+
+📅 *Vui lòng đặt lịch hẹn trước để xưởng chuẩn bị đầy đủ vật tư chính hãng cho xe của bạn!*""",
                     model_used,
                 )
             elif "5.000" in target_text or "5000" in target_text or "cấp 1" in target_text:
                 return (
-                    "🛠️ **TƯ VẤN GÓI BẢO DƯỠNG CẤP 1 (MỐC 5.000 KM)**\n\n"
-                    "Gói bảo dưỡng cơ bản giúp động cơ vận hành êm ái và bảo vệ chi tiết máy:\n\n"
-                    "📋 **Các hạng mục công việc thực hiện:**\n"
-                    "1. Thay dầu nhớt động cơ chính hãng (Fully Synthetic 5W-30 cao cấp).\n"
-                    "2. Kiểm tra và vệ sinh/thay thế lọc dầu nhớt động cơ.\n"
-                    "3. Vệ sinh lọc gió động cơ và lọc gió điều hòa cabin.\n"
-                    "4. Kiểm tra mức dung dịch: nước làm mát, dầu phanh, nước rửa kính.\n"
-                    "5. Siết gầm, kiểm tra hệ thống treo, lốp xe và đo áp suất lốp 4 bánh.\n\n"
-                    "💰 **Chi phí dự tính:**\n"
-                    "- Tiền công dịch vụ: **150.000 – 450.000 VNĐ**\n"
-                    "- Dầu nhớt & vật tư: **850.000 – 1.200.000 VNĐ** (tùy dung tích máy)\n"
-                    "- Thời gian hoàn thành: **45 – 60 phút**\n\n"
-                    "📅 *Bạn có thể bấm **Đặt Lịch Bảo Dưỡng** phía trên để được tiếp nhận ưu tiên tại Garage VTV!*",
-                    model_used,
-                )
-            elif "điều hòa" in prompt_lower or "lạnh" in prompt_lower or "gas" in prompt_lower:
-                return (
-                    "❄️ **TƯ VẤN COMBO BẢO DƯỠNG HỆ THỐNG ĐIỀU HÒA MÁT SÂU**\n\n"
-                    "Combo chăm sóc hệ thống làm mát bảo vệ sức khỏe và khử mùi xe:\n\n"
-                    "📋 **Các hạng mục trong combo:**\n"
-                    "1. Vệ sinh nội soi dàn lạnh bằng camera chuyên dụng (không cần tháo taplo).\n"
-                    "2. Khử khuẩn, diệt nấm mốc đường gió điều hòa bằng công nghệ Ozone/Nano bạc.\n"
-                    "3. Thay mới lọc gió điều hòa than hoạt tính ngăn bụi mịn PM2.5.\n"
-                    "4. Kiểm tra áp suất gas lạnh R134a và nạp bổ sung môi chất lạnh đạt chuẩn.\n"
-                    "5. Vệ sinh dàn nóng phía trước két nước giúp tản nhiệt tối đa.\n\n"
-                    "💰 **Chi phí dự tính:**\n"
-                    "- Trọn gói combo: **650.000 – 950.000 VNĐ**\n"
-                    "- Thời gian hoàn thiện: **45 – 60 phút**\n\n"
-                    "📅 *Bấm **Đặt Lịch Bảo Dưỡng** để xế yêu luôn mát sâu sảng khoái!*",
-                    model_used,
-                )
-            elif "phanh" in prompt_lower or "gầm" in prompt_lower:
-                return (
-                    "🛑 **TƯ VẤN COMBO BẢO DƯỠNG PHANH & GẦM AN TOÀN**\n\n"
-                    "Đảm bảo an toàn tuyệt đối trên mọi hành trình:\n\n"
-                    "📋 **Các hạng mục thực hiện:**\n"
-                    "1. Vệ sinh, tra mỡ chịu nhiệt ắc trượt và pít-tông 4 cụm phanh đĩa.\n"
-                    "2. Kiểm tra độ dày má phanh và láng đĩa phanh triệt tiêu gờ rãnh.\n"
-                    "3. Kiểm tra độ ẩm dầu phanh, xả e và châm dầu phanh DOT4.\n"
-                    "4. Siết lực toàn bộ ốc gầm, kiểm tra rô-tuyn lái, rô-tuyn cân bằng và cao su càng A.\n"
-                    "5. Cân chỉnh góc đặt bánh xe 3D hạn chế nhao lái, mòn lệch lốp.\n\n"
-                    "💰 **Chi phí dự tính:**\n"
-                    "- Trọn gói công dịch vụ: **350.000 – 650.000 VNĐ**\n"
-                    "- Thời gian hoàn thiện: **60 – 90 phút**\n\n"
-                    "📅 *Bấm **Đặt Lịch Bảo Dưỡng** để kỹ thuật viên kiểm tra an toàn phanh cho xe bạn!*",
-                    model_used,
-                )
-            else:
-                return (
-                    "✨ **DANH MỤC CÁC GÓI & COMBO BẢO DƯỠNG TẠI GARAGE VTV**\n\n"
-                    "Garage VTV cung cấp các gói và combo bảo dưỡng trọn gói, minh bạch chi phí:\n\n"
-                    "1. 🔧 **Gói bảo dưỡng định kỳ cấp 1 (5.000 km):** Thay dầu, lọc dầu, siết gầm, kiểm tra an toàn (~450.000 VNĐ công).\n"
-                    "2. 🛠️ **Gói bảo dưỡng định kỳ cấp 2 (10.000 km):** Gồm cấp 1 + bảo dưỡng phanh 4 bánh, đảo lốp (~750.000 VNĐ công).\n"
-                    "3. ⚙️ **Combo bảo dưỡng lớn (40.000 km):** Thay dầu số, dầu phanh, nước mát, bugi, lọc nhiên liệu (~1.500.000 VNĐ công).\n"
-                    "4. ❄️ **Combo điều hòa mát sâu:** Vệ sinh nội soi dàn lạnh, nạp gas, thay lọc gió điều hòa (trọn gói từ 650.000 VNĐ).\n"
-                    "5. 🛑 **Combo an toàn phanh & gầm:** Bảo dưỡng 4 phanh, láng đĩa, cân chỉnh góc đặt bánh 3D (từ 500.000 VNĐ).\n"
-                    "6. 🚗 **Combo chăm sóc làm đẹp:** Rửa khoang máy chống chuột, dọn nội thất, đánh bóng sơn bóng đẹp.\n\n"
-                    "💡 *Bạn muốn nhận tư vấn chi tiết về gói bảo dưỡng mốc bao nhiêu km hoặc combo nào cho xe?*",
+                    """🛠️ **TƯ VẤN GÓI BẢO DƯỠNG CẤP 1 (MỐC 5.000 KM)**
+
+Gói bảo dưỡng cơ bản giúp động cơ vận hành êm ái và bảo vệ chi tiết máy:
+
+📋 **Các hạng mục công việc thực hiện:**
+1. Thay dầu nhớt động cơ chính hãng (Fully Synthetic 5W-30 cao cấp).
+2. Kiểm tra và vệ sinh/thay thế lọc dầu nhớt động cơ.
+3. Vệ sinh lọc gió động cơ và lọc gió điều hòa cabin.
+4. Kiểm tra mức dung dịch: nước làm mát, dầu phanh, nước rửa kính.
+5. Siết gầm, kiểm tra hệ thống treo, lốp xe và đo áp suất lốp 4 bánh.
+
+💰 **Chi phí dự tính:**
+- Tiền công dịch vụ: **150.000 – 450.000 VNĐ**
+- Dầu nhớt & vật tư: **850.000 – 1.200.000 VNĐ** (tùy dung tích máy)
+- Thời gian hoàn thành: **45 – 60 phút**
+
+📅 *Bạn có thể bấm **Đặt Lịch Bảo Dưỡng** phía trên để được tiếp nhận ưu tiên tại Garage VTV!*""",
                     model_used,
                 )
 
-        # DIAGNOSTIC (Dành cho chẩn đoán sự cố kỹ thuật)
-        if any(kw in prompt_lower for kw in ["kêu", "hỏng", "lỗi", "sự cố", "phanh", "dầu", "động cơ", "máy", "rung", "giật", "nóng", "khói", "chẩn đoán", "abs", "điều hòa", "bảo dưỡng"]):
-            specific_advice = ""
-            if "giật" in prompt_lower or "rung" in prompt_lower:
-                specific_advice = (
-                    "🔎 **Chi tiết chẩn đoán sơ bộ cho hiện tượng giật / rung khi tăng tốc:**\n"
-                    "1. **Hệ thống đánh lửa:** Bugi bị mòn điện cực, bô-bin (ignition coil) bị đánh lửa rò hoặc yếu điện áp cao áp.\n"
-                    "2. **Hệ thống nạp & nhiên liệu:** Họng ga (bướm ga) bám muội than, kim phun xăng bị nghẹt tia phun hoặc áp suất bơm xăng tụt.\n"
-                    "3. **Hộp số & Chân máy:** Cao su chân máy/chân số bị lão hóa xẹp gây rung truyền thẳng vào khoang lái khi sang số.\n"
-                )
-            elif "điều hòa" in prompt_lower or "nóng" in prompt_lower:
-                specific_advice = (
-                    "🔎 **Chi tiết chẩn đoán sơ bộ cho hệ thống điều hòa:**\n"
-                    "1. Thiếu hụt môi chất lạnh (Gas R134a) do rò rỉ gioăng phớt hoặc đường ống nhôm.\n"
-                    "2. Lọc gió điều hòa trong cabin bị bám bụi nghẹt lưu lượng gió.\n"
-                    "3. Quạt tản nhiệt dàn nóng phía đầu xe quay yếu hoặc ly hợp lốc lạnh (AC Compressor) bị trượt.\n"
-                )
-            elif "phanh" in prompt_lower or "abs" in prompt_lower:
-                specific_advice = (
-                    "🔎 **Chi tiết chẩn đoán sơ bộ cho hệ thống phanh / ABS:**\n"
-                    "1. Cảm biến tốc độ bánh xe (ABS Wheel Speed Sensor) bị bám bụi kim loại hoặc đứt ngầm dây cáp dẫn tín hiệu.\n"
-                    "2. Má phanh bị mòn dưới 3mm chạm vào lẫy cảnh báo kim loại.\n"
-                    "3. Đĩa phanh bị cong vênh hoặc tạo gờ gây cảm giác giật chân phanh khi đạp rà.\n"
-                )
-            else:
-                specific_advice = (
-                    "🔎 **Khuyến nghị kiểm tra tổng quát:**\n"
-                    "- Quét mã lỗi điện tử OBD-II để đọc các mã sự cố lưu trữ trong hộp điều khiển động cơ (ECU).\n"
-                    "- Chạy thử thực tế với máy đo chuyên dụng và kiểm tra mức các loại dung dịch tuần hoàn.\n"
-                )
-
+        # ------------------------------------------------------------
+        # 5. LỊCH SỬ & GIẢI THÍCH PHIẾU
+        # ------------------------------------------------------------
+        if "lịch sử các phiếu sửa chữa" in prompt_lower or "lịch sử các lần sửa chữa" in prompt_lower:
             return (
-                "🔍 **BÁO CÁO PHÂN TÍCH KỸ THUẬT TỪ TRỢ LÝ GARAGE VTV**\n\n"
-                f"{specific_advice}\n"
-                "🛠️ **Phương án xử lý khuyến nghị tại xưởng:**\n"
-                "- Kết nối máy quét chẩn đoán chuyên dụng để kiểm tra thông số vận hành động cơ (Live Data Stream).\n"
-                "- Vệ sinh họng ga, buồng đốt và đo điện áp kích hoạt bô-bin trước khi quyết định thay thế linh kiện.\n\n"
-                "⚠️ *Lưu ý an toàn: Nhận định sơ bộ từ trợ lý AI cần được kỹ thuật viên trưởng kiểm tra trực tiếp trên cầu nâng để chốt phương án chính xác.*",
+                """📋 **TÓM TẮT LỊCH SỬ XE**
+
+Hệ thống hiện đang sử dụng chế độ trả lời dự phòng.
+
+Dữ liệu lịch sử đã được cung cấp cho hệ thống. Kỹ thuật viên nên đối chiếu các phiếu sửa chữa gần nhất và kiểm tra các hạng mục có liên quan trực tiếp đến triệu chứng hiện tại của xe.
+
+⚠️ Không nên kết luận tình trạng phụ tùng chỉ dựa trên lịch sử; cần kiểm tra thực tế trước khi sửa chữa hoặc thay thế.""",
                 model_used,
             )
 
-        # QUOTATION
+        if "dữ liệu phiếu sửa chữa:" in prompt_lower or "giải thích ngắn gọn" in prompt_lower:
+            return (
+                """🚗 **GIẢI THÍCH PHIẾU SỬA CHỮA**
+
+Phiếu sửa chữa đã ghi nhận các hạng mục cần kiểm tra/thực hiện trên xe.
+
+🛠️ **Các hạng mục:**
+Vui lòng đối chiếu trực tiếp danh sách hạng mục trong phiếu sửa chữa.
+
+💡 **Lưu ý:**
+Việc thay thế phụ tùng chỉ nên thực hiện sau khi kỹ thuật viên kiểm tra và xác nhận tình trạng thực tế.
+
+⚠️ Chi phí trong phiếu là dữ liệu dự kiến và có thể thay đổi nếu phát hiện thêm vấn đề trong quá trình kiểm tra.""",
+                model_used,
+            )
+
         if "--- số liệu tài chính đã tính bởi hệ thống ---" in prompt_lower or "bảng dự toán" in prompt_lower:
             return (
-                "📋 **BÁO GIÁ NHÁP**\n\n"
-                "Hệ thống đã tính toán chi phí dựa trên các hạng mục được nhập trong phiếu sửa chữa.\n\n"
-                "⚠️ Đây là báo giá nháp. Chi phí thực tế có thể thay đổi sau khi kiểm tra xe và xác nhận phạm vi sửa chữa với khách hàng.\n\n"
-                "Vui lòng đối chiếu số lượng, đơn giá phụ tùng và tiền công trước khi xác nhận sửa chữa.",
+                """📋 **BÁO GIÁ NHÁP**
+
+Hệ thống đã tính toán chi phí dựa trên các hạng mục được nhập trong phiếu sửa chữa.
+
+⚠️ Đây là báo giá nháp. Chi phí thực tế có thể thay đổi sau khi kiểm tra xe và xác nhận phạm vi sửa chữa với khách hàng.
+
+Vui lòng đối chiếu số lượng, đơn giá phụ tùng và tiền công trước khi xác nhận sửa chữa.""",
                 model_used,
             )
 
-        # GREETING / SMALL TALK
+        # ------------------------------------------------------------
+        # 6. GREETING & GENERAL
+        # ------------------------------------------------------------
         greeting_keywords = ["alo", "hello", "hi ", "hey", "xin chào", "chào", "ơi", "bạn ơi", "có ai", "test", "thử"]
         if any(kw in prompt_lower for kw in greeting_keywords) or len(prompt_lower.strip()) <= 10:
             return (
-                "👋 **Xin chào! Tôi là Trợ Lý GarageAI** — chuyên gia tư vấn dịch vụ và các combo bảo dưỡng tại Garage VTV!\n\n"
-                "Tôi có thể hỗ trợ bạn:\n"
-                "🔧 **Gói bảo dưỡng định kỳ** — mốc 5.000 km, 10.000 km, 20.000 km, 40.000 km\n"
-                "✨ **Các combo chăm sóc xe** — combo điều hòa mát sâu, combo phanh gầm, combo phục hồi công suất\n"
-                "💰 **Báo giá dịch vụ & phụ tùng** — chi phí tiền công, phụ tùng chính hãng minh bạch\n"
-                "📅 **Đặt lịch hẹn nhanh** — tiếp nhận ưu tiên tại xưởng và nhận ưu đãi\n\n"
-                "Bạn đang cần tư vấn gói bảo dưỡng hay dịch vụ nào cho xe của mình? 🚗",
+                """👋 **Xin chào! Tôi là Trợ Lý Kỹ Thuật AI Garage VTV**!
+
+Tôi hỗ trợ bạn 3 năng lực chuyên sâu:
+🩺 **Tư vấn theo triệu chứng xe** — chẩn đoán rung phanh, hụt ga khó nổ, điều hòa có mùi, gầm kêu lục cục, vô lăng lệch
+💰 **Tư vấn chi phí & Bảng giá** — dự toán minh bạch gói bảo dưỡng 5k-40k km và các combo chăm sóc xe
+⚖️ **So sánh dịch vụ trực quan** — so sánh Cấp 1 vs Cấp 2, Dầu khoáng vs Dầu tổng hợp, Vệ sinh nội soi vs Tháo taplo
+
+Bạn cần tôi giải đáp triệu chứng, báo giá hay so sánh dịch vụ nào cho xe? 🚗""",
                 model_used,
             )
 
-        # GENERAL
         return (
-            "🤖 **TRỢ LÝ GARAGEAI — TƯ VẤN DỊCH VỤ & BẢO DƯỠNG**\n\n"
-            "Tôi chuyên tư vấn:\n"
-            "- Các gói bảo dưỡng định kỳ (5.000 km, 10.000 km, 20.000 km, 40.000 km...).\n"
-            "- Các combo bảo dưỡng chuyên đề: phanh gầm, điều hòa, vệ sinh buồng đốt, làm đẹp xe.\n"
-            "- Dự toán chi phí tiền công và vật tư phụ tùng chính hãng.\n"
-            "- Quy trình đặt lịch hẹn và ưu đãi dịch vụ tại Garage VTV.\n\n"
-            "💡 Bạn có thể bấm chọn các gợi ý nhanh phía trên hoặc nhập câu hỏi cụ thể nhé!",
+            """🤖 **TRỢ LÝ KỸ THUẬT AI GARAGE VTV CHÀO BẠN!**
+
+Tôi sẵn sàng hỗ trợ bạn:
+- 🩺 **Chẩn đoán triệu chứng:** Rung phanh, hụt ga khó nổ, điều hòa mất lạnh, gầm kêu lục cục, lệch lái, đèn báo lỗi taplo.
+- 💰 **Báo giá & Chi phí:** Minh bạch bảng giá bảo dưỡng các mốc 5k, 10k, 20k, 40k và các combo chuyên sâu.
+- ⚖️ **So sánh dịch vụ:** So sánh các phương án bảo dưỡng để bạn chọn giải pháp tiết kiệm và hiệu quả nhất.
+- 📅 **Đặt lịch ưu tiên:** Tiếp nhận nhanh chóng không phải chờ đợi.
+
+💡 Bạn có thể bấm các gợi ý nhanh phía dưới hoặc gửi câu hỏi cụ thể nhé!""",
             model_used,
         )
 

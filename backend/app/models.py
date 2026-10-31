@@ -580,3 +580,23 @@ class CustomerRequest(Base):
     vehicle = relationship("Vehicle")
     appointment = relationship("Appointment")
     reviewed_by = relationship("User", foreign_keys=[reviewed_by_id])
+
+
+class CRMInteraction(Base):
+    __tablename__ = "crm_interactions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    customer_id = Column(Integer, ForeignKey("customers.id"), nullable=False)
+    vehicle_id = Column(Integer, ForeignKey("vehicles.id"), nullable=True)
+    interaction_type = Column(String(20), default="CALL", nullable=False) # CALL, SMS, ZALO, VISIT, SURVEY
+    subject = Column(String(150), nullable=False)
+    content = Column(Text, nullable=True)
+    outcome = Column(String(50), nullable=True) # Đã đặt hẹn, Quan tâm, Chưa liên hệ được, Từ chối
+    csat_rating = Column(Integer, nullable=True) # 1 - 5 sao
+    follow_up_date = Column(DateTime, nullable=True)
+    created_by_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    created_at = Column(DateTime, default=get_utc_now)
+
+    customer = relationship("Customer")
+    vehicle = relationship("Vehicle")
+    created_by = relationship("User")

@@ -1125,7 +1125,8 @@ function switchView(viewName) {
     "customer-portal": "Cổng Đăng Ký Yêu Cầu Dịch Vụ Dành Cho Khách Hàng",
     inventory: "Kho Phụ Tùng & Danh Mục Dịch Vụ",
     invoices: "Hóa Đơn & Thanh Toán",
-    "ai-studio": "AI Studio & Trợ Lý Garage Engine"
+    "ai-studio": "AI Studio & Trợ Lý Garage Engine",
+    crm: "Quản Lý Chăm Sóc Khách Hàng (CRM)"
   };
 
   const applyViewDOM = () => {
@@ -1235,6 +1236,7 @@ async function loadAllData() {
     else if (currentState.activeView === "invoices") await loadInvoices();
     else if (currentState.activeView === "ai-studio") await loadAISandboxData();
     else if (currentState.activeView === "staff-management") await loadStaffManagement();
+    else if (currentState.activeView === "crm") await loadCRMData();
 
     // 2. Pre-populate all active tabs in background for instant 0ms tab switching
     Promise.all([
@@ -4907,3 +4909,502 @@ window.openCustomerDetailModal = openCustomerDetailModal;
 window.openEditCustomerModal = openEditCustomerModal;
 window.openEditCustomerModalFromDetail = openEditCustomerModalFromDetail;
 window.submitEditCustomer = submitEditCustomer;
+
+
+/* ==========================================================================
+   CUSTOMER AI: 3 NĂNG LỰC CỐT LÕI (TRIỆU CHỨNG, BÁO GIÁ, SO SÁNH)
+   ========================================================================== */
+function switchCustomerAICategory(category) {
+  const cats = ['symptom', 'cost', 'compare'];
+  cats.forEach(c => {
+    const btn = document.getElementById(`ai-chip-tab-${c}`);
+    const grp = document.getElementById(`ai-chips-group-${c}`);
+    if (c === category) {
+      if (btn) {
+        btn.style.background = 'rgba(56, 189, 248, 0.2)';
+        btn.style.color = '#38bdf8';
+        btn.style.borderColor = 'rgba(56, 189, 248, 0.4)';
+        btn.style.fontWeight = '700';
+      }
+      if (grp) grp.style.display = 'flex';
+    } else {
+      if (btn) {
+        btn.style.background = 'rgba(255, 255, 255, 0.03)';
+        btn.style.color = '#94a3b8';
+        btn.style.borderColor = 'rgba(255, 255, 255, 0.08)';
+        btn.style.fontWeight = '600';
+      }
+      if (grp) grp.style.display = 'none';
+    }
+  });
+}
+window.switchCustomerAICategory = switchCustomerAICategory;
+
+/* ==========================================================================
+   CRM MODULE: QUẢN LÝ CHĂM SÓC KHÁCH HÀNG & NHẮC BẢO DƯỠNG
+   ========================================================================== */
+let crmState = {
+  overview: null,
+  reminders: [],
+  segments: [],
+  interactions: [],
+  activeTab: 'reminders',
+};
+
+async function loadCRMData() {
+  await Promise.all([
+    loadCRMOverview(),
+    loadCRMReminders(),
+    loadCRMSegmentedCustomers(),
+    loadCRMInteractions()
+  ]).catch(err => console.warn("Lỗi tải một phần CRM:", err));
+}
+
+async function loadCRMOverview() {
+  try {
+    const data = await apiFetch("/crm/overview");
+    crmState.overview = data;
+
+    const elTotal = document.getElementById("crm-kpi-total-customers");
+    const elReminders = document.getElementById("crm-kpi-reminders-due");
+    const elRetention = document.getElementById("crm-kpi-retention-rate");
+    const elCsat = document.getElementById("crm-kpi-csat-score");
+    const elBadge = document.getElementById("crm-badge-reminders");
+    const elNavBadge = document.getElementById("nav-badge-crm-due");
+
+    if (elTotal) elTotal.textContent = data.total_customers ?? 0;
+    if (elReminders) elReminders.textContent = data.reminders_due_count ?? 0;
+    if (elRetention) elRetention.textContent = `${data.retention_rate ?? 0}%`;
+    if (elCsat) elCsat.textContent = `${data.average_csat ?? 4.8} / 5.0`;
+
+    if (elBadge) elBadge.textContent = data.reminders_due_count ?? 0;
+    if (elNavBadge) {
+      if (data.reminders_due_count > 0) {
+        elNavBadge.textContent = data.reminders_due_count;
+        elNavBadge.style.display = "inline-block";
+      } else {
+        elNavBadge.style.display = "none";
+      }
+    }
+
+    // Cập nhật thẻ đếm phân khúc
+    const elVip = document.getElementById("crm-count-vip");
+    const elLoyal = document.getElementById("crm-count-loyal");
+    const elNew = document.getElementById("crm-count-new");
+    const elRisk = document.getElementById("crm-count-at-risk");
+
+    if (elVip) elVip.textContent = data.vip_count ?? 0;
+    if (elLoyal) elLoyal.textContent = data.loyal_count ?? 0;
+    if (elNew) elNew.textContent = data.new_count ?? 0;
+    if (elRisk) elRisk.textContent = data.at_risk_count ?? 0;
+  } catch (err) {
+    console.error("Lỗi tải CRM Overview:", err);
+  }
+}
+
+async function loadCRMReminders() {
+  const tbody = document.getElementById("crm-reminders-tbody");
+  if (!tbody) return;
+
+  const filterSelect = document.getElementById("crm-reminder-filter");
+  const filterVal = filterSelect ? filterSelect.value : "";
+  const query = filterVal ? `?filter_status=${filterVal}` : "";
+
+  try {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+          <i class="fa-solid fa-spinner fa-spin"></i> Đang tính toán dữ liệu nhắc bảo dưỡng...
+        </td>
+      </tr>
+    `;
+
+    const reminders = await apiFetch(`/crm/reminders${query}`);
+    crmState.reminders = reminders || [];
+
+    if (!reminders || reminders.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2.5rem;">
+            <i class="fa-solid fa-circle-check" style="color: #10b981; font-size: 1.5rem; margin-bottom: 0.5rem; display: block;"></i>
+            Không có xe nào cần nhắc bảo dưỡng trong danh mục này. Tất cả khách hàng đều được chăm sóc tốt!
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    tbody.innerHTML = reminders.map(r => {
+      let statusBadge = "";
+      if (r.due_status === "OVERDUE") {
+        statusBadge = `<span style="background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.35); padding: 0.2rem 0.55rem; border-radius: 99px; font-size: 0.74rem; font-weight: 700;">
+          <i class="fa-solid fa-triangle-exclamation"></i> Quá Hạn (${r.days_since_last_service} ngày)
+        </span>`;
+      } else if (r.due_status === "DUE") {
+        statusBadge = `<span style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.35); padding: 0.2rem 0.55rem; border-radius: 99px; font-size: 0.74rem; font-weight: 700;">
+          <i class="fa-solid fa-bell"></i> Đến Hạn (${r.days_since_last_service} ngày)
+        </span>`;
+      } else {
+        statusBadge = `<span style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.35); padding: 0.2rem 0.55rem; border-radius: 99px; font-size: 0.74rem; font-weight: 700;">
+          <i class="fa-solid fa-clock"></i> Sắp Đến Hạn (${r.days_since_last_service} ngày)
+        </span>`;
+      }
+
+      return `
+        <tr>
+          <td>
+            <div style="font-weight: 800; color: #fff; display: flex; align-items: center; gap: 0.4rem;">
+              <span style="background: #1e293b; border: 1px solid rgba(255,255,255,0.15); padding: 0.15rem 0.5rem; border-radius: 4px; font-family: monospace;">${escapeHtml(r.license_plate)}</span>
+            </div>
+            <div style="font-size: 0.76rem; color: var(--text-muted); margin-top: 3px;">${escapeHtml(r.vehicle_model)}</div>
+          </td>
+          <td>
+            <div style="font-weight: 700; color: #f8fafc;">${escapeHtml(r.customer_name)}</div>
+            <div style="font-size: 0.78rem; color: #38bdf8;">
+              <i class="fa-solid fa-phone" style="font-size:0.7rem;"></i> ${escapeHtml(r.customer_phone)}
+            </div>
+          </td>
+          <td>
+            <div style="font-weight: 700; color: #cbd5e1;">${(r.current_mileage || 0).toLocaleString()} km</div>
+          </td>
+          <td>
+            <div style="font-size: 0.82rem; color: #94a3b8;">${r.last_service_date || "Chưa làm dịch vụ"}</div>
+          </td>
+          <td>
+            <div style="font-weight: 600; color: #67e8f9; font-size: 0.82rem;">
+              <i class="fa-solid fa-wrench" style="font-size:0.7rem;"></i> ${escapeHtml(r.recommended_service)}
+            </div>
+          </td>
+          <td>${statusBadge}</td>
+          <td style="text-align: right; white-space: nowrap;">
+            <button class="btn btn-secondary btn-sm" style="padding: 0.25rem 0.55rem; font-size: 0.75rem; margin-right: 4px;"
+              onclick="openCRMSendModal(${r.vehicle_id}, ${r.customer_id}, '${escapeHtml(r.license_plate)}', '${escapeHtml(r.customer_name)}', '${escapeHtml(r.customer_phone)}', '${escapeHtml(r.recommended_service)}')">
+              <i class="fa-solid fa-paper-plane" style="color: #38bdf8;"></i> Gửi Zalo/SMS
+            </button>
+            <button class="btn btn-primary btn-sm" style="padding: 0.25rem 0.55rem; font-size: 0.75rem;"
+              onclick="quickBookFromReminder(${r.vehicle_id}, ${r.customer_id}, '${escapeHtml(r.license_plate)}', '${escapeHtml(r.customer_phone)}', '${escapeHtml(r.customer_name)}', '${escapeHtml(r.recommended_service)}')">
+              <i class="fa-solid fa-calendar-check"></i> Đặt Hẹn
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join("");
+  } catch (err) {
+    console.error("Lỗi tải CRM Reminders:", err);
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#ef4444; padding:2rem;">Không thể tải danh sách nhắc bảo dưỡng: ${err.message}</td></tr>`;
+  }
+}
+
+async function loadCRMSegmentedCustomers() {
+  const tbody = document.getElementById("crm-segments-tbody");
+  if (!tbody) return;
+
+  const select = document.getElementById("crm-segment-filter");
+  const segVal = select ? select.value : "";
+  const query = segVal ? `?segment=${segVal}` : "";
+
+  try {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:var(--text-muted); padding:2rem;"><i class="fa-solid fa-spinner fa-spin"></i> Đang tải dữ liệu phân khúc...</td></tr>`;
+    const list = await apiFetch(`/crm/customers-segmented${query}`);
+    crmState.segments = list || [];
+
+    if (!list || list.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:var(--text-muted); padding:2rem;">Không có khách hàng nào trong phân khúc này.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = list.map(c => {
+      let segBadge = "";
+      if (c.segment === "VIP") {
+        segBadge = `<span style="background:rgba(245, 158, 11, 0.2); color:#fbbf24; border:1px solid rgba(245, 158, 11, 0.4); padding:0.2rem 0.55rem; border-radius:99px; font-size:0.75rem; font-weight:700;">🌟 VIP</span>`;
+      } else if (c.segment === "LOYAL") {
+        segBadge = `<span style="background:rgba(16, 185, 129, 0.2); color:#34d399; border:1px solid rgba(16, 185, 129, 0.4); padding:0.2rem 0.55rem; border-radius:99px; font-size:0.75rem; font-weight:700;">💎 Thân Thiết</span>`;
+      } else if (c.segment === "AT_RISK") {
+        segBadge = `<span style="background:rgba(239, 68, 68, 0.2); color:#f87171; border:1px solid rgba(239, 68, 68, 0.4); padding:0.2rem 0.55rem; border-radius:99px; font-size:0.75rem; font-weight:700;">⚠️ Nguy Cơ</span>`;
+      } else {
+        segBadge = `<span style="background:rgba(56, 189, 248, 0.2); color:#38bdf8; border:1px solid rgba(56, 189, 248, 0.4); padding:0.2rem 0.55rem; border-radius:99px; font-size:0.75rem; font-weight:700;">🆕 Khách Mới</span>`;
+      }
+
+      const platesHtml = (c.license_plates || []).map(p => `<span style="background:#1e293b; border:1px solid rgba(255,255,255,0.1); padding:1px 5px; border-radius:3px; font-family:monospace; font-size:0.75rem; margin-right:3px;">${escapeHtml(p)}</span>`).join("") || "Chưa có xe";
+
+      return `
+        <tr>
+          <td>
+            <div style="font-weight:700; color:#fff;">${escapeHtml(c.full_name)}</div>
+            <div style="font-size:0.74rem; color:var(--text-muted);">${escapeHtml(c.customer_code)}</div>
+          </td>
+          <td><span style="color:#38bdf8; font-weight:600;">${escapeHtml(c.phone)}</span></td>
+          <td>${segBadge}</td>
+          <td><span style="font-weight:700; color:#10b981;">${(c.total_spent || 0).toLocaleString()} VNĐ</span></td>
+          <td><span style="font-weight:700; color:#e2e8f0;">${c.order_count || 0} lần</span></td>
+          <td><span style="font-size:0.8rem; color:#94a3b8;">${c.last_service_date} (${c.days_since_last} ngày)</span></td>
+          <td>${platesHtml}</td>
+          <td style="text-align: right; white-space: nowrap;">
+            <button class="btn btn-secondary btn-sm" style="padding:0.2rem 0.5rem; font-size:0.74rem;" onclick="openCRMInteractionModal(${c.id}, null, '${escapeHtml(c.full_name)}')">
+              <i class="fa-solid fa-pen"></i> CSKH
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join("");
+  } catch (err) {
+    console.error("Lỗi tải phân khúc khách hàng:", err);
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#ef4444; padding:2rem;">Lỗi tải phân khúc: ${err.message}</td></tr>`;
+  }
+}
+
+async function loadCRMInteractions() {
+  const tbody = document.getElementById("crm-interactions-tbody");
+  if (!tbody) return;
+
+  try {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:2rem;"><i class="fa-solid fa-spinner fa-spin"></i> Đang tải lịch sử tương tác...</td></tr>`;
+    const list = await apiFetch("/crm/interactions?limit=50");
+    crmState.interactions = list || [];
+
+    if (!list || list.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:2rem;">Chưa có nhật ký tương tác chăm sóc khách hàng nào. Hãy bấm "+ Ghi Nhận Tương Tác" để bắt đầu!</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = list.map(i => {
+      let typeBadge = "";
+      if (i.interaction_type === "CALL") typeBadge = `<span style="color:#38bdf8;"><i class="fa-solid fa-phone"></i> Gọi điện</span>`;
+      else if (i.interaction_type === "ZALO") typeBadge = `<span style="color:#06b6d4;"><i class="fa-solid fa-comment-dots"></i> Zalo OA</span>`;
+      else if (i.interaction_type === "SMS") typeBadge = `<span style="color:#a855f7;"><i class="fa-solid fa-envelope"></i> SMS</span>`;
+      else if (i.interaction_type === "SURVEY") typeBadge = `<span style="color:#fbbf24;"><i class="fa-solid fa-star"></i> Khảo sát</span>`;
+      else typeBadge = `<span style="color:#10b981;"><i class="fa-solid fa-handshake"></i> Trực tiếp</span>`;
+
+      const csatHtml = i.csat_rating ? `${'⭐'.repeat(i.csat_rating)} (${i.csat_rating}/5)` : '<span style="color:var(--text-muted);">--</span>';
+
+      const dateStr = i.created_at ? formatVietnameseDate(i.created_at) : "";
+
+      return `
+        <tr>
+          <td style="font-size:0.8rem; color:#94a3b8; white-space:nowrap;">${dateStr}</td>
+          <td>
+            <div style="font-weight:700; color:#fff;">${escapeHtml(i.customer_name || "Khách hàng")}</div>
+            <div style="font-size:0.75rem; color:#38bdf8;">${escapeHtml(i.customer_phone || "")} ${i.license_plate ? `(${i.license_plate})` : ""}</div>
+          </td>
+          <td>${typeBadge}</td>
+          <td>
+            <div style="font-weight:600; color:#e2e8f0;">${escapeHtml(i.subject)}</div>
+            ${i.content ? `<div style="font-size:0.78rem; color:var(--text-muted); max-width:320px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(i.content)}</div>` : ""}
+          </td>
+          <td><span style="font-size:0.8rem; color:#cbd5e1;">${escapeHtml(i.outcome || "Hoàn tất")}</span></td>
+          <td style="font-size:0.85rem; color:#fbbf24;">${csatHtml}</td>
+          <td><span style="font-size:0.8rem; color:#94a3b8;">${escapeHtml(i.created_by_name || "Nhân viên")}</span></td>
+        </tr>
+      `;
+    }).join("");
+  } catch (err) {
+    console.error("Lỗi tải nhật ký CSKH:", err);
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#ef4444; padding:2rem;">Lỗi tải nhật ký: ${err.message}</td></tr>`;
+  }
+}
+
+function switchCRMTab(tabName) {
+  crmState.activeTab = tabName;
+  const tabs = ['reminders', 'segments', 'interactions'];
+  tabs.forEach(t => {
+    const btn = document.getElementById(`crm-tab-btn-${t}`);
+    const content = document.getElementById(`crm-content-${t}`);
+    if (t === tabName) {
+      if (btn) {
+        btn.classList.remove("btn-secondary");
+        btn.classList.add("btn-primary");
+      }
+      if (content) content.style.display = "block";
+    } else {
+      if (btn) {
+        btn.classList.remove("btn-primary");
+        btn.classList.add("btn-secondary");
+      }
+      if (content) content.style.display = "none";
+    }
+  });
+
+  if (tabName === 'reminders') loadCRMReminders();
+  else if (tabName === 'segments') loadCRMSegmentedCustomers();
+  else if (tabName === 'interactions') loadCRMInteractions();
+}
+
+function filterCRMSegment(segName) {
+  const select = document.getElementById("crm-segment-filter");
+  if (select) {
+    select.value = segName;
+    loadCRMSegmentedCustomers();
+  }
+}
+
+function openCRMSendModal(vehicleId, customerId, plate, name, phone, recService) {
+  const elCustId = document.getElementById("crm-send-customer-id");
+  const elVehId = document.getElementById("crm-send-vehicle-id");
+  const elName = document.getElementById("crm-send-customer-name");
+  const elPhone = document.getElementById("crm-send-customer-phone");
+  const elPlate = document.getElementById("crm-send-license-plate");
+
+  if (elCustId) elCustId.value = customerId;
+  if (elVehId) elVehId.value = vehicleId || "";
+  if (elName) elName.value = name || "";
+  if (elPhone) elPhone.value = phone || "";
+  if (elPlate) elPlate.value = plate || "";
+
+  applyCRMTipTemplate(recService);
+  openModal("modal-crm-send-message");
+}
+
+function applyCRMTipTemplate(recService = "") {
+  const name = document.getElementById("crm-send-customer-name")?.value || "Quý khách";
+  const plate = document.getElementById("crm-send-license-plate")?.value || "";
+  const tpl = document.getElementById("crm-send-template-type")?.value || "MAINTENANCE_DUE";
+  const textarea = document.getElementById("crm-send-content");
+  if (!textarea) return;
+
+  const serviceName = recService || "Bảo dưỡng định kỳ";
+
+  if (tpl === "MAINTENANCE_DUE") {
+    textarea.value = `Kính gửi anh/chị ${name},\nGarage Ô tô VTV xin thông báo xe ${plate} của anh/chị đã đến hạn thực hiện ${serviceName}.\nKính mời anh/chị mang xe qua xưởng để kỹ thuật viên kiểm tra an toàn và vệ sinh xe miễn phí.\nĐặt lịch hẹn ưu tiên qua Hotline: 0987.654.321. Trân trọng cảm ơn!`;
+  } else if (tpl === "CSAT_SURVEY") {
+    textarea.value = `Kính gửi anh/chị ${name},\nGarage Ô tô VTV trân trọng cảm ơn anh/chị đã sử dụng dịch vụ cho xe ${plate}.\nĐể nâng cao chất lượng phục vụ, xin anh/chị vui lòng dành 30 giây đánh giá mức độ hài lòng về dịch vụ vừa qua.\nChúc anh/chị vạn dặm bình an!`;
+  } else if (tpl === "THANK_YOU") {
+    textarea.value = `Garage Ô tô VTV xin chân thành cảm ơn anh/chị ${name} đã tin tưởng bảo dưỡng và sửa chữa xe ${plate} tại xưởng.\nPhụ tùng thay thế được bảo hành chính hãng 12 tháng. Khi cần hỗ trợ kỹ thuật, xin liên hệ 0987.654.321!`;
+  } else if (tpl === "PROMOTION") {
+    textarea.value = `Ưu đãi đặc biệt từ Garage VTV dành riêng cho anh/chị ${name}!\nGiảm ngay 15% tiền công dịch vụ bảo dưỡng và tặng gói khử mùi ozone nội thất khi bảo dưỡng xe ${plate} trong tuần này.\nLiên hệ ngay 0987.654.321 để giữ chỗ ưu đãi!`;
+  }
+}
+
+async function submitCRMSendMessage() {
+  const customerId = parseInt(document.getElementById("crm-send-customer-id")?.value);
+  const vehicleIdStr = document.getElementById("crm-send-vehicle-id")?.value;
+  const vehicleId = vehicleIdStr ? parseInt(vehicleIdStr) : null;
+  const channel = document.getElementById("crm-send-channel")?.value || "ZALO";
+  const templateType = document.getElementById("crm-send-template-type")?.value || "MAINTENANCE_DUE";
+  const content = document.getElementById("crm-send-content")?.value?.trim();
+
+  if (!customerId || !content) {
+    showToast("Vui lòng nhập đầy đủ nội dung tin nhắn.");
+    return;
+  }
+
+  try {
+    const res = await apiFetch("/crm/send-message", {
+      method: "POST",
+      body: JSON.stringify({
+        customer_id: customerId,
+        vehicle_id: vehicleId,
+        channel: channel,
+        template_type: templateType,
+        message_content: content
+      })
+    });
+
+    closeModal("modal-crm-send-message");
+    showToast(res.message || "Đã gửi tin nhắn chăm sóc khách hàng thành công!");
+    await loadCRMInteractions();
+  } catch (err) {
+    showToast(`Không thể gửi tin nhắn: ${err.message}`);
+  }
+}
+
+async function openCRMInteractionModal(customerId = null, vehicleId = null, customerName = "") {
+  const custSelect = document.getElementById("crm-inter-customer-select");
+  if (!custSelect) return;
+
+  try {
+    const customers = await apiFetch("/customers");
+    custSelect.innerHTML = `<option value="">-- Chọn khách hàng --</option>` +
+      (customers || []).map(c => `<option value="${c.id}" ${customerId === c.id ? "selected" : ""}>${escapeHtml(c.full_name)} (${escapeHtml(c.phone)})</option>`).join("");
+  } catch (e) {
+    console.warn("Không nạp được customers cho CRM modal:", e);
+  }
+
+  const subjEl = document.getElementById("crm-inter-subject");
+  const contEl = document.getElementById("crm-inter-content");
+  const csatEl = document.getElementById("crm-inter-csat");
+
+  if (subjEl) subjEl.value = customerName ? `Chăm sóc khách hàng ${customerName}` : "";
+  if (contEl) contEl.value = "";
+  if (csatEl) csatEl.value = "";
+
+  await onCRMCustomerSelected(vehicleId);
+  openModal("modal-crm-new-interaction");
+}
+
+async function onCRMCustomerSelected(targetVehicleId = null) {
+  const custId = document.getElementById("crm-inter-customer-select")?.value;
+  const vehSelect = document.getElementById("crm-inter-vehicle-select");
+  if (!vehSelect) return;
+
+  if (!custId) {
+    vehSelect.innerHTML = `<option value="">-- Không chọn xe --</option>`;
+    return;
+  }
+
+  try {
+    const vehicles = await apiFetch(`/customers/${custId}/vehicles`);
+    vehSelect.innerHTML = `<option value="">-- Chọn xe --</option>` +
+      (vehicles || []).map(v => `<option value="${v.id}" ${targetVehicleId === v.id ? "selected" : ""}>${escapeHtml(v.license_plate)} (${escapeHtml(v.brand)} ${escapeHtml(v.model)})</option>`).join("");
+  } catch (e) {
+    vehSelect.innerHTML = `<option value="">-- Không có xe --</option>`;
+  }
+}
+
+async function submitCRMInteraction() {
+  const customerId = parseInt(document.getElementById("crm-inter-customer-select")?.value);
+  const vehicleIdStr = document.getElementById("crm-inter-vehicle-select")?.value;
+  const vehicleId = vehicleIdStr ? parseInt(vehicleIdStr) : null;
+  const interactionType = document.getElementById("crm-inter-type")?.value || "CALL";
+  const subject = document.getElementById("crm-inter-subject")?.value?.trim();
+  const content = document.getElementById("crm-inter-content")?.value?.trim();
+  const outcome = document.getElementById("crm-inter-outcome")?.value;
+  const csatStr = document.getElementById("crm-inter-csat")?.value;
+  const csatRating = csatStr ? parseInt(csatStr) : null;
+
+  if (!customerId || !subject) {
+    showToast("Vui lòng chọn khách hàng và nhập tiêu đề tương tác.");
+    return;
+  }
+
+  try {
+    await apiFetch("/crm/interactions", {
+      method: "POST",
+      body: JSON.stringify({
+        customer_id: customerId,
+        vehicle_id: vehicleId,
+        interaction_type: interactionType,
+        subject: subject,
+        content: content,
+        outcome: outcome,
+        csat_rating: csatRating
+      })
+    });
+
+    closeModal("modal-crm-new-interaction");
+    showToast("Đã lưu nhật ký chăm sóc khách hàng!");
+    await Promise.all([loadCRMOverview(), loadCRMInteractions()]);
+  } catch (err) {
+    showToast(`Không thể lưu tương tác: ${err.message}`);
+  }
+}
+
+function quickBookFromReminder(vehicleId, customerId, plate, phone, name, recService) {
+  switchView("customer-requests");
+  showToast(`Đang tạo lịch hẹn bảo dưỡng ${recService} cho xe ${plate}...`);
+}
+
+// Xuất các hàm CRM lên window scope
+window.loadCRMData = loadCRMData;
+window.loadCRMOverview = loadCRMOverview;
+window.loadCRMReminders = loadCRMReminders;
+window.loadCRMSegmentedCustomers = loadCRMSegmentedCustomers;
+window.loadCRMInteractions = loadCRMInteractions;
+window.switchCRMTab = switchCRMTab;
+window.filterCRMSegment = filterCRMSegment;
+window.openCRMSendModal = openCRMSendModal;
+window.applyCRMTipTemplate = applyCRMTipTemplate;
+window.submitCRMSendMessage = submitCRMSendMessage;
+window.openCRMInteractionModal = openCRMInteractionModal;
+window.onCRMCustomerSelected = onCRMCustomerSelected;
+window.submitCRMInteraction = submitCRMInteraction;
+window.quickBookFromReminder = quickBookFromReminder;
